@@ -13,6 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ToursModule } from './modules/tours/tours.module';
 import { TourDatesModule } from './modules/tour-dates/tour-dates.module';
+import { WishlistModule } from './modules/wishlist/wishlist.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { TourDatesModule } from './modules/tour-dates/tour-dates.module';
     UsersModule,
     ToursModule,
     TourDatesModule,
+    WishlistModule,
   ],
   controllers: [AppController],
   providers: [
