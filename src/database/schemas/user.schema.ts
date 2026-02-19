@@ -48,26 +48,29 @@ export class User {
     @Prop({ enum: ['customer', 'admin'], default: 'customer' })
     role: string;
 
-    @Prop({ default: false })
+    @Prop({ default: true })
     isVerified: boolean;
 
     @Prop({ default: false })
     isBlocked: boolean;
 
     @Prop()
-    otp: string;
+    otp?: string;
 
     @Prop()
-    otpExpiry: Date;
+    otpExpiry?: Date;
 
     @Prop()
-    resetToken: string;
+    resetToken?: string;
 
     @Prop()
-    resetTokenExpiry: Date;
+    resetTokenExpiry?: Date;
 
     @Prop()
     lastLogin: Date;
+
+    @Prop()
+    refreshTokenHash?: string;
 
     @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Tour' }] })
     wishlist: MongooseSchema.Types.ObjectId[];

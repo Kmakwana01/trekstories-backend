@@ -1,0 +1,302 @@
+import {
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
+import { MailerService } from '@nestjs-modules/mailer';
+import { User, UserDocument } from '../../database/schemas/user.schema';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Role } from '../../common/enums/roles.enum';
+
+@Injectable()
+export class AuthService {
+    constructor(
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
+        private jwtService: JwtService,
+        private mailerService: MailerService,
+        private configService: ConfigService,
+    ) { }
+
+    async register(registerDto: RegisterDto) {
+        const { email, phone, password } = registerDto;
+
+        const existingUser = await this.userModel.findOne({
+            $or: [{ email }, { phone }],
+        });
+
+        if (existingUser)
+        {
+            throw new ConflictException('Email or phone already exists');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        const user = new this.userModel({
+            ...registerDto,
+            passwordHash,
+            isVerified: true,
+        });
+
+        await user.save();
+
+        const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
+        await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
+
+        return {
+            message: 'Registration successful',
+            ...tokens,
+            user: this.sanitizeUser(user),
+        };
+    }
+
+    async login(loginDto: LoginDto) {
+        const { identifier, password } = loginDto;
+
+        const user = await this.userModel.findOne({
+            $or: [{ email: identifier }, { phone: identifier }],
+        });
+
+        if (!user)
+        {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (user.isBlocked)
+        {
+            throw new ForbiddenException('Account is blocked');
+        }
+
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch)
+        {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        user.lastLogin = new Date();
+        await user.save();
+
+        const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
+        await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
+
+        return {
+            message: 'Login successful',
+            ...tokens,
+            user: this.sanitizeUser(user),
+        };
+    }
+
+    async refreshTokens(userId: string, refreshToken: string) {
+        const user = await this.userModel.findById(userId);
+        if (!user || !user.refreshTokenHash)
+        {
+            throw new ForbiddenException('Access Denied');
+        }
+
+        const refreshTokenMatches = await bcrypt.compare(
+            refreshToken,
+            user.refreshTokenHash,
+        );
+        if (!refreshTokenMatches)
+        {
+            throw new ForbiddenException('Access Denied');
+        }
+
+        const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
+        await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
+
+        return tokens;
+    }
+
+    async logout(userId: string) {
+        await this.userModel.findByIdAndUpdate(userId, {
+            refreshTokenHash: null,
+        });
+        return { message: 'Logged out successfully' };
+    }
+
+    async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+        const { email } = forgotPasswordDto;
+        const user = await this.userModel.findOne({ email });
+
+        if (!user)
+        {
+            return { message: 'If account exists, reset email sent' };
+        }
+
+        const resetToken = crypto.randomUUID();
+        const hashToken = crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+
+        user.resetToken = hashToken;
+        user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+        await user.save();
+
+        await this.sendEmail(
+            user.email,
+            'Password Reset',
+            `Your password reset token is: ${resetToken}`,
+        );
+
+        return { message: 'If account exists, reset email sent' };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const { token, newPassword } = resetPasswordDto;
+        const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        const user = await this.userModel.findOne({
+            resetToken: hashToken,
+            resetTokenExpiry: { $gt: new Date() },
+        });
+
+        if (!user)
+        {
+            throw new BadRequestException('Invalid or expired token');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.passwordHash = await bcrypt.hash(newPassword, salt);
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+        await user.save();
+
+        return { message: 'Password updated successfully' };
+    }
+
+    async adminLogin(loginDto: LoginDto) {
+        const { identifier, password } = loginDto;
+        const user = await this.userModel.findOne({ email: identifier });
+
+        if (!user || user.role !== Role.ADMIN)
+        {
+            throw new UnauthorizedException('Invalid admin credentials');
+        }
+
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch)
+        {
+            throw new UnauthorizedException('Invalid admin credentials');
+        }
+
+        const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
+        await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
+
+        return {
+            ...tokens,
+            user: this.sanitizeUser(user),
+        };
+    }
+
+    async getMe(userId: string) {
+        const user = await this.userModel.findById(userId);
+        if (!user)
+        {
+            throw new UnauthorizedException('User not found');
+        }
+        return this.sanitizeUser(user);
+    }
+
+    private async getTokens(userId: string, email: string, role: string) {
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(
+                { sub: userId, email, role },
+                {
+                    secret: this.configService.get<string>('jwt.secret'),
+                    expiresIn: (this.configService.get<string>('jwt.expiresIn') || '15m') as any,
+                },
+            ),
+            this.jwtService.signAsync(
+                { sub: userId, email, role },
+                {
+                    secret: this.configService.get<string>('jwt.refreshSecret') || this.configService.get<string>('jwt.secret'),
+                    expiresIn: (this.configService.get<string>('jwt.refreshExpiresIn') || '7d') as any,
+                },
+            ),
+        ]);
+
+        return { accessToken, refreshToken };
+    }
+
+    private async updateRefreshTokenHash(userId: string, refreshToken: string) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(refreshToken, salt);
+        await this.userModel.findByIdAndUpdate(userId, {
+            refreshTokenHash: hash,
+        });
+    }
+
+    private sanitizeUser(user: UserDocument) {
+        const obj = user.toObject();
+        delete obj.passwordHash;
+        delete obj.refreshTokenHash;
+        delete obj.otp;
+        delete obj.otpExpiry;
+        delete obj.resetToken;
+        delete obj.resetTokenExpiry;
+        return obj;
+    }
+
+    async googleLogin(req) {
+        if (!req.user)
+        {
+            throw new BadRequestException('No user from google');
+        }
+
+        const { email, firstName, lastName } = req.user;
+        let user = await this.userModel.findOne({ email });
+
+        if (!user)
+        {
+            const password = Math.random().toString(36).slice(-8);
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(password, salt);
+
+            user = new this.userModel({
+                name: `${firstName} ${lastName}`,
+                email,
+                passwordHash,
+                isVerified: true,
+                role: Role.CUSTOMER,
+            });
+
+            await user.save();
+        }
+
+        const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
+        await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
+
+        return {
+            message: 'User information from google',
+            user: this.sanitizeUser(user),
+            ...tokens,
+        };
+    }
+
+    private async sendEmail(to: string, subject: string, text: string) {
+        try
+        {
+            await this.mailerService.sendMail({
+                to,
+                subject,
+                text,
+            });
+        } catch (e)
+        {
+            console.error('Email send failed:', e);
+        }
+    }
+}
