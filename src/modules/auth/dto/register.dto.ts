@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsOptional, IsEnum, IsDateString } from 'class-validator';
 
 export class RegisterDto {
     @IsNotEmpty()
@@ -18,4 +18,12 @@ export class RegisterDto {
     @IsString()
     @MinLength(8, { message: 'Password must be at least 8 characters long' })
     password: string;
+
+    @IsEnum(['male', 'female', 'other'], { message: 'Gender must be male, female, or other' })
+    @IsOptional()
+    gender?: string;
+
+    @IsDateString({}, { message: 'dateOfBirth must be a valid ISO date' })
+    @IsOptional()
+    dateOfBirth?: string;
 }

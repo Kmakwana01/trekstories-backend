@@ -41,11 +41,15 @@ describe('AuthController (e2e)', () => {
                 email: testEmail,
                 phone: `+919${Date.now().toString().slice(-9)}`,
                 password: 'password123',
+                gender: 'male',
+                dateOfBirth: '2026-02-19T10:20:03.452Z',
             })
             .expect(201);
 
         expect(response.body.message).toContain('Registration successful');
         expect(response.body.data).toHaveProperty('accessToken');
+        expect(response.body.data.user.gender).toBe('male');
+        expect(response.body.data.user.dateOfBirth).toBeDefined();
     });
 
     let accessToken: string;

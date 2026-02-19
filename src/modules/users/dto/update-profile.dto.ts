@@ -1,21 +1,22 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, IsDateString, IsNotEmpty, Matches } from 'class-validator';
 
 export class UpdateProfileDto {
     @IsString()
     @IsOptional()
     name?: string;
 
-    @IsString()
     @IsOptional()
-    phone?: string;
+    @IsString()
+    @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'Phone number must be valid international format' })
+    phone: string;
 
-    @IsEnum(['male', 'female', 'other'])
+    @IsEnum(['male', 'female', 'other'], { message: 'Gender must be male, female, or other' })
     @IsOptional()
     gender?: string;
 
-    @IsDateString()
+    @IsDateString({}, { message: 'dateOfBirth must be a valid ISO date' })
     @IsOptional()
-    dateOfBirth?: Date;
+    dateOfBirth?: string;
 
     @IsString()
     @IsOptional()

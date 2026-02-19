@@ -1,8 +1,30 @@
-export interface PaginationQuery {
-    page?: number;
-    limit?: number;
+import { IsOptional, IsInt, Min, Max, IsString, IsIn } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class PaginationQuery {
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    page?: number = 1;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    @Max(100)
+    limit?: number = 10;
+
+    @IsOptional()
+    @IsString()
     sort?: string;
-    order?: 'asc' | 'desc';
+
+    @IsOptional()
+    @IsIn(['asc', 'desc'])
+    order?: 'asc' | 'desc' = 'asc';
+
+    @IsOptional()
+    @IsString()
     search?: string;
 }
 
