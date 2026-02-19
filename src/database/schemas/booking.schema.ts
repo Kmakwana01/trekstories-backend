@@ -63,6 +63,12 @@ export class Booking {
     totalAmount: number;
 
     @Prop({ default: 0 })
+    taxAmount: number;
+
+    @Prop()
+    perPersonPrice: number;
+
+    @Prop({ default: 0 })
     paidAmount: number;
 
     @Prop()
@@ -81,7 +87,19 @@ export class Booking {
     additionalRequests: string;
 
     @Prop()
+    transactionId: string;
+
+    @Prop()
+    receiptImage: string;
+
+    @Prop()
+    paymentVerifiedAt: Date;
+
+    @Prop()
     internalNotes: string;
+
+    @Prop()
+    pricingSummary: string;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

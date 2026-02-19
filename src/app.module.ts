@@ -38,6 +38,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
     ToursModule,
     TourDatesModule,
     WishlistModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
