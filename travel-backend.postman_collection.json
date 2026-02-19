@@ -542,9 +542,460 @@
             ]
         },
         {
-            "name": "Tours (Planned)",
-            "description": "Tour management endpoints (Create, List, Search)",
-            "item": []
+            "name": "Tours",
+            "description": "Tour management endpoints (Public)",
+            "item": [
+                {
+                    "name": "List Tours (Search & Filter)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/tours?page=1&limit=10&state=Himachal&priceMin=1000&priceMax=50000",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tours"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "state",
+                                    "value": "Himachal"
+                                },
+                                {
+                                    "key": "priceMin",
+                                    "value": "1000"
+                                },
+                                {
+                                    "key": "priceMax",
+                                    "value": "50000"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Filter Options",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/tours/filter-options",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tours",
+                                "filter-options"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Tour by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/tours/e2e-himalayan-trek",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tours",
+                                "e2e-himalayan-trek"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Tours",
+            "item": [
+                {
+                    "name": "Create Detailed Tour",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"tourId\", jsonData.data._id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Swiss Alps Luxury Expedition\",\n    \"description\": \"A 10-day luxury trek through the heart of the Swiss Alps.\",\n    \"basePrice\": 125000,\n    \"category\": \"Luxury\",\n    \"location\": \"Zermatt\",\n    \"state\": \"Valais\",\n    \"country\": \"Switzerland\",\n    \"minAge\": 12,\n    \"maxAge\": 70,\n    \"highlights\": [\n        \"Glacier Express Ride\",\n        \"Matterhorn Base Camp\",\n        \"Luxury Spa Resorts\"\n    ],\n    \"departureOptions\": [\n        {\n            \"fromCity\": \"Zurich\",\n            \"toCity\": \"Zermatt\",\n            \"type\": \"TRAIN\",\n            \"departureTimeAndPlace\": \"08:00 AM, Zurich HB\",\n            \"totalDays\": 10,\n            \"totalNights\": 9,\n            \"priceAdjustment\": 0\n        },\n        {\n            \"fromCity\": \"Geneva\",\n            \"toCity\": \"Zermatt\",\n            \"type\": \"TRAIN\",\n            \"departureTimeAndPlace\": \"09:00 AM, Geneva Airport\",\n            \"totalDays\": 10,\n            \"totalNights\": 9,\n            \"priceAdjustment\": 5000\n        }\n    ],\n    \"itinerary\": [\n        {\n            \"dayNumber\": 1,\n            \"title\": \"Arrival in Zermatt\",\n            \"points\": [\n                {\n                    \"text\": \"Welcome meet and Greet\",\n                    \"subPoints\": [\n                        \"Transfer to 5-star hotel\",\n                        \"Briefing session\"\n                    ]\n                }\n            ]\n        },\n        {\n            \"dayNumber\": 2,\n            \"title\": \"Matterhorn Glacier Paradise\",\n            \"points\": [\n                {\n                    \"text\": \"Cable car ride to 3883m\",\n                    \"subPoints\": [\n                        \"Visit Glacier Palace\",\n                        \"Lunch at Peak Restaurant\"\n                    ]\n                }\n            ]\n        }\n    ],\n    \"inclusions\": [\n        \"All meals\",\n        \"5-star accommodation\",\n        \"Professional guides\"\n    ],\n    \"exclusions\": [\n        \"International flights\",\n        \"Personal insurance\"\n    ],\n    \"faqs\": [\n        {\n            \"question\": \"Is insurance mandatory?\",\n            \"answer\": \"Yes, full travel insurance is required.\"\n        }\n    ],\n    \"isActive\": true,\n    \"isFeatured\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Upload Tour Images",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "images",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours/{{tourId}}/images",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours",
+                                "{{tourId}}",
+                                "images"
+                            ]
+                        },
+                        "description": "Select multiple image files in the 'images' key."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Tour Partial",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"basePrice\": 130000\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours/{{tourId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours",
+                                "{{tourId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Toggle Featured",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours/{{tourId}}/featured",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours",
+                                "{{tourId}}",
+                                "featured"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Toggle Active Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours/{{tourId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours",
+                                "{{tourId}}",
+                                "status"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Tour (Soft)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tours/{{tourId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tours",
+                                "{{tourId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Tour Dates",
+            "item": [
+                {
+                    "name": "Get Upcoming Dates",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/tour-dates/{{tourId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tour-dates",
+                                "{{tourId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Admin Get All Dates",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tour-dates/{{tourId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tour-dates",
+                                "{{tourId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Admin Create Date",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"tour\": \"{{tourId}}\",\n    \"startDate\": \"2026-05-01\",\n    \"endDate\": \"2026-05-10\",\n    \"totalSeats\": 30,\n    \"priceOverride\": 1200,\n    \"departureNote\": \"Meeting at HQ at 8 AM\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tour-dates",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tour-dates"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Admin Update Date",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"totalSeats\": 40\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tour-dates/{{tourDateId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tour-dates",
+                                "{{tourDateId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Admin Update Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"full\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tour-dates/{{tourDateId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tour-dates",
+                                "{{tourDateId}}",
+                                "status"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Admin Delete Date",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminAccessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/tour-dates/{{tourDateId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "tour-dates",
+                                "{{tourDateId}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
         },
         {
             "name": "Bookings (Planned)",

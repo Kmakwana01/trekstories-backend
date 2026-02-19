@@ -29,7 +29,7 @@ export class PaginationQuery {
 }
 
 export interface PaginationResult<T> {
-    data: T[];
+    items: T[];
     total: number;
     page: number;
     limit: number;
@@ -50,7 +50,7 @@ export const paginate = async <T>(
     const sortOrder = options.order === 'desc' ? -1 : 1;
     const sortField = options.sort || 'createdAt';
 
-    const [data, total] = await Promise.all([
+    const [items, total] = await Promise.all([
         model
             .find(filter)
             .sort({ [sortField]: sortOrder })
@@ -63,7 +63,7 @@ export const paginate = async <T>(
     const totalPages = Math.ceil(total / limit);
 
     return {
-        data,
+        items,
         total,
         page,
         limit,
