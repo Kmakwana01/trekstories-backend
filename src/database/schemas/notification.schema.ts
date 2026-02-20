@@ -10,6 +10,7 @@ export class Notification {
 
     @Prop({
         enum: [
+            'booking_created',
             'booking_confirmed',
             'booking_cancelled',
             'payment_success',

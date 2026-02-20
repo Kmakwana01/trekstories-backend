@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { BookingsService } from './bookings.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { NotificationsService } from '../notifications/notifications.service';
+
 import { Booking } from '../../database/schemas/booking.schema';
 import { Tour } from '../../database/schemas/tour.schema';
 import { TourDate } from '../../database/schemas/tour-date.schema';
@@ -56,13 +58,31 @@ describe('BookingsService', () => {
             ...this,
             toObject: jest.fn().mockReturnThis()
         }));
-        static find = jest.fn().mockReturnThis();
-        static findOne = jest.fn().mockReturnThis();
-        static findById = jest.fn().mockReturnThis();
-        static findByIdAndUpdate = jest.fn().mockReturnThis();
-        static updateOne = jest.fn().mockReturnThis();
+
+        static populate = jest.fn().mockReturnThis();
         static exec = jest.fn();
-        static sort = jest.fn();
+        static sort = jest.fn().mockReturnThis();
+
+        static find = jest.fn().mockReturnValue({
+            populate: MockBookingModel.populate,
+            sort: MockBookingModel.sort,
+            exec: MockBookingModel.exec
+        });
+        static findOne = jest.fn().mockReturnValue({
+            populate: MockBookingModel.populate,
+            exec: MockBookingModel.exec
+        });
+        static findById = jest.fn().mockReturnValue({
+            populate: MockBookingModel.populate,
+            exec: MockBookingModel.exec
+        });
+        static findByIdAndUpdate = jest.fn().mockReturnValue({
+            populate: MockBookingModel.populate,
+            exec: MockBookingModel.exec
+        });
+        static updateOne = jest.fn().mockReturnValue({
+            exec: MockBookingModel.exec
+        });
     }
 
     beforeEach(async () => {
@@ -88,7 +108,16 @@ describe('BookingsService', () => {
                     provide: CouponsService,
                     useValue: mockCouponsService,
                 },
+                {
+                    provide: NotificationsService,
+                    useValue: {
+                        createNotification: jest.fn().mockResolvedValue({}),
+                        sendEmail: jest.fn().mockResolvedValue(true),
+                        sendWhatsApp: jest.fn().mockResolvedValue(true),
+                    },
+                },
             ],
+
         }).compile();
 
         service = module.get<BookingsService>(BookingsService);

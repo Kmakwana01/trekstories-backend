@@ -11,7 +11,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { MailerService } from '@nestjs-modules/mailer';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User, UserDocument } from '../../database/schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -24,7 +24,7 @@ export class AuthService {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private jwtService: JwtService,
-        private mailerService: MailerService,
+        private notificationsService: NotificationsService,
         private configService: ConfigService,
     ) { }
 
@@ -145,10 +145,11 @@ export class AuthService {
         user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
         await user.save();
 
-        await this.sendEmail(
+        await this.notificationsService.sendEmail(
             user.email,
             'Password Reset',
-            `Your password reset token is: ${resetToken}`,
+            'otp',
+            { otp: resetToken, name: user.name },
         );
 
         return { message: 'If account exists, reset email sent' };
@@ -284,19 +285,5 @@ export class AuthService {
             user: this.sanitizeUser(user),
             ...tokens,
         };
-    }
-
-    private async sendEmail(to: string, subject: string, text: string) {
-        try
-        {
-            await this.mailerService.sendMail({
-                to,
-                subject,
-                text,
-            });
-        } catch (e)
-        {
-            console.error('Email send failed:', e);
-        }
     }
 }

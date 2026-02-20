@@ -9,6 +9,7 @@ import { PreviewBookingDto } from './dto/preview-booking.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { generateBookingNumber } from '../../common/helpers/booking-number.helper';
 import { CouponsService } from '../coupons/coupons.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class BookingsService {
@@ -17,6 +18,7 @@ export class BookingsService {
         @InjectModel(Tour.name) private tourModel: Model<TourDocument>,
         @InjectModel(TourDate.name) private tourDateModel: Model<TourDateDocument>,
         private readonly couponsService: CouponsService,
+        private readonly notificationsService: NotificationsService,
     ) { }
 
     async previewBooking(dto: PreviewBookingDto) {
@@ -151,6 +153,22 @@ export class BookingsService {
         }
 
         const savedBooking = await booking.save();
+
+        // Fire 'Booking Created' notification
+        try
+        {
+            await this.notificationsService.createNotification(
+                userId,
+                'booking_created', // Correct enum for initial pending bookings
+                'Booking Created',
+                `Your booking #${savedBooking.bookingNumber} has been created successfully!`,
+                { bookingId: savedBooking._id }
+            );
+        } catch (err)
+        {
+            console.error('Failed to create notification for booking:', err);
+        }
+
         return savedBooking.toObject();
     }
 
@@ -233,14 +251,47 @@ export class BookingsService {
         }).exec();
 
         booking.status = 'confirmed';
-        return booking.save();
+        const savedBooking = await booking.save();
+        const populatedBooking = await this.bookingModel.findById(booking._id).populate('user').populate('tour');
+
+        // Notify user of manual confirmation
+        if (populatedBooking && populatedBooking.user)
+        {
+            try
+            {
+                await this.notificationsService.createNotification(
+                    (populatedBooking.user as any)._id.toString(),
+                    'booking_confirmed',
+                    'Booking Confirmed',
+                    `Your booking #${populatedBooking.bookingNumber} has been confirmed!`,
+                    { bookingId: populatedBooking._id }
+                );
+
+                await this.notificationsService.sendEmail(
+                    (populatedBooking.user as any).email,
+                    'Booking Confirmed',
+                    'booking_confirmed',
+                    {
+                        name: (populatedBooking.user as any).name,
+                        bookingNumber: populatedBooking.bookingNumber,
+                        tourTitle: (populatedBooking.tour as any).title,
+                        amount: populatedBooking.totalAmount
+                    }
+                );
+            } catch (err)
+            {
+                console.error('Failed to dispatch confirm notification:', err);
+            }
+        }
+
+        return savedBooking;
     }
 
     async cancelBooking(id: string, userId?: string) {
         const query: any = { _id: id };
         if (userId) query.user = userId;
 
-        const booking = await this.bookingModel.findOne(query).exec();
+        const booking = await this.bookingModel.findOne(query).populate('user').populate('tour').exec();
         if (!booking) throw new NotFoundException('Booking not found');
 
         if (booking.status === 'cancelled') return booking;
@@ -261,6 +312,33 @@ export class BookingsService {
             await this.couponsService.releaseCoupon(booking.couponCode);
         }
 
-        return booking.save();
+        const savedBooking = await booking.save();
+
+        try
+        {
+            await this.notificationsService.createNotification(
+                (booking.user as any)._id.toString(),
+                'booking_cancelled',
+                'Booking Cancelled',
+                `Your booking #${booking.bookingNumber} has been cancelled successfully.`,
+                { bookingId: booking._id }
+            );
+
+            // Assuming a general template fallback if booking_cancelled.hbs is absent
+            await this.notificationsService.sendEmail(
+                (booking.user as any).email,
+                'Booking Cancelled',
+                'general',
+                {
+                    name: (booking.user as any).name,
+                    body: `Your booking #${booking.bookingNumber} for ${(booking.tour as any).title} has been cancelled.`
+                }
+            );
+        } catch (err)
+        {
+            console.error('Failed to dispatch cancel notification:', err);
+        }
+
+        return savedBooking;
     }
 }

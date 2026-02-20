@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Payment, PaymentDocument } from '../../database/schemas/payment.schema';
 import { BookingsService } from '../bookings/bookings.service';
 import { TransactionsService } from '../transactions/transactions.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PaymentsService {
@@ -11,6 +12,7 @@ export class PaymentsService {
         @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
         private bookingsService: BookingsService,
         private transactionsService: TransactionsService,
+        private notificationsService: NotificationsService,
     ) { }
 
     async submitPaymentProof(userId: string, dto: any) {
@@ -21,7 +23,8 @@ export class PaymentsService {
         if (booking.status !== 'pending') throw new BadRequestException('Booking is not pending');
 
         // Check if payment already exists for this transaction ID
-        const existing = await this.paymentModel.findOne({ transactionId });
+        const existing = await this.paymentModel.findOne({ transactionId }).exec();
+
         if (existing) throw new ConflictException('Transaction ID already used');
 
         const payment = new this.paymentModel({
@@ -61,7 +64,8 @@ export class PaymentsService {
     }
 
     async approvePayment(paymentId: string, adminId: string) {
-        const payment = await this.paymentModel.findById(paymentId);
+        const payment = await this.paymentModel.findById(paymentId).exec();
+
         if (!payment) throw new NotFoundException('Payment not found');
         if (payment.status !== 'under_review') throw new BadRequestException('Payment not under review');
 
@@ -90,11 +94,37 @@ export class PaymentsService {
             description: 'Online payment approved'
         });
 
+        // Send notification
+        const booking = await this.bookingsService.getBookingById(payment.booking.toString());
+        await this.notificationsService.createNotification(
+            payment.user.toString(),
+            'payment_success',
+            'Payment Approved',
+            `Your payment for booking ${booking.bookingNumber} has been approved. Your booking is now confirmed!`,
+            { bookingId: payment.booking, paymentId: payment._id }
+        );
+
+        await this.notificationsService.sendEmail(
+            (booking.user as any).email,
+            'Payment Approved',
+            'payment_approved',
+            {
+                name: (booking.user as any).name,
+                bookingNumber: booking.bookingNumber,
+                tourTitle: (booking.tour as any).title,
+                amount: payment.amount
+            }
+        );
+
         return payment;
     }
 
     async rejectPayment(paymentId: string, adminId: string, reason: string) {
-        const payment = await this.paymentModel.findById(paymentId);
+        const payment = await this.paymentModel.findById(paymentId)
+            .populate('user')
+            .populate({ path: 'booking', populate: { path: 'tour' } })
+            .exec();
+
         if (!payment) throw new NotFoundException('Payment not found');
 
         payment.status = 'rejected';
@@ -102,7 +132,36 @@ export class PaymentsService {
         payment.verifiedAt = new Date();
         payment.rejectionReason = reason;
 
-        return payment.save();
+        const savedPayment = await payment.save();
+
+        try
+        {
+            await this.notificationsService.createNotification(
+                (payment.user as any)._id.toString(),
+                'payment_failed',
+                'Payment Rejected',
+                `Your payment for booking ${(payment.booking as any).bookingNumber} was rejected. Reason: ${reason}`,
+                { bookingId: payment.booking, paymentId: payment._id }
+            );
+
+            await this.notificationsService.sendEmail(
+                (payment.user as any).email,
+                'Payment Rejected',
+                'payment_rejected',
+                {
+                    name: (payment.user as any).name,
+                    bookingNumber: (payment.booking as any).bookingNumber,
+                    tourTitle: ((payment.booking as any).tour as any).title,
+                    amount: payment.amount,
+                    reason: reason
+                }
+            );
+        } catch (err)
+        {
+            console.error('Failed to dispatch payment rejection notification:', err);
+        }
+
+        return savedPayment;
     }
 
     async recordOfflinePayment(adminId: string, dto: any) {
@@ -163,6 +222,42 @@ export class PaymentsService {
             description: `Offline payment recorded (${notes || ''})`
         });
 
-        return payment;
+        const savedPayment = await payment.save();
+        const populatedPayment = await this.paymentModel.findById(payment._id)
+            .populate('user')
+            .populate({ path: 'booking', populate: { path: 'tour' } })
+            .exec();
+
+        // Send Notification
+        if (populatedPayment && populatedPayment.user)
+        {
+            try
+            {
+                await this.notificationsService.createNotification(
+                    (populatedPayment.user as any)._id.toString(),
+                    'payment_success',
+                    'Offline Payment Received',
+                    `We have successfully received your offline payment of ${amount} for booking ${(populatedPayment.booking as any).bookingNumber}.`,
+                    { bookingId: populatedPayment.booking, paymentId: populatedPayment._id }
+                );
+
+                await this.notificationsService.sendEmail(
+                    (populatedPayment.user as any).email,
+                    'Offline Payment Received',
+                    'payment_approved', // Reusing the same success template
+                    {
+                        name: (populatedPayment.user as any).name,
+                        bookingNumber: (populatedPayment.booking as any).bookingNumber,
+                        tourTitle: ((populatedPayment.booking as any).tour as any).title,
+                        amount: populatedPayment.amount
+                    }
+                );
+            } catch (err)
+            {
+                console.error('Failed to dispatch offline payment notification:', err);
+            }
+        }
+
+        return savedPayment;
     }
 }

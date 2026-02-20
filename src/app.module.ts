@@ -3,9 +3,13 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { BullModule } from '@nestjs/bull';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -19,6 +23,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -48,6 +53,40 @@ import { CouponsModule } from './modules/coupons/coupons.module';
     BlogsModule,
     ReviewsModule,
     CouponsModule,
+    NotificationsModule,
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        redis: {
+          host: config.get('redis.host'),
+          port: config.get('redis.port'),
+        },
+      }),
+    }),
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        transport: {
+          host: config.get('mail.host'),
+          port: config.get('mail.port'),
+          secure: config.get('mail.secure'),
+          auth: {
+            user: config.get('mail.user'),
+            pass: config.get('mail.pass'),
+          },
+        },
+        defaults: {
+          from: '"Travel App" <noreply@travelapp.com>',
+        },
+        template: {
+          dir: join(__dirname, 'modules/notifications/templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [

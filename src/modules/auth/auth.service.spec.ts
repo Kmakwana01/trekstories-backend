@@ -4,6 +4,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { NotificationsService } from '../notifications/notifications.service';
+
 import { User } from '../../database/schemas/user.schema';
 import {
     BadRequestException,
@@ -81,7 +83,16 @@ describe('AuthService', () => {
                         }),
                     },
                 },
+                {
+                    provide: NotificationsService,
+                    useValue: {
+                        sendEmail: jest.fn().mockResolvedValue(true),
+                        sendWhatsApp: jest.fn().mockResolvedValue(true),
+                        createNotification: jest.fn().mockResolvedValue({}),
+                    },
+                },
             ],
+
         }).compile();
 
         service = module.get<AuthService>(AuthService);
