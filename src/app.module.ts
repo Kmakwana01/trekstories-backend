@@ -15,6 +15,8 @@ import { ToursModule } from './modules/tours/tours.module';
 import { TourDatesModule } from './modules/tour-dates/tour-dates.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { BookingsModule } from './modules/bookings/bookings.module';
     TourDatesModule,
     WishlistModule,
     BookingsModule,
+    TransactionsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
