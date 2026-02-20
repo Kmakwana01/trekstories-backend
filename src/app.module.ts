@@ -25,6 +25,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { HomeModule } from './modules/home/home.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 
@@ -58,6 +59,7 @@ import * as redisStore from 'cache-manager-ioredis';
     CouponsModule,
     NotificationsModule,
     HomeModule,
+    AdminModule,
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],

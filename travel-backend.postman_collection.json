@@ -2524,6 +2524,136 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "Admin Dashboard & CRM",
+            "item": [
+                {
+                    "name": "Dashboard",
+                    "item": [
+                        {
+                            "name": "Get Summary",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/dashboard/summary"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Revenue Chart",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/dashboard/revenue-chart?period=monthly",
+                                    "query": [
+                                        {
+                                            "key": "period",
+                                            "value": "monthly"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "CRM (Users)",
+                    "item": [
+                        {
+                            "name": "List Users",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/users"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Block User",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"reason\": \"Policy violation\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/users/<userId>/block"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Reports",
+                    "item": [
+                        {
+                            "name": "Revenue CSV",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reports/revenue/csv"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Audit Logs",
+                    "item": [
+                        {
+                            "name": "Get Logs",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/logs"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "variable": [
