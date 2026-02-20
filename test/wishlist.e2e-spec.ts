@@ -1,59 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import supertest from 'supertest';
-import { AppModule } from '../src/app.module';
-import { getModelToken } from '@nestjs/mongoose';
-import { Tour } from '../src/database/schemas/tour.schema';
-import { User } from '../src/database/schemas/user.schema';
-import { Role } from '../src/common/enums/roles.enum';
-import * as bcrypt from 'bcryptjs';
-import { JwtService } from '@nestjs/jwt';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
+import { Connection } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('Wishlist (e2e)', () => {
     let app: INestApplication;
-    let tourModel: any;
-    let userModel: any;
-    let jwtService: JwtService;
-
+    let connection: Connection;
     let customerToken: string;
     let testTourId: string;
 
+    let context: E2EContext;
+
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        customerToken = context.customerToken;
 
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
+        await clearTestData(connection);
 
-        tourModel = app.get(getModelToken(Tour.name));
-        userModel = app.get(getModelToken(User.name));
-        jwtService = app.get(JwtService);
+        // Reset persistent user wishlist
+        await connection.collection('users').updateOne(
+            { email: 'customer@e2e.com' },
+            { $set: { wishlist: [] } }
+        );
 
-        // Setup test data
-        await userModel.deleteMany({});
-        await tourModel.deleteMany({});
-
-        const salt = await bcrypt.genSalt(10);
-        const pass = await bcrypt.hash('password123', salt);
-
-        const customer = await userModel.create({
-            name: 'Customer',
-            email: 'user@wishlist.com',
-            passwordHash: pass,
-            role: Role.CUSTOMER,
-            isVerified: true,
-        });
-
-        customerToken = jwtService.sign({ sub: customer._id, email: customer.email, role: customer.role });
-
-        const tour = await tourModel.create({
+        const tour = await connection.collection('tours').insertOne({
             title: 'Wishlist Tour',
             slug: 'wishlist-tour',
             basePrice: 1000,
@@ -63,7 +36,7 @@ describe('Wishlist (e2e)', () => {
             country: 'India',
             isActive: true,
         });
-        testTourId = tour._id.toString();
+        testTourId = tour.insertedId.toString();
     });
 
     afterAll(async () => {

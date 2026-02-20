@@ -1,77 +1,41 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import supertest from 'supertest';
-import { AppModule } from '../src/app.module';
-import { getConnectionToken } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 import * as path from 'path';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 
 describe('PaymentsController (e2e)', () => {
     let app: INestApplication;
     let dbConnection: Connection;
     let accessToken: string;
     let adminToken: string;
-    let userId: string;
     let tourId: string;
     let tourDateId: string;
     let bookingId: string;
     let paymentId: string;
 
+    let context: E2EContext;
+
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-
-        await app.init();
-        dbConnection = app.get(getConnectionToken());
-
-        // Clean db
-        await dbConnection.collection('users').deleteMany({});
-        await dbConnection.collection('tours').deleteMany({});
-        await dbConnection.collection('tourdates').deleteMany({});
-        await dbConnection.collection('bookings').deleteMany({});
-        await dbConnection.collection('payments').deleteMany({});
-        await dbConnection.collection('transactions').deleteMany({});
-
-        // Create user
-        const userRes = await supertest(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({ name: 'Payment User', email: 'payment@test.com', password: 'password123', phone: '9876543210' });
-        userId = userRes.body.data.user.id;
-        accessToken = userRes.body.data.accessToken;
-
-        // Create admin
-        const adminReg = await supertest(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({ name: 'Admin User', email: 'admin@test.com', password: 'password123', phone: '1234567890' });
-        if (!adminReg.body.data) throw new Error(`Admin reg failed: ${JSON.stringify(adminReg.body)}`);
-
-        await dbConnection.collection('users').updateOne({ email: 'admin@test.com' }, { $set: { role: 'admin' } });
-
-        const adminLogin = await supertest(app.getHttpServer())
-            .post('/api/auth/login')
-            .send({ identifier: 'admin@test.com', password: 'password123' });
-        if (!adminLogin.body.data) throw new Error(`Admin login failed: ${JSON.stringify(adminLogin.body)}`);
-
-        adminToken = adminLogin.body.data.accessToken;
+        context = await setupE2E();
+        app = context.app;
+        dbConnection = context.connection;
+        accessToken = context.customerToken;
+        adminToken = context.adminToken;
 
         // Create Tour & Date
         const tourRes = await supertest(app.getHttpServer())
             .post('/api/admin/tours')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                title: 'Payment Tour', slug: 'payment-tour', description: 'Desc',
-                basePrice: 1000, duration: 2, minAge: 5, maxAge: 90, category: 'adventure',
-                location: 'Loc', state: 'State', country: 'Country',
-                images: [], requirements: [], highlights: [], itinerary: [], inclusions: [], exclusions: [], faqs: [],
+                title: 'Payment Tour',
+                description: 'Desc',
+                basePrice: 1000,
+                category: '659c00000000000000000000',
+                location: 'Loc',
+                state: 'State',
+                country: 'Country',
                 departureOptions: [{ fromCity: 'City A', priceAdjustment: 0, type: 'AC', totalDays: 2, totalNights: 1 }]
             });
         if (!tourRes.body.data) throw new Error(`Tour create failed: ${JSON.stringify(tourRes.body)}`);
@@ -88,8 +52,8 @@ describe('PaymentsController (e2e)', () => {
     });
 
     afterAll(async () => {
-        await app.close();
-    });
+        await teardownE2E(context);
+    }, 10000);
 
     it('Step 1: Create Booking', async () => {
         const res = await supertest(app.getHttpServer())

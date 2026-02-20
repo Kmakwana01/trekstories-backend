@@ -1,87 +1,29 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CouponDocument } from '../src/database/schemas/coupon.schema';
-import { UserDocument } from '../src/database/schemas/user.schema';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
+import { Connection, Types } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('CouponsModule (e2e)', () => {
     let app: INestApplication;
-    let couponModel: Model<CouponDocument>;
-    let userModel: Model<UserDocument>;
+    let connection: Connection;
     let adminAccessToken: string;
     let userAccessToken: string;
     let testTourId = '65d123456789012345678901'; // Mock ID
     let couponId: string;
 
-    beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-
-        couponModel = moduleFixture.get<Model<CouponDocument>>(getModelToken('Coupon'));
-        userModel = moduleFixture.get<Model<UserDocument>>(getModelToken('User'));
-    }, 30000);
-
-    // For E2E, I'll use a simpler approach for auth in this test.
-    // I'll reuse the setup from other E2E tests if available.
-
-    // Let's just mock the login by getting a token directly if possible, 
-    // but Supertest needs to go through the app.
-
-    // I'll use the register -> verify -> login flow.
-
-    const registerUser = async (email: string, role: string = 'customer') => {
-        const regRes = await request(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({ name: 'Test User', email, password: 'Password123!', phone: Math.random().toString().slice(2, 12), gender: 'male', dateOfBirth: '1990-01-01' });
-
-        if (regRes.status !== 201)
-        {
-            console.error('Registration failed:', regRes.body);
-        }
-
-        const user = await userModel.findOne({ email });
-        if (user)
-        {
-            user.isVerified = true;
-            user.role = role as any;
-            await user.save();
-        }
-
-        const loginRes = await request(app.getHttpServer())
-            .post('/api/auth/login')
-            .send({ identifier: email, password: 'Password123!' });
-
-        if (loginRes.status !== 200 && loginRes.status !== 201)
-        {
-            console.error('Login failed:', loginRes.status, loginRes.body);
-        }
-
-        return loginRes.body?.data?.accessToken;
-    };
+    let context: E2EContext;
 
     beforeAll(async () => {
-        // App already init above
-        adminAccessToken = await registerUser('admin-c@test.com', 'admin');
-        userAccessToken = await registerUser('user-c@test.com', 'customer');
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        adminAccessToken = context.adminToken;
+        userAccessToken = context.customerToken;
     });
 
     afterAll(async () => {
-        await couponModel.deleteMany({});
-        await userModel.deleteMany({ email: { $in: ['admin-c@test.com', 'user-c@test.com'] } });
-        await app.close();
+        await teardownE2E(context);
     });
 
     describe('Admin Coupons CRUD', () => {
@@ -161,7 +103,7 @@ describe('CouponsModule (e2e)', () => {
 
             expect(res.status).toBe(200);
 
-            const deleted = await couponModel.findById(couponId);
+            const deleted = await connection.collection('coupons').findOne({ _id: new Types.ObjectId(couponId) });
             expect(deleted).toBeNull();
         });
     });

@@ -1,68 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
-import { getModelToken } from '@nestjs/mongoose';
-import { User } from '../src/database/schemas/user.schema';
-import { Role } from '../src/common/enums/roles.enum';
+import { INestApplication } from '@nestjs/common';
+import supertest from 'supertest';
+import { Connection } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('Tours (e2e)', () => {
     let app: INestApplication;
+    let connection: Connection;
     let adminToken: string;
     let tourId: string;
     let tourSlug: string;
 
+    let context: E2EContext;
+
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-
-        const adminEmail = `admin-${Date.now()}@test.com`;
-        const adminPass = 'adminpassword';
-
-        // 1. Register a fresh user
-        await request(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({
-                name: 'Admin Tester',
-                email: adminEmail,
-                password: adminPass,
-                phone: `+917${Date.now().toString().slice(-9)}`,
-            })
-            .expect(201);
-
-        // 2. Elevate to Admin role directly via model
-        const userModel = app.get(getModelToken(User.name));
-        await userModel.findOneAndUpdate({ email: adminEmail }, { role: Role.ADMIN });
-
-        // 3. Login to get Admin JWT
-        const loginRes = await request(app.getHttpServer())
-            .post('/api/auth/login')
-            .send({
-                identifier: adminEmail,
-                password: adminPass,
-            })
-            .expect(201);
-
-        adminToken = loginRes.body.data.accessToken;
-    }, 30000);
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        adminToken = context.adminToken;
+    });
 
     afterAll(async () => {
-        await app.close();
+        await teardownE2E(context);
     });
 
     describe('Admin Flow', () => {
         it('/admin/tours (POST) - Create Tour', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await supertest(app.getHttpServer())
                 .post('/api/admin/tours')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({
@@ -71,7 +35,11 @@ describe('Tours (e2e)', () => {
                     category: 'Trekking',
                     state: 'Himachal',
                     location: 'Kasol',
+                    country: 'India',
                     isActive: true,
+                    departureOptions: [
+                        { fromCity: 'Kasol', type: 'AC', totalDays: 5, totalNights: 4, priceAdjustment: 0 }
+                    ]
                 })
                 .expect(201);
 
@@ -82,7 +50,7 @@ describe('Tours (e2e)', () => {
         });
 
         it('/admin/tours/:id (PATCH) - Update Tour', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await supertest(app.getHttpServer())
                 .patch(`/api/admin/tours/${tourId}`)
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ basePrice: 16000 })
@@ -94,7 +62,7 @@ describe('Tours (e2e)', () => {
 
     describe('Public Flow', () => {
         it('/tours (GET) - List Tours', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await supertest(app.getHttpServer())
                 .get('/api/tours')
                 .expect(200);
 
@@ -102,7 +70,7 @@ describe('Tours (e2e)', () => {
         });
 
         it('/tours/:slug (GET) - Get Tour Details', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await supertest(app.getHttpServer())
                 .get(`/api/tours/${tourSlug}`)
                 .expect(200);
 
@@ -111,7 +79,7 @@ describe('Tours (e2e)', () => {
         });
 
         it('/tours/filter-options (GET)', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await supertest(app.getHttpServer())
                 .get('/api/tours/filter-options')
                 .expect(200);
 

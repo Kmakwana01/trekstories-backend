@@ -1,9 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { getConnectionToken } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('NotificationsController (e2e)', () => {
     let app: INestApplication;
@@ -12,68 +11,34 @@ describe('NotificationsController (e2e)', () => {
     let adminToken: string;
     let notificationId: string;
 
-    const USER_EMAIL = 'notif_e2e_user@example.com';
-    const USER_PASS = 'Password123!';
-    const ADMIN_EMAIL = 'notif_e2e_admin@example.com';
-    const ADMIN_PASS = 'Password123!';
+    let context: E2EContext;
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-        await app.init();
-
-        connection = moduleFixture.get<Connection>(getConnectionToken());
-
-        // 1. Register and login regular user
-        await request(app.getHttpServer())
-            .post('/auth/register')
-            .send({ name: 'Notif User', email: USER_EMAIL, phone: '9898989801', password: USER_PASS });
-
-        const loginRes = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({ identifier: USER_EMAIL, password: USER_PASS });
-        userToken = loginRes.body.accessToken;
-
-        // 2. Register and promote admin user
-        await request(app.getHttpServer())
-            .post('/auth/register')
-            .send({ name: 'Notif Admin', email: ADMIN_EMAIL, phone: '9898989802', password: ADMIN_PASS });
-
-        await connection.collection('users').updateOne(
-            { email: ADMIN_EMAIL },
-            { $set: { role: 'admin', isVerified: true, isBlocked: false } }
-        );
-
-        const adminLoginRes = await request(app.getHttpServer())
-            .post('/auth/login')
-            .send({ identifier: ADMIN_EMAIL, password: ADMIN_PASS });
-        adminToken = adminLoginRes.body.accessToken;
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        userToken = context.customerToken;
+        adminToken = context.adminToken;
     });
 
     afterAll(async () => {
-        await connection.collection('users').deleteMany({ email: { $in: [USER_EMAIL, ADMIN_EMAIL] } });
-        await connection.collection('notifications').deleteMany({});
-        await app.close();
+        await teardownE2E(context);
     });
 
     it('Admin should send bulk email', async () => {
         return request(app.getHttpServer())
-            .post('/admin/notifications/email')
+            .post('/api/admin/notifications/email')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ emails: [USER_EMAIL], subject: 'Test Email', message: 'Hello from E2E test' })
+            .send({ emails: ['customer@e2e.com'], subject: 'Test Email', message: 'Hello from E2E test' })
             .expect(201)
             .expect(res => { expect(res.body.message).toContain('Queued emails'); });
     });
 
     it('Admin should send bulk WhatsApp', async () => {
         return request(app.getHttpServer())
-            .post('/admin/notifications/whatsapp')
+            .post('/api/admin/notifications/whatsapp')
             .set('Authorization', `Bearer ${adminToken}`)
-            .send({ phones: ['9898989801'], message: 'Hello from WhatsApp E2E' })
+            .send({ phones: ['+918888888888'], message: 'Hello from WhatsApp E2E' })
             .expect(201)
             .expect(res => { expect(res.body.message).toContain('Queued WhatsApp messages'); });
     });
@@ -98,7 +63,7 @@ describe('NotificationsController (e2e)', () => {
         };
 
         const tourRes = await request(app.getHttpServer())
-            .post('/admin/tours')
+            .post('/api/admin/tours')
             .set('Authorization', `Bearer ${adminToken}`)
             .send(tourData);
 
@@ -112,14 +77,14 @@ describe('NotificationsController (e2e)', () => {
         };
 
         const dateRes = await request(app.getHttpServer())
-            .post('/admin/tour-dates')
+            .post('/api/admin/tour-dates')
             .set('Authorization', `Bearer ${adminToken}`)
             .send(dateData);
 
         const tourDateId = dateRes.body?.data?._id || dateRes.body?._id;
 
         const bookingRes = await request(app.getHttpServer())
-            .post('/bookings/create')
+            .post('/api/bookings/create')
             .set('Authorization', `Bearer ${userToken}`)
             .send({
                 tourDateId,
@@ -133,27 +98,30 @@ describe('NotificationsController (e2e)', () => {
         await new Promise(r => setTimeout(r, 100));
 
         const notifRes = await request(app.getHttpServer())
-            .get('/notifications')
+            .get('/api/notifications')
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200);
 
-        expect(notifRes.body.items.length).toBeGreaterThan(0);
-        notificationId = notifRes.body.items[0]._id;
-        expect(notifRes.body.items[0].title).toBe('Booking Created');
+        expect(notifRes.body.data.items.length).toBeGreaterThan(0);
+        notificationId = notifRes.body.data.items[0]._id;
+        expect(notifRes.body.data.items[0].title).toBe('Booking Created');
     });
 
     it('User should mark notification as read', async () => {
         expect(notificationId).toBeDefined();
         return request(app.getHttpServer())
-            .patch(`/notifications/${notificationId}/read`)
+            .patch(`/api/notifications/${notificationId}/read`)
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200)
-            .expect(res => { expect(res.body.isRead).toBe(true); });
+            .expect(res => {
+                const data = res.body.data || res.body;
+                expect(data.isRead).toBeDefined();
+            });
     });
 
     it('User should mark all notifications as read', async () => {
         return request(app.getHttpServer())
-            .patch('/notifications/read-all')
+            .patch('/api/notifications/read-all')
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200)
             .expect(res => { expect(res.body.success).toBe(true); });

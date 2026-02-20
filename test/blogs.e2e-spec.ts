@@ -1,27 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
-import { getConnectionToken } from '@nestjs/mongoose';
-import { Connection, Types } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
+import { Connection } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('Blogs Module (e2e)', () => {
     let app: INestApplication;
     let connection: Connection;
-    let configService: ConfigService;
     let adminToken: string;
     let blogId: string;
     let blogSlug: string;
 
-    const mockAdmin = {
-        _id: '65e9f9f9f9f9f9f9f9f9f902',
-        email: 'admin@example.com',
-        role: 'admin',
-    };
+    let context: E2EContext;
 
     const newBlog = {
         title: 'E2E Test Blog',
@@ -32,46 +22,20 @@ describe('Blogs Module (e2e)', () => {
     };
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.useGlobalPipes(
-            new ValidationPipe({
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                transform: true,
-            }),
-        );
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-        connection = app.get(getConnectionToken());
-        configService = app.get(ConfigService);
-
-        // Create token
-        const jwtSecret = configService.get<string>('JWT_SECRET') || 'your_secret';
-        adminToken = jwt.sign({ sub: mockAdmin._id, email: mockAdmin.email, role: 'admin' }, jwtSecret);
-
-        // Seed admin user
-        await connection.collection('users').deleteMany({});
-        await connection.collection('users').insertOne({ ...mockAdmin, _id: new Types.ObjectId(mockAdmin._id) });
-
-        // Clear blogs
-        await connection.collection('blogs').deleteMany({});
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        adminToken = context.adminToken;
     });
 
     afterAll(async () => {
-        await connection.collection('blogs').deleteMany({});
-        await connection.collection('users').deleteMany({});
-        await app.close();
+        await teardownE2E(context);
     });
 
     describe('Admin Flow', () => {
         it('should create a new blog draft', async () => {
             return request(app.getHttpServer())
-                .post('/admin/blogs')
+                .post('/api/admin/blogs')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send(newBlog)
                 .expect(201)
@@ -86,7 +50,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should get all blogs (including drafts)', async () => {
             return request(app.getHttpServer())
-                .get('/admin/blogs')
+                .get('/api/admin/blogs')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(200)
                 .expect((res) => {
@@ -97,7 +61,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should update the blog', async () => {
             return request(app.getHttpServer())
-                .patch(`/admin/blogs/${blogId}`)
+                .patch(`/api/admin/blogs/${blogId}`)
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ title: 'Updated E2E Blog' })
                 .expect(200)
@@ -112,13 +76,13 @@ describe('Blogs Module (e2e)', () => {
     describe('Public Flow (Draft)', () => {
         it('should NOT return draft blog by slug', async () => {
             return request(app.getHttpServer())
-                .get(`/blogs/${blogSlug}`)
+                .get(`/api/blogs/${blogSlug}`)
                 .expect(404);
         });
 
         it('should NOT list draft blogs', async () => {
             return request(app.getHttpServer())
-                .get('/blogs')
+                .get('/api/blogs')
                 .expect(200)
                 .expect((res) => {
                     const found = res.body.data.find(b => b._id === blogId);
@@ -130,7 +94,7 @@ describe('Blogs Module (e2e)', () => {
     describe('Publishing Flow', () => {
         it('should publish the blog', async () => {
             return request(app.getHttpServer())
-                .patch(`/admin/blogs/${blogId}/publish`)
+                .patch(`/api/admin/blogs/${blogId}/publish`)
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(200)
                 .expect((res) => {
@@ -143,7 +107,7 @@ describe('Blogs Module (e2e)', () => {
     describe('Public Flow (Published)', () => {
         it('should return published blog by slug', async () => {
             return request(app.getHttpServer())
-                .get(`/blogs/${blogSlug}`)
+                .get(`/api/blogs/${blogSlug}`)
                 .expect(200)
                 .expect((res) => {
                     expect(res.body.data._id).toBe(blogId);
@@ -153,11 +117,11 @@ describe('Blogs Module (e2e)', () => {
 
         it('should increment view count', async () => {
             // Request again
-            await request(app.getHttpServer()).get(`/blogs/${blogSlug}`).expect(200);
+            await request(app.getHttpServer()).get(`/api/blogs/${blogSlug}`).expect(200);
 
             // Check via admin (to see raw data)
             return request(app.getHttpServer())
-                .get(`/admin/blogs/${blogId}`)
+                .get(`/api/admin/blogs/${blogId}`)
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(200)
                 .expect((res) => {
@@ -167,7 +131,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should list published blogs', async () => {
             return request(app.getHttpServer())
-                .get('/blogs')
+                .get('/api/blogs')
                 .expect(200)
                 .expect((res) => {
                     const found = res.body.data.find(b => b._id === blogId);
@@ -177,7 +141,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should filter by category', async () => {
             return request(app.getHttpServer())
-                .get('/blogs?category=Technology')
+                .get('/api/blogs?category=Technology')
                 .expect(200)
                 .expect((res) => {
                     expect(res.body.data.length).toBeGreaterThan(0);
@@ -186,7 +150,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should return empty list for non-matching filter', async () => {
             return request(app.getHttpServer())
-                .get('/blogs?category=Cooking')
+                .get('/api/blogs?category=Cooking')
                 .expect(200)
                 .expect((res) => {
                     expect(res.body.data.length).toBe(0);
@@ -197,7 +161,7 @@ describe('Blogs Module (e2e)', () => {
     describe('Unpublishing Flow', () => {
         it('should unpublish the blog', async () => {
             return request(app.getHttpServer())
-                .patch(`/admin/blogs/${blogId}/unpublish`)
+                .patch(`/api/admin/blogs/${blogId}/unpublish`)
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(200)
                 .expect((res) => {
@@ -207,7 +171,7 @@ describe('Blogs Module (e2e)', () => {
 
         it('should NOT be visible to public after unpublish', async () => {
             return request(app.getHttpServer())
-                .get(`/blogs/${blogSlug}`)
+                .get(`/api/blogs/${blogSlug}`)
                 .expect(404);
         });
     });

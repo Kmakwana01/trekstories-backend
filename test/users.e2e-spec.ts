@@ -1,49 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { E2E_CUSTOMER } from './helpers/test-users';
 
 describe('UsersController (e2e)', () => {
     let app: INestApplication;
     let accessToken: string;
-    const testEmail = `user-${Date.now()}@test.com`;
+    const testEmail = E2E_CUSTOMER.email;
+
+    let context: E2EContext;
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ transform: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-
-        // Register and login to get token
-        await request(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({
-                name: 'User Tester',
-                email: testEmail,
-                password: 'password123',
-                phone: `+918${Date.now().toString().slice(-9)}`,
-            });
-
-        const loginRes = await request(app.getHttpServer())
-            .post('/api/auth/login')
-            .send({
-                identifier: testEmail,
-                password: 'password123',
-            });
-
-        accessToken = loginRes.body.data.accessToken;
-    }, 30000);
+        context = await setupE2E();
+        app = context.app;
+        accessToken = context.customerToken;
+    });
 
     afterAll(async () => {
-        await app.close();
+        await teardownE2E(context);
     });
 
     it('/users/profile (GET) - Get Profile', async () => {

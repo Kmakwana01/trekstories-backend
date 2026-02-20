@@ -15,8 +15,5 @@
       }
     ]
   },
-  "setupFiles": [
-    "<rootDir>/test-setup.ts"
-  ],
-  "globalTeardown": "<rootDir>/global-teardown.js"
+  "globalTeardown": "<rootDir>/helpers/global-teardown.js"
 }

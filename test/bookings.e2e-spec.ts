@@ -1,15 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import supertest from 'supertest';
-import { AppModule } from '../src/app.module';
-import { Connection } from 'mongoose';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
-import { Tour } from '../src/database/schemas/tour.schema';
-import { TourDate } from '../src/database/schemas/tour-date.schema';
-import { User } from '../src/database/schemas/user.schema';
-import { Booking } from '../src/database/schemas/booking.schema';
+import { Connection, Types } from 'mongoose';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
 
 describe('Bookings Module (e2e)', () => {
     let app: INestApplication;
@@ -20,74 +13,16 @@ describe('Bookings Module (e2e)', () => {
     let tourDateId: string;
     let bookingId: string;
 
+    let context: E2EContext;
+
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+        context = await setupE2E();
+        app = context.app;
+        connection = context.connection;
+        accessToken = context.customerToken;
+        adminToken = context.adminToken;
 
-        app = moduleFixture.createNestApplication();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-
-        connection = app.get(getConnectionToken());
-
-        // Clean up
-        const userModel = app.get(getModelToken(User.name));
-        const tourModel = app.get(getModelToken(Tour.name));
-        const tourDateModel = app.get(getModelToken(TourDate.name));
-        const bookingModel = app.get(getModelToken(Booking.name));
-
-        await userModel.deleteMany({});
-        await tourModel.deleteMany({});
-        await tourDateModel.deleteMany({});
-        await bookingModel.deleteMany({});
-
-        // 1. Register User
-        const userPayload = {
-            name: 'Test user',
-            email: 'user@example.com',
-            phone: '+919999999999',
-            password: 'Password123',
-        };
-        const regRes = await supertest(app.getHttpServer()).post('/api/auth/register').send(userPayload);
-        if (regRes.status !== 201)
-        {
-            throw new Error(`User Registration Failed: ${JSON.stringify(regRes.body)}`);
-        }
-        accessToken = regRes.body.data.accessToken;
-
-        // 2. Register Admin
-        const adminPayload = {
-            name: 'Admin User',
-            email: 'admin@example.com',
-            phone: '+918888888888',
-            password: 'AdminPassword123',
-        };
-        const adminRegRes = await supertest(app.getHttpServer()).post('/api/auth/register').send(adminPayload);
-        if (adminRegRes.status !== 201)
-        {
-            throw new Error(`Admin Registration Failed: ${JSON.stringify(adminRegRes.body)}`);
-        }
-
-        // Manually set role to admin in DB
-        await userModel.updateOne(
-            { email: adminPayload.email },
-            { $set: { role: 'admin' } }
-        );
-
-        // Login again to get admin token with correct role in JWT
-        const adminLoginRes = await supertest(app.getHttpServer()).post('/api/auth/login').send({
-            identifier: adminPayload.email,
-            password: adminPayload.password,
-        });
-        if (!adminLoginRes.body.data)
-        {
-            throw new Error(`Admin Login Failed: ${JSON.stringify(adminLoginRes.body)}`);
-        }
-        adminToken = adminLoginRes.body.data.accessToken;
+        await clearTestData(connection);
 
         // 3. Create a Tour and Tour Date for testing
         const tourRes = await supertest(app.getHttpServer())
@@ -97,11 +32,9 @@ describe('Bookings Module (e2e)', () => {
                 title: 'E2E Test Tour',
                 description: 'Description',
                 basePrice: 1000,
-                difficulty: 'easy',
-                maxGroupSize: 10,
                 state: 'State',
                 location: 'Location',
-                category: 'adventure',
+                category: '659c00000000000000000000',
                 departureOptions: [{
                     fromCity: 'City A',
                     type: 'AC',
@@ -123,8 +56,7 @@ describe('Bookings Module (e2e)', () => {
                 tour: tourId,
                 startDate: new Date(Date.now() + 86400000).toISOString(),
                 endDate: new Date(Date.now() + 86400000 * 3).toISOString(),
-                totalSeats: 20,
-                status: 'upcoming'
+                totalSeats: 20
             });
         if (dateRes.status !== 201)
         {
@@ -134,7 +66,6 @@ describe('Bookings Module (e2e)', () => {
     });
 
     afterAll(async () => {
-        await connection.close();
         await app.close();
     });
 

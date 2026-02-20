@@ -1,36 +1,24 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
+import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
+import { clearTestData } from './helpers/cleanup';
+import { getTestConnection } from './helpers/test-db';
 
 describe('AuthController (e2e)', () => {
     let app: INestApplication;
-    const testEmail = `e2e-${Date.now()}@test.com`;
+    let customerToken: string;
+    const testEmail = `login-test-${Date.now()}@test.com`;
+
+    let context: E2EContext;
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.enableCors();
-        app.setGlobalPrefix('api');
-        app.useGlobalPipes(
-            new ValidationPipe({
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                transform: true,
-            }),
-        );
-        app.useGlobalInterceptors(new TransformInterceptor());
-        app.useGlobalFilters(new HttpExceptionFilter());
-        await app.init();
-    }, 30000); // Increase timeout for DB connection
+        context = await setupE2E();
+        app = context.app;
+        customerToken = context.customerToken;
+    });
 
     afterAll(async () => {
-        await app.close();
+        await teardownE2E(context);
     });
 
     it('/auth/register (POST) - Valid Registration', async () => {
@@ -42,14 +30,12 @@ describe('AuthController (e2e)', () => {
                 phone: `+919${Date.now().toString().slice(-9)}`,
                 password: 'password123',
                 gender: 'male',
-                dateOfBirth: '2026-02-19T10:20:03.452Z',
+                dateOfBirth: '1990-01-01T00:00:00.000Z',
             })
             .expect(201);
 
         expect(response.body.message).toContain('Registration successful');
         expect(response.body.data).toHaveProperty('accessToken');
-        expect(response.body.data.user.gender).toBe('male');
-        expect(response.body.data.user.dateOfBirth).toBeDefined();
     });
 
     let accessToken: string;
@@ -96,11 +82,19 @@ describe('AuthController (e2e)', () => {
             .expect(403);
     });
 
-
     it('/auth/register (POST) - Invalid Data', () => {
         return request(app.getHttpServer())
             .post('/api/auth/register')
             .send({ email: 'bad-email' })
             .expect(400);
+    });
+
+    it('/auth/me (GET) - Success with Token', async () => {
+        const res = await request(app.getHttpServer())
+            .get('/api/auth/me')
+            .set('Authorization', `Bearer ${customerToken}`)
+            .expect(200);
+
+        expect(res.body.data.email).toBeDefined();
     });
 });

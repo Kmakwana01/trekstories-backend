@@ -275,6 +275,7 @@ export class BookingsService {
                         name: (populatedBooking.user as any).name,
                         bookingNumber: populatedBooking.bookingNumber,
                         tourTitle: (populatedBooking.tour as any).title,
+                        startDate: (populatedBooking.tourDate as any).startDate,
                         amount: populatedBooking.totalAmount
                     }
                 );
@@ -331,7 +332,7 @@ export class BookingsService {
                 'general',
                 {
                     name: (booking.user as any).name,
-                    body: `Your booking #${booking.bookingNumber} for ${(booking.tour as any).title} has been cancelled.`
+                    message: `Your booking #${booking.bookingNumber} for ${(booking.tour as any).title} has been cancelled.`
                 }
             );
         } catch (err)
