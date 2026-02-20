@@ -1,38 +1,33 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
-export type BlogDocument = Blog & Document;
-
-@Schema({ timestamps: true })
+import { Prop, Schema as SchemaField, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
+@SchemaField({ timestamps: true })
 export class Blog {
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true, trim: true })
     title: string;
 
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true, unique: true, index: true, trim: true })
     slug: string;
 
     @Prop({ required: true })
-    content: string;
+    content: string; // HTML or Markdown
 
-    @Prop()
+    @Prop({ required: true })
     excerpt: string;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+    author: MongooseSchema.Types.ObjectId;
 
     @Prop()
     featuredImage: string;
 
-    @Prop()
+    @Prop({ required: true, index: true })
     category: string;
 
-    @Prop([String])
+    @Prop({ type: [String], index: true })
     tags: string[];
 
-    @Prop()
-    seoTitle: string;
-
-    @Prop()
-    seoDescription: string;
-
-    @Prop({ default: false })
+    @Prop({ default: false, index: true })
     isPublished: boolean;
 
     @Prop()
@@ -41,5 +36,7 @@ export class Blog {
     @Prop({ default: 0 })
     viewCount: number;
 }
-
+export type BlogDocument = Blog & Document;
 export const BlogSchema = SchemaFactory.createForClass(Blog);
+// Add text index for search
+BlogSchema.index({ title: 'text', content: 'text', category: 'text', tags: 'text' });

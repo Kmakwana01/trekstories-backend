@@ -95,10 +95,7 @@ export class ToursService {
             .exec();
     }
 
-    async getTourReviews(tourId: string, pagination: any): Promise<PaginationResult<ReviewDocument>> {
-        const query = { tour: tourId, isApproved: true };
-        return paginate(this.reviewModel, query, pagination);
-    }
+
 
     async getFilterOptions() {
         const [states, categories, departureCities] = await Promise.all([

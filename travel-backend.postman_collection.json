@@ -1753,6 +1753,628 @@
                     "response": []
                 }
             ]
+        },
+        {
+            "name": "Blogs",
+            "item": [
+                {
+                    "name": "Public",
+                    "item": [
+                        {
+                            "name": "Get All Blogs",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/blogs",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "blogs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Blog by Slug",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/blogs/{{blogSlug}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "blogs",
+                                        "{{blogSlug}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Admin",
+                    "item": [
+                        {
+                            "name": "Get All Blogs (Admin)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Create Blog",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title\": \"My Amazing Trip to Bali\",\n    \"content\": \"<h1>Bali is awesome!</h1><p>Read more...</p>\",\n    \"excerpt\": \"A short guide to Bali.\",\n    \"category\": \"Travel\",\n    \"tags\": [\"bali\", \"indonesia\", \"vacation\"]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update Blog",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title\": \"My Amazing Trip to Bali (Updated)\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs/{{blogId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs",
+                                        "{{blogId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Publish Blog",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs/{{blogId}}/publish",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs",
+                                        "{{blogId}}",
+                                        "publish"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Unpublish Blog",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs/{{blogId}}/unpublish",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs",
+                                        "{{blogId}}",
+                                        "unpublish"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Delete Blog",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/blogs/{{blogId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "blogs",
+                                        "{{blogId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "Public / Customer",
+                    "item": [
+                        {
+                            "name": "Get Tour Reviews",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/tours/{{tourId}}/reviews?page=1&limit=10",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "tours",
+                                        "{{tourId}}",
+                                        "reviews"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "limit",
+                                            "value": "10"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Create Review",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"bookingId\": \"{{bookingId}}\",\n    \"rating\": 5,\n    \"comment\": \"Absolutely loved the trip! Very well organized.\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/reviews",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "reviews"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "My Reviews",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/users/my-reviews",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "users",
+                                        "my-reviews"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Admin",
+                    "item": [
+                        {
+                            "name": "Get All Reviews (Admin)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reviews?status=pending",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "reviews"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "status",
+                                            "value": "pending"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Approve Review",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reviews/{{reviewId}}/approve",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "reviews",
+                                        "{{reviewId}}",
+                                        "approve"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Reject Review",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"reason\": \"Inappropriate language\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reviews/{{reviewId}}/reject",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "reviews",
+                                        "{{reviewId}}",
+                                        "reject"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Review",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reviews/{{reviewId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "reviews",
+                                        "{{reviewId}}"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Coupons",
+            "item": [
+                {
+                    "name": "Public / Customer",
+                    "item": [
+                        {
+                            "name": "Validate Coupon",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"code\": \"WELCOME10\",\n    \"tourId\": \"{{tourId}}\",\n    \"orderAmount\": 5000\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/coupons/validate",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "coupons",
+                                        "validate"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Admin",
+                    "item": [
+                        {
+                            "name": "Get All Coupons",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Create Coupon",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"code\": \"SAVE20\",\n    \"description\": \"Save 20% on your next booking\",\n    \"discountType\": \"percent\",\n    \"discountValue\": 20,\n    \"minOrderAmount\": 1000,\n    \"isActive\": true\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Coupon by ID",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons/{{couponId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons",
+                                        "{{couponId}}"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Coupon",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"discountValue\": 25\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons/{{couponId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons",
+                                        "{{couponId}}"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Coupon",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons/{{couponId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons",
+                                        "{{couponId}}"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Coupon Usage",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/coupons/{{couponId}}/usage",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "admin",
+                                        "coupons",
+                                        "{{couponId}}",
+                                        "usage"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "variable": [

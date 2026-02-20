@@ -32,6 +32,9 @@ export class Coupon {
     @Prop({ default: 0 })
     usedCount: number;
 
+    @Prop({ default: 0 })
+    minOrderAmount: number;
+
     @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Tour' }] })
     applicableTours: MongooseSchema.Types.ObjectId[];
 

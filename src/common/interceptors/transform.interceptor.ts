@@ -24,7 +24,7 @@ export class TransformInterceptor<T>
     ): Observable<Response<T>> {
         return next.handle().pipe(
             map(data => {
-                // Handle cases where data is already in expected format
+                // console.log('Interceptor received:', JSON.stringify(data));
                 if (data && data.success !== undefined && data.data !== undefined)
                 {
                     return data;

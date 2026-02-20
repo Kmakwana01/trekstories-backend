@@ -1,8 +1,7 @@
 import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -17,6 +16,9 @@ import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
 
 @Module({
   imports: [
@@ -43,6 +45,9 @@ import { PaymentsModule } from './modules/payments/payments.module';
     BookingsModule,
     TransactionsModule,
     PaymentsModule,
+    BlogsModule,
+    ReviewsModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [

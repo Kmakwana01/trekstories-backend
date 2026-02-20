@@ -36,11 +36,4 @@ export class ToursController {
         return this.toursService.getTourDates(id);
     }
 
-    @Get(':id/reviews')
-    async getTourReviews(
-        @Param('id') id: string,
-        @Query() pagination: PaginationQuery
-    ) {
-        return this.toursService.getTourReviews(id, pagination);
-    }
 }

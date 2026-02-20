@@ -8,6 +8,7 @@ import { Coupon, CouponDocument } from '../../database/schemas/coupon.schema';
 import { PreviewBookingDto } from './dto/preview-booking.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { generateBookingNumber } from '../../common/helpers/booking-number.helper';
+import { CouponsService } from '../coupons/coupons.service';
 
 @Injectable()
 export class BookingsService {
@@ -15,7 +16,7 @@ export class BookingsService {
         @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
         @InjectModel(Tour.name) private tourModel: Model<TourDocument>,
         @InjectModel(TourDate.name) private tourDateModel: Model<TourDateDocument>,
-        @InjectModel('Coupon') private couponModel: Model<CouponDocument>,
+        private readonly couponsService: CouponsService,
     ) { }
 
     async previewBooking(dto: PreviewBookingDto) {
@@ -46,30 +47,23 @@ export class BookingsService {
 
         if (couponCode)
         {
-            const coupon = await this.couponModel.findOne({ code: couponCode.toUpperCase(), isActive: true }).exec();
-            if (coupon)
+            try
             {
-                // Basic validation
-                const now = new Date();
-                if ((!coupon.expiryDate || coupon.expiryDate > now) && (coupon.maxUsage === undefined || coupon.usedCount < coupon.maxUsage))
-                {
-                    if (coupon.discountType === 'percent')
-                    {
-                        couponDiscount = (subtotal * coupon.discountValue) / 100;
-                        if (coupon.maxDiscountAmount)
-                        {
-                            couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
-                        }
-                    } else
-                    {
-                        couponDiscount = Math.min(coupon.discountValue, subtotal);
-                    }
-                    appliedCoupon = {
-                        code: coupon.code,
-                        discountType: coupon.discountType,
-                        discountValue: coupon.discountValue
-                    } as any;
-                }
+                const validation = await this.couponsService.validateCoupon(
+                    couponCode,
+                    '', // userId is optional for basic validation here
+                    (tour as any)._id.toString(),
+                    subtotal
+                );
+
+                couponDiscount = validation.discountAmount;
+                appliedCoupon = validation.coupon;
+            } catch (error)
+            {
+                // If coupon invalid, we can either throw or just ignore it 
+                // In preview, maybe we should just not apply it and show no discount?
+                // But usually better to throw error if user explicitly provided a code.
+                throw error;
             }
         }
 
@@ -153,10 +147,7 @@ export class BookingsService {
         // Increment coupon usage if used
         if (dto.couponCode)
         {
-            await this.couponModel.updateOne(
-                { code: dto.couponCode.toUpperCase() },
-                { $inc: { usedCount: 1 } }
-            ).exec();
+            await this.couponsService.applyCoupon(dto.couponCode);
         }
 
         const savedBooking = await booking.save();
@@ -263,6 +254,13 @@ export class BookingsService {
         }
 
         booking.status = 'cancelled';
+
+        // Release coupon if used
+        if (booking.couponCode)
+        {
+            await this.couponsService.releaseCoupon(booking.couponCode);
+        }
+
         return booking.save();
     }
 }
