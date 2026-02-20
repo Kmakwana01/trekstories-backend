@@ -24,6 +24,9 @@ import { BlogsModule } from './modules/blogs/blogs.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { HomeModule } from './modules/home/home.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
   imports: [
@@ -54,6 +57,17 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     ReviewsModule,
     CouponsModule,
     NotificationsModule,
+    HomeModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        store: redisStore,
+        host: config.get('redis.host'),
+        port: config.get('redis.port'),
+        ttl: 600, // default 10 min
+      }),
+    }),
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

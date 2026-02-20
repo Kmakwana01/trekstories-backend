@@ -542,6 +542,155 @@
             ]
         },
         {
+            "name": "Home",
+            "description": "Home Page Endpoints (Featured, Upcoming, Offers, Blogs, State-wise)",
+            "item": [
+                {
+                    "name": "Get Featured Tours",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/featured-tours",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "featured-tours"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Upcoming Departures",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/upcoming-departures",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "upcoming-departures"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Active Offers",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/offers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "offers"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Latest Blogs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/blogs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "blogs"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Tours Grouped by State",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/tours-by-state",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "tours-by-state"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Paginated Tours by State",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/tours-by-state/Himachal?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "tours-by-state",
+                                "Himachal"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Recently Viewed Tours",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{accessToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/home/recently-viewed",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "home",
+                                "recently-viewed"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
             "name": "Tours",
             "description": "Tour management endpoints (Public)",
             "item": [
