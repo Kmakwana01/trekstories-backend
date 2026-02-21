@@ -4,9 +4,11 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ConfigService } from '@nestjs/config';
+import mongoSanitize from 'express-mongo-sanitize';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(mongoSanitize());
   const configService = app.get(ConfigService);
 
   app.enableCors();

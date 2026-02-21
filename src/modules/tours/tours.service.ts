@@ -72,7 +72,7 @@ export class ToursService {
             .findOneAndUpdate(
                 { slug, isActive: true },
                 { $inc: { viewCount: 1 } },
-                { new: true },
+                { returnDocument: 'after' },
             )
             .exec();
 
@@ -131,7 +131,7 @@ export class ToursService {
         const tour = await this.tourModel.findByIdAndUpdate(
             id,
             { $set: updateTourDto },
-            { new: true, runValidators: true },
+            { returnDocument: 'after', runValidators: true },
         );
 
         if (!tour)
@@ -187,7 +187,7 @@ export class ToursService {
         return this.tourModel.findByIdAndUpdate(
             id,
             { $push: { images: imageUrl } },
-            { new: true }
+            { returnDocument: 'after' }
         );
     }
 
@@ -195,7 +195,7 @@ export class ToursService {
         return this.tourModel.findByIdAndUpdate(
             id,
             { $pull: { images: imageUrl } },
-            { new: true }
+            { returnDocument: 'after' }
         );
     }
 }

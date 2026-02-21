@@ -47,7 +47,7 @@ export class CouponsService {
             updateData.code = updateData.code.toUpperCase();
         }
 
-        const coupon = await this.couponModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+        const coupon = await this.couponModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
         if (!coupon)
         {
             throw new NotFoundException('Coupon not found');
@@ -142,7 +142,7 @@ export class CouponsService {
         return this.couponModel.findOneAndUpdate(
             { code: code.toUpperCase() },
             { $inc: { usedCount: 1 } },
-            { new: true }
+            { returnDocument: 'after' }
         ).exec();
     }
 
@@ -150,7 +150,7 @@ export class CouponsService {
         return this.couponModel.findOneAndUpdate(
             { code: code.toUpperCase() },
             { $inc: { usedCount: -1 } },
-            { new: true }
+            { returnDocument: 'after' }
         ).exec();
     }
 

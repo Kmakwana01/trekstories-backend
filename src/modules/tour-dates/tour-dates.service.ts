@@ -40,7 +40,7 @@ export class TourDatesService {
         const updatedDate = await this.tourDateModel.findByIdAndUpdate(
             id,
             updateTourDateDto,
-            { new: true }
+            { returnDocument: 'after' }
         ).exec();
 
         if (!updatedDate)
@@ -64,7 +64,7 @@ export class TourDatesService {
         const updatedDate = await this.tourDateModel.findOneAndUpdate(
             query,
             { status },
-            { new: true }
+            { returnDocument: 'after' }
         ).exec();
 
         if (!updatedDate)

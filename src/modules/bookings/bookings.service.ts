@@ -114,14 +114,26 @@ export class BookingsService {
             couponCode: dto.couponCode
         });
 
-        const tourDate = await this.tourDateModel.findById(dto.tourDateId).exec();
-        if (!tourDate) throw new NotFoundException('Tour date not found');
+        // Check availability and reserve seats atomically
+        const updatedTourDate = await this.tourDateModel.findOneAndUpdate(
+            {
+                _id: dto.tourDateId,
+                $expr: {
+                    $gte: [
+                        { $subtract: ['$totalSeats', '$bookedSeats'] },
+                        dto.travelers.length
+                    ]
+                }
+            },
+            {
+                $inc: { bookedSeats: dto.travelers.length }
+            },
+            { new: true }
+        ).exec();
 
-        // Check availability
-        const availableSeats = tourDate.totalSeats - tourDate.bookedSeats;
-        if (availableSeats < dto.travelers.length)
+        if (!updatedTourDate)
         {
-            throw new ConflictException('Not enough seats available');
+            throw new ConflictException('Not enough seats available or tour date not found');
         }
 
         const bNo = await generateBookingNumber(this.bookingModel);
@@ -129,8 +141,8 @@ export class BookingsService {
         const booking = new this.bookingModel({
             bookingNumber: bNo,
             user: userId,
-            tour: tourDate.tour,
-            tourDate: tourDate._id,
+            tour: updatedTourDate.tour,
+            tourDate: updatedTourDate._id,
             pickupOption: preview.pickupOption,
             travelers: dto.travelers,
             totalTravelers: dto.travelers.length,
@@ -235,20 +247,8 @@ export class BookingsService {
         if (!booking) throw new NotFoundException('Booking not found');
         if (booking.status === 'confirmed') return booking;
 
-        // Atomic check seats again just in case
-        const tourDate = await this.tourDateModel.findById(booking.tourDate as any).exec();
-        if (!tourDate) throw new NotFoundException('Tour date not found');
-
-        const available = tourDate.totalSeats - tourDate.bookedSeats;
-        if (available < booking.totalTravelers)
-        {
-            throw new ConflictException('Tour date is now full, cannot confirm');
-        }
-
-        // Increment booked seats
-        await this.tourDateModel.findByIdAndUpdate(booking.tourDate, {
-            $inc: { bookedSeats: booking.totalTravelers }
-        }).exec();
+        // Note: Seats were already reserved (incremented) at the 'pending' stage (createBooking).
+        // We do not increment them again here to avoid double-counting.
 
         booking.status = 'confirmed';
         const savedBooking = await booking.save();
@@ -297,8 +297,8 @@ export class BookingsService {
 
         if (booking.status === 'cancelled') return booking;
 
-        // If it was confirmed, restore seats
-        if (booking.status === 'confirmed')
+        // If it was in a state that reserved seats (pending, confirmed, on_hold), restore them
+        if (['pending', 'on_hold', 'confirmed'].includes(booking.status))
         {
             await this.tourDateModel.findByIdAndUpdate(booking.tourDate, {
                 $inc: { bookedSeats: -booking.totalTravelers }

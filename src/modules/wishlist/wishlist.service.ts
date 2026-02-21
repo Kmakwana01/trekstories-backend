@@ -21,7 +21,7 @@ export class WishlistService {
         const user = await this.userModel.findByIdAndUpdate(
             userId,
             { $addToSet: { wishlist: tourId } as any },
-            { new: true }
+            { returnDocument: 'after' }
         ).populate('wishlist').exec();
 
         if (!user)
@@ -36,7 +36,7 @@ export class WishlistService {
         const user = await this.userModel.findByIdAndUpdate(
             userId,
             { $pull: { wishlist: tourId } as any },
-            { new: true }
+            { returnDocument: 'after' }
         ).populate('wishlist').exec();
 
         if (!user)

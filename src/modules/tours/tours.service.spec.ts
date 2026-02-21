@@ -66,7 +66,7 @@ describe('ToursService', () => {
             expect(tourModel.findOneAndUpdate).toHaveBeenCalledWith(
                 { slug: 'test-tour', isActive: true },
                 { $inc: { viewCount: 1 } },
-                { new: true },
+                { returnDocument: 'after' },
             );
         });
 

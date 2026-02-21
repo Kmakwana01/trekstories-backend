@@ -102,6 +102,7 @@ describe('BookingsService', () => {
                     useValue: {
                         findById: jest.fn(),
                         findByIdAndUpdate: jest.fn(),
+                        findOneAndUpdate: jest.fn(),
                     },
                 },
                 {
@@ -187,12 +188,15 @@ describe('BookingsService', () => {
                     tour: { ...mockTour }
                 }),
             });
-            // First call for preview, second call for creation check
-            tourDateModel.findById.mockReturnValueOnce({
+            // First call for preview
+            tourDateModel.findById.mockReturnValue({
                 populate: jest.fn().mockReturnThis(),
                 exec: jest.fn().mockResolvedValue({ ...mockTourDate, tour: mockTour }),
-            }).mockReturnValueOnce({
-                exec: jest.fn().mockResolvedValue(mockTourDate),
+            });
+
+            // Call for creation (atomic reservation)
+            tourDateModel.findOneAndUpdate.mockReturnValue({
+                exec: jest.fn().mockResolvedValue({ ...mockTourDate, tour: mockTour }),
             });
 
             bookingModel.findOne.mockReturnValue({
@@ -211,18 +215,15 @@ describe('BookingsService', () => {
         });
 
         it('should handle coupon usage during creation', async () => {
+            // First call for preview
             tourDateModel.findById.mockReturnValue({
                 populate: jest.fn().mockReturnThis(),
-                exec: jest.fn().mockResolvedValue({
-                    ...mockTourDate,
-                    tour: mockTour
-                }),
-            });
-            tourDateModel.findById.mockReturnValueOnce({
-                populate: jest.fn().mockReturnThis(),
                 exec: jest.fn().mockResolvedValue({ ...mockTourDate, tour: mockTour }),
-            }).mockReturnValueOnce({
-                exec: jest.fn().mockResolvedValue(mockTourDate),
+            });
+
+            // Call for creation (atomic reservation)
+            tourDateModel.findOneAndUpdate.mockReturnValue({
+                exec: jest.fn().mockResolvedValue({ ...mockTourDate, tour: mockTour }),
             });
 
             bookingModel.findOne.mockReturnValue({

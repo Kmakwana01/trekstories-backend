@@ -39,7 +39,7 @@ export class NotificationsService {
         const notification = await this.notificationModel.findOneAndUpdate(
             { _id: id, user: userId } as any,
             { isRead: true, readAt: new Date() },
-            { new: true },
+            { returnDocument: 'after' },
         ).exec();
 
         if (!notification) throw new NotFoundException('Notification not found');

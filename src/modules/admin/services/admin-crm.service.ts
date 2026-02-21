@@ -56,7 +56,7 @@ export class AdminCrmService {
         const user = await this.userModel.findByIdAndUpdate(
             id,
             { isBlocked: true },
-            { new: true },
+            { returnDocument: 'after' },
         ).exec();
         if (!user) throw new NotFoundException('User not found');
 
@@ -75,7 +75,7 @@ export class AdminCrmService {
         const user = await this.userModel.findByIdAndUpdate(
             id,
             { isBlocked: false },
-            { new: true },
+            { returnDocument: 'after' },
         ).exec();
         if (!user) throw new NotFoundException('User not found');
 
@@ -94,7 +94,7 @@ export class AdminCrmService {
         const user = await this.userModel.findByIdAndUpdate(
             id,
             { $set: { internalNotes: note } }, // Assuming we add internalNotes to user schema if needed, or use a separate field
-            { new: true },
+            { returnDocument: 'after' },
         ).exec();
         if (!user) throw new NotFoundException('User not found');
         return user;

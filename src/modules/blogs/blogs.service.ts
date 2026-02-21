@@ -141,7 +141,7 @@ export class BlogsService {
         const blog = await this.blogModel.findByIdAndUpdate(
             id,
             { isPublished: true, publishedAt: new Date() },
-            { new: true },
+            { returnDocument: 'after' },
         );
         if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
         return blog;
@@ -151,7 +151,7 @@ export class BlogsService {
         const blog = await this.blogModel.findByIdAndUpdate(
             id,
             { isPublished: false },
-            { new: true },
+            { returnDocument: 'after' },
         );
         if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
         return blog;

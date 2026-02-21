@@ -106,7 +106,7 @@ describe('TourDatesService', () => {
             expect(model.findOneAndUpdate).toHaveBeenCalledWith(
                 expect.objectContaining({ _id: 'date123' }),
                 { status: 'full' },
-                { new: true }
+                { returnDocument: 'after' }
             );
         });
 

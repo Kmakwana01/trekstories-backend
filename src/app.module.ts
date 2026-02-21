@@ -42,7 +42,7 @@ import * as redisStore from 'cache-manager-ioredis';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: 30,
       },
     ]),
     DatabaseModule,

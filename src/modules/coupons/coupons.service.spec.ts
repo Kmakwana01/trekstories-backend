@@ -133,7 +133,7 @@ describe('CouponsService', () => {
             expect(model.findOneAndUpdate).toHaveBeenCalledWith(
                 { code: 'WELCOME10' },
                 { $inc: { usedCount: 1 } },
-                { new: true }
+                { returnDocument: 'after' }
             );
         });
     });
@@ -145,7 +145,7 @@ describe('CouponsService', () => {
             expect(model.findOneAndUpdate).toHaveBeenCalledWith(
                 { code: 'WELCOME10' },
                 { $inc: { usedCount: -1 } },
-                { new: true }
+                { returnDocument: 'after' }
             );
         });
     });
