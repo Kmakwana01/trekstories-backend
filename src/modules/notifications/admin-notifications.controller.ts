@@ -17,11 +17,18 @@ export class AdminNotificationsController {
     async sendBulkEmail(@Body() dto: BulkEmailDto) {
         for (const email of dto.emails)
         {
+            // Always merge dto.message into templateData so {{message}} is available
+            // in the general.hbs template even when custom templateData is supplied
+            const context = {
+                message: dto.message,
+                subject: dto.subject,
+                ...(dto.templateData || {}),
+            };
             await this.notificationsService.sendEmail(
                 email,
                 dto.subject,
                 dto.templateName || 'general',
-                dto.templateData || { message: dto.message },
+                context,
             );
         }
         return { message: `Queued emails for ${dto.emails.length} users` };

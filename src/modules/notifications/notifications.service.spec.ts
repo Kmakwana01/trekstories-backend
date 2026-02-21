@@ -35,10 +35,23 @@ describe('NotificationsService', () => {
     };
 
     // Fix for the 'new Model()' pattern in service
-    function MockModel(dto: any) {
-        this.data = dto;
-        this.save = jest.fn().mockResolvedValue({ ...dto, _id: 'notif123' });
-    }
+    const MockModel: ((dto: any) => void) & {
+        find: jest.Mock;
+        countDocuments: jest.Mock;
+        findOneAndUpdate: jest.Mock;
+        updateMany: jest.Mock;
+    } = Object.assign(
+        function MockModel(this: any, dto: any) {
+            this.data = dto;
+            this.save = jest.fn().mockResolvedValue({ ...dto, _id: 'notif123' });
+        },
+        {
+            find: jest.fn(),
+            countDocuments: jest.fn(),
+            findOneAndUpdate: jest.fn(),
+            updateMany: jest.fn(),
+        },
+    ) as any;
 
     const mockEmailQueue = {
         add: jest.fn(),

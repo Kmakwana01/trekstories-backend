@@ -58,11 +58,18 @@ export class NotificationsService {
 
     async sendEmail(to: string, subject: string, template: string, context: any) {
         this.logger.log(`Enqueuing email to: ${to}`);
+        // Enrich context: always provide year (used in template footer)
+        // and ensure message is never undefined so Handlebars strict mode passes
+        const enrichedContext = {
+            year: new Date().getFullYear(),
+            message: '',
+            ...context,
+        };
         await this.emailQueue.add('send-email', {
             to,
             subject,
             template,
-            context,
+            context: enrichedContext,
         });
     }
 
