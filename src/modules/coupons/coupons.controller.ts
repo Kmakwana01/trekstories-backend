@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Patch, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Patch, Delete, Query, Req } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -6,6 +6,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CreateCouponDto, UpdateCouponDto, ValidateCouponDto } from './dto/coupon.dto';
+import { AdminLogService } from '../admin/services/admin-log.service';
 
 @Controller('coupons')
 export class CouponsController {
@@ -22,11 +23,20 @@ export class CouponsController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminCouponsController {
-    constructor(private readonly couponsService: CouponsService) { }
+    constructor(
+        private readonly couponsService: CouponsService,
+        private readonly adminLogService: AdminLogService,
+    ) { }
 
     @Post()
-    async create(@Body() dto: CreateCouponDto) {
-        return this.couponsService.create(dto);
+    async create(
+        @Body() dto: CreateCouponDto,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const coupon = await this.couponsService.create(dto);
+        await this.adminLogService.logAction(adminId, 'CREATE_COUPON', 'Coupons', (coupon as any)._id?.toString(), { code: dto.code }, req.ip);
+        return coupon;
     }
 
     @Get()
@@ -40,13 +50,25 @@ export class AdminCouponsController {
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() dto: UpdateCouponDto) {
-        return this.couponsService.update(id, dto);
+    async update(
+        @Param('id') id: string,
+        @Body() dto: UpdateCouponDto,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const coupon = await this.couponsService.update(id, dto);
+        await this.adminLogService.logAction(adminId, 'UPDATE_COUPON', 'Coupons', id, { fields: Object.keys(dto) }, req.ip);
+        return coupon;
     }
 
     @Delete(':id')
-    async remove(@Param('id') id: string) {
+    async remove(
+        @Param('id') id: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
         await this.couponsService.remove(id);
+        await this.adminLogService.logAction(adminId, 'DELETE_COUPON', 'Coupons', id, {}, req.ip);
         return { message: 'Coupon deleted successfully' };
     }
 

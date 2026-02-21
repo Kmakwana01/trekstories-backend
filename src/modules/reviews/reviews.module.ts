@@ -6,6 +6,7 @@ import { AdminReviewsController } from './admin-reviews.controller';
 import { Review, ReviewSchema } from '../../database/schemas/review.schema';
 import { Booking, BookingSchema } from '../../database/schemas/booking.schema';
 import { Tour, TourSchema } from '../../database/schemas/tour.schema';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { Tour, TourSchema } from '../../database/schemas/tour.schema';
             { name: Booking.name, schema: BookingSchema },
             { name: Tour.name, schema: TourSchema },
         ]),
+        AdminModule,
     ],
     controllers: [ReviewsController, AdminReviewsController],
     providers: [ReviewsService],

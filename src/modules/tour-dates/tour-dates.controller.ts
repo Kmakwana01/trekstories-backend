@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { TourDatesService } from './tour-dates.service';
 import { CreateTourDateDto, UpdateTourDateDto } from './dto/create-tour-date.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/roles.enum';
+import { AdminLogService } from '../admin/services/admin-log.service';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('tour-dates')
 export class TourDatesController {
@@ -20,7 +22,10 @@ export class TourDatesController {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminTourDatesController {
-    constructor(private readonly tourDatesService: TourDatesService) { }
+    constructor(
+        private readonly tourDatesService: TourDatesService,
+        private readonly adminLogService: AdminLogService,
+    ) { }
 
     @Get(':tourId')
     async getTourDates(@Param('tourId') tourId: string) {
@@ -28,24 +33,49 @@ export class AdminTourDatesController {
     }
 
     @Post()
-    async createTourDate(@Body() createTourDateDto: CreateTourDateDto) {
-        return this.tourDatesService.adminCreateTourDate(createTourDateDto);
+    async createTourDate(
+        @Body() createTourDateDto: CreateTourDateDto,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const tourDate = await this.tourDatesService.adminCreateTourDate(createTourDateDto);
+        await this.adminLogService.logAction(adminId, 'CREATE_TOUR_DATE', 'TourDates', (tourDate as any)._id?.toString(), { tour: createTourDateDto.tour }, req.ip);
+        return tourDate;
     }
 
     @Patch(':id')
-    async updateTourDate(@Param('id') id: string, @Body() updateTourDateDto: UpdateTourDateDto) {
-        return this.tourDatesService.adminUpdateTourDate(id, updateTourDateDto);
+    async updateTourDate(
+        @Param('id') id: string,
+        @Body() updateTourDateDto: UpdateTourDateDto,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const tourDate = await this.tourDatesService.adminUpdateTourDate(id, updateTourDateDto);
+        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE', 'TourDates', id, { fields: Object.keys(updateTourDateDto) }, req.ip);
+        return tourDate;
     }
 
     @Delete(':id')
-    async deleteTourDate(@Param('id') id: string) {
+    async deleteTourDate(
+        @Param('id') id: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
         await this.tourDatesService.adminDeleteTourDate(id);
+        await this.adminLogService.logAction(adminId, 'DELETE_TOUR_DATE', 'TourDates', id, {}, req.ip);
         return { message: 'Tour date deleted successfully' };
     }
 
     @Patch(':id/status')
-    async updateStatus(@Param('id') id: string, @Body('status') status: string) {
-        return this.tourDatesService.updateStatus(id, status);
+    async updateStatus(
+        @Param('id') id: string,
+        @Body('status') status: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const tourDate = await this.tourDatesService.updateStatus(id, status);
+        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE_STATUS', 'TourDates', id, { status }, req.ip);
+        return tourDate;
     }
 
     @Post('auto-update-status')

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CouponsController, AdminCouponsController } from './coupons.controller';
 import { CouponsService } from './coupons.service';
+import { AdminLogService } from '../admin/services/admin-log.service';
 
 describe('Coupons Controllers', () => {
     let controller: CouponsController;
@@ -17,16 +18,16 @@ describe('Coupons Controllers', () => {
         getCouponUsage: jest.fn().mockResolvedValue({ data: [], total: 0 }),
     };
 
+    const mockAdminLogService = { logAction: jest.fn().mockResolvedValue(undefined) };
     const mockUser = { _id: 'user1' };
+    const mockReq = { ip: '127.0.0.1' };
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [CouponsController, AdminCouponsController],
             providers: [
-                {
-                    provide: CouponsService,
-                    useValue: mockCouponsService,
-                },
+                { provide: CouponsService, useValue: mockCouponsService },
+                { provide: AdminLogService, useValue: mockAdminLogService },
             ],
         }).compile();
 
@@ -52,7 +53,7 @@ describe('Coupons Controllers', () => {
     describe('AdminCouponsController', () => {
         it('should create a coupon', async () => {
             const dto = { code: 'SAVE10', discountType: 'percent', discountValue: 10 };
-            const result = await adminController.create(dto as any);
+            const result = await adminController.create(dto as any, 'admin1', mockReq as any);
             expect(result).toEqual({ _id: '1', code: 'SAVE10' });
             expect(service.create).toHaveBeenCalledWith(dto);
         });
@@ -71,13 +72,13 @@ describe('Coupons Controllers', () => {
 
         it('should update a coupon', async () => {
             const dto = { discountValue: 15 };
-            const result = await adminController.update('1', dto as any);
+            const result = await adminController.update('1', dto as any, 'admin1', mockReq as any);
             expect(result).toEqual({ _id: '1', code: 'SAVE10' });
             expect(service.update).toHaveBeenCalledWith('1', dto);
         });
 
         it('should remove a coupon', async () => {
-            const result = await adminController.remove('1');
+            const result = await adminController.remove('1', 'admin1', mockReq as any);
             expect(result).toEqual({ message: 'Coupon deleted successfully' });
             expect(service.remove).toHaveBeenCalledWith('1');
         });

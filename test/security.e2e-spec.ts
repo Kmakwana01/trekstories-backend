@@ -37,10 +37,10 @@ describe('Security (e2e)', () => {
             await request(app.getHttpServer())
                 .get('/api/tours/search')
                 .send({ query: { "$gt": "" } })
-                .expect(status => {
+                .expect(res => {
                     // It should either return 200 (sanitized search) or 400/404 (validation fail/not found)
                     // but NOT 500 or leaked data.
-                    return status === 200 || status === 400 || status === 404;
+                    return res.status === 200 || res.status === 400 || res.status === 404;
                 });
         });
     });
@@ -71,7 +71,7 @@ describe('Security (e2e)', () => {
     describe('Rate Limiting', () => {
         it('should return 429 after too many requests', async () => {
             // Limit is 30 per minute. We'll send 35.
-            const reqs = [];
+            const reqs: any[] = [];
             for (let i = 0; i < 35; i++)
             {
                 reqs.push(request(app.getHttpServer()).get('/api/auth/me').set('Authorization', `Bearer ${customerToken}`));

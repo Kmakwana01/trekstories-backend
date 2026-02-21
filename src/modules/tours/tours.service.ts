@@ -97,8 +97,6 @@ export class ToursService {
             .exec();
     }
 
-
-
     async getFilterOptions() {
         const [states, categories, departureCities] = await Promise.all([
             this.tourModel.distinct('state', { isActive: true }),
@@ -120,23 +118,38 @@ export class ToursService {
 
     // --- Admin Methods ---
 
-    async adminCreateTour(createTourDto: CreateTourDto): Promise<TourDocument> {
+    async adminCreateTour(createTourDto: CreateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string): Promise<TourDocument> {
         this.logger.log(`Admin creating tour: ${createTourDto.title}`);
         const slug = await generateUniqueSlug(this.tourModel, createTourDto.title);
+        // Uploaded file paths take precedence over any URLs in the DTO
+        const images = uploadedImages.length > 0 ? uploadedImages : (createTourDto.images || []);
+        const thumbnailImage = thumbnailUrl || createTourDto.thumbnailImage;
         const tour = new this.tourModel({
             ...createTourDto,
             slug,
+            images,
+            thumbnailImage,
         });
         const savedTour = await tour.save();
         this.logger.log(`Tour created successfully: ${savedTour.slug} (${savedTour._id})`);
         return savedTour;
     }
 
-    async adminUpdateTour(id: string, updateTourDto: UpdateTourDto): Promise<TourDocument> {
+    async adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string): Promise<TourDocument> {
         this.logger.log(`Admin updating tour ${id}`);
+        const updatePayload: any = { $set: { ...updateTourDto } };
+
+        if (thumbnailUrl) updatePayload.$set.thumbnailImage = thumbnailUrl;
+
+        // Push new uploaded images into the existing images array
+        if (uploadedImages.length > 0)
+        {
+            updatePayload.$push = { images: { $each: uploadedImages } };
+        }
+
         const tour = await this.tourModel.findByIdAndUpdate(
             id,
-            { $set: updateTourDto },
+            updatePayload,
             { returnDocument: 'after', runValidators: true },
         );
 

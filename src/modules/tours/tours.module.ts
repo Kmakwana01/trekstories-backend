@@ -6,6 +6,7 @@ import { Review, ReviewSchema } from '../../database/schemas/review.schema';
 import { ToursService } from './tours.service';
 import { ToursController } from './tours.controller';
 import { AdminToursController } from './admin-tours.controller';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { AdminToursController } from './admin-tours.controller';
             { name: TourDate.name, schema: TourDateSchema },
             { name: 'Review', schema: ReviewSchema },
         ]),
+        AdminModule,
     ],
     controllers: [ToursController, AdminToursController],
     providers: [ToursService],

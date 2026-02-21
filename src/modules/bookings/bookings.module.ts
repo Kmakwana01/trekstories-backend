@@ -8,6 +8,7 @@ import { Tour, TourSchema } from '../../database/schemas/tour.schema';
 import { TourDate, TourDateSchema } from '../../database/schemas/tour-date.schema';
 import { CouponsModule } from '../coupons/coupons.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
         ]),
         CouponsModule,
         NotificationsModule,
+        AdminModule,
     ],
     providers: [BookingsService],
     controllers: [BookingsController, AdminBookingsController],

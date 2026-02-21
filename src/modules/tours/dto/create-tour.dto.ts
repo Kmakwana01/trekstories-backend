@@ -147,6 +147,15 @@ export class CreateTourDto {
     @IsOptional()
     faqs?: FAQDto[];
 
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    images?: string[];
+
+    @IsString()
+    @IsOptional()
+    thumbnailImage?: string;
+
     @IsBoolean()
     @IsOptional()
     isActive?: boolean;

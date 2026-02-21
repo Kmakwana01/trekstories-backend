@@ -4,16 +4,19 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { Role } from '../../../common/enums/roles.enum';
 import { AdminCrmService } from '../services/admin-crm.service';
+import { AdminLogService } from '../services/admin-log.service';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import type { UserDocument } from '../../../database/schemas/user.schema';
 import { PaginationQuery } from '../../../common/helpers/pagination.helper';
-
 
 @Controller('admin/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminUsersController {
-    constructor(private crmService: AdminCrmService) { }
+    constructor(
+        private crmService: AdminCrmService,
+        private adminLogService: AdminLogService,
+    ) { }
 
     @Get()
     async getAllUsers(
@@ -37,7 +40,9 @@ export class AdminUsersController {
         @CurrentUser() admin: UserDocument,
         @Req() req: any,
     ) {
-        return this.crmService.blockUser(id, admin._id.toString(), reason, req.ip);
+        const result = await this.crmService.blockUser(id, admin._id.toString(), reason, req.ip);
+        await this.adminLogService.logAction(admin._id.toString(), 'BLOCK_USER', 'Users', id, { reason }, req.ip);
+        return result;
     }
 
     @Patch(':id/unblock')
@@ -46,11 +51,20 @@ export class AdminUsersController {
         @CurrentUser() admin: UserDocument,
         @Req() req: any,
     ) {
-        return this.crmService.unblockUser(id, admin._id.toString(), req.ip);
+        const result = await this.crmService.unblockUser(id, admin._id.toString(), req.ip);
+        await this.adminLogService.logAction(admin._id.toString(), 'UNBLOCK_USER', 'Users', id, {}, req.ip);
+        return result;
     }
 
     @Post(':id/notes')
-    async addUserNote(@Param('id') id: string, @Body('note') note: string) {
-        return this.crmService.addUserNote(id, note);
+    async addUserNote(
+        @Param('id') id: string,
+        @Body('note') note: string,
+        @CurrentUser() admin: UserDocument,
+        @Req() req: any,
+    ) {
+        const result = await this.crmService.addUserNote(id, note);
+        await this.adminLogService.logAction(admin._id.toString(), 'ADD_USER_NOTE', 'Users', id, { note }, req.ip);
+        return result;
     }
 }

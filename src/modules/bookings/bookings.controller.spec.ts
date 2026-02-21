@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookingsController } from './bookings.controller';
 import { AdminBookingsController } from './admin-bookings.controller';
 import { BookingsService } from './bookings.service';
+import { AdminLogService } from '../admin/services/admin-log.service';
 
 describe('Bookings Controllers', () => {
     let controller: BookingsController;
@@ -20,14 +21,15 @@ describe('Bookings Controllers', () => {
         adminUpdatePaidAmount: jest.fn().mockResolvedValue({ id: '1', paidAmount: 100 }),
     };
 
+    const mockAdminLogService = { logAction: jest.fn().mockResolvedValue(undefined) };
+    const mockReq = { ip: '127.0.0.1' };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [BookingsController, AdminBookingsController],
             providers: [
-                {
-                    provide: BookingsService,
-                    useValue: mockBookingsService,
-                },
+                { provide: BookingsService, useValue: mockBookingsService },
+                { provide: AdminLogService, useValue: mockAdminLogService },
             ],
         }).compile();
 
@@ -82,17 +84,17 @@ describe('Bookings Controllers', () => {
         });
 
         it('should call adminUpdateStatus', async () => {
-            await adminController.updateStatus('1', 'confirmed', 'note');
+            await adminController.updateStatus('1', 'confirmed', 'note', 'admin1', mockReq as any);
             expect(service.adminUpdateStatus).toHaveBeenCalledWith('1', 'confirmed', 'note');
         });
 
         it('should call adminConfirmBooking', async () => {
-            await adminController.confirmBooking('1');
+            await adminController.confirmBooking('1', 'admin1', mockReq as any);
             expect(service.adminConfirmBooking).toHaveBeenCalledWith('1');
         });
 
         it('should call adminUpdatePaidAmount', async () => {
-            await adminController.addPayment('1', 100);
+            await adminController.addPayment('1', 100, 'admin1', mockReq as any);
             expect(service.adminUpdatePaidAmount).toHaveBeenCalledWith('1', 100);
         });
     });

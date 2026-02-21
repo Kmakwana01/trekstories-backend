@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminReviewsController } from './admin-reviews.controller';
 import { ReviewsService } from './reviews.service';
+import { AdminLogService } from '../admin/services/admin-log.service';
 
 describe('AdminReviewsController', () => {
     let controller: AdminReviewsController;
@@ -13,14 +14,15 @@ describe('AdminReviewsController', () => {
         delete: jest.fn().mockResolvedValue(undefined),
     };
 
+    const mockAdminLogService = { logAction: jest.fn().mockResolvedValue(undefined) };
+    const mockReq = { ip: '127.0.0.1' };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [AdminReviewsController],
             providers: [
-                {
-                    provide: ReviewsService,
-                    useValue: mockReviewsService,
-                },
+                { provide: ReviewsService, useValue: mockReviewsService },
+                { provide: AdminLogService, useValue: mockAdminLogService },
             ],
         }).compile();
 
@@ -39,17 +41,17 @@ describe('AdminReviewsController', () => {
     });
 
     it('should approve a review', async () => {
-        await controller.approve('1');
+        await controller.approve('1', 'admin1', mockReq as any);
         expect(service.approve).toHaveBeenCalledWith('1');
     });
 
     it('should reject a review', async () => {
-        await controller.reject('1', { reason: 'bad' });
+        await controller.reject('1', { reason: 'bad' }, 'admin1', mockReq as any);
         expect(service.reject).toHaveBeenCalledWith('1', 'bad');
     });
 
     it('should delete a review', async () => {
-        await controller.remove('1');
+        await controller.remove('1', 'admin1', mockReq as any);
         expect(service.delete).toHaveBeenCalledWith('1');
     });
 });

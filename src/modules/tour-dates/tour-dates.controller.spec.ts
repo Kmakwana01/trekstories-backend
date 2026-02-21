@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TourDatesController, AdminTourDatesController } from './tour-dates.controller';
 import { TourDatesService } from './tour-dates.service';
+import { AdminLogService } from '../admin/services/admin-log.service';
 
 describe('TourDates Controllers', () => {
     let controller: TourDatesController;
@@ -17,14 +18,15 @@ describe('TourDates Controllers', () => {
         autoUpdateStatuses: jest.fn().mockResolvedValue({ updated: 0 }),
     };
 
+    const mockAdminLogService = { logAction: jest.fn().mockResolvedValue(undefined) };
+    const mockReq = { ip: '127.0.0.1' };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             controllers: [TourDatesController, AdminTourDatesController],
             providers: [
-                {
-                    provide: TourDatesService,
-                    useValue: mockTourDatesService,
-                },
+                { provide: TourDatesService, useValue: mockTourDatesService },
+                { provide: AdminLogService, useValue: mockAdminLogService },
             ],
         }).compile();
 
@@ -53,23 +55,23 @@ describe('TourDates Controllers', () => {
 
         it('should call adminCreateTourDate', async () => {
             const dto = { tour: 'tour1', startDate: new Date() };
-            await adminController.createTourDate(dto as any);
+            await adminController.createTourDate(dto as any, 'admin1', mockReq as any);
             expect(service.adminCreateTourDate).toHaveBeenCalledWith(dto);
         });
 
         it('should call adminUpdateTourDate', async () => {
             const dto = { seats: 20 };
-            await adminController.updateTourDate('1', dto as any);
+            await adminController.updateTourDate('1', dto as any, 'admin1', mockReq as any);
             expect(service.adminUpdateTourDate).toHaveBeenCalledWith('1', dto);
         });
 
         it('should call adminDeleteTourDate', async () => {
-            await adminController.deleteTourDate('1');
+            await adminController.deleteTourDate('1', 'admin1', mockReq as any);
             expect(service.adminDeleteTourDate).toHaveBeenCalledWith('1');
         });
 
         it('should call updateStatus', async () => {
-            await adminController.updateStatus('1', 'full');
+            await adminController.updateStatus('1', 'full', 'admin1', mockReq as any);
             expect(service.updateStatus).toHaveBeenCalledWith('1', 'full');
         });
 

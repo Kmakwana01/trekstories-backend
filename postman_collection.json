@@ -3196,20 +3196,76 @@
               "name": "Create Tour",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"title\": \"Rajasthan Royal Adventure – 7 Days\",\n  \"description\": \"Explore the vibrant culture and majestic forts of Rajasthan on this 7-day tour.\",\n  \"basePrice\": 25000,\n  \"minAge\": 5,\n  \"maxAge\": 75,\n  \"category\": \"Cultural\",\n  \"location\": \"Jaipur, Jodhpur, Udaipur\",\n  \"state\": \"Rajasthan\",\n  \"country\": \"India\",\n  \"highlights\": [\n    \"Pink City Jaipur\",\n    \"Mehrangarh Fort\",\n    \"Lake Pichola\"\n  ],\n  \"departureOptions\": [\n    {\n      \"fromCity\": \"Delhi\",\n      \"toCity\": \"Jaipur\",\n      \"type\": \"AC\",\n      \"departureTimeAndPlace\": \"6:00 AM – Delhi ISBT\",\n      \"totalDays\": 7,\n      \"totalNights\": 6,\n      \"priceAdjustment\": 0\n    },\n    {\n      \"fromCity\": \"Mumbai\",\n      \"toCity\": \"Jaipur\",\n      \"type\": \"FLIGHT\",\n      \"departureTimeAndPlace\": \"8:00 AM – Mumbai Airport\",\n      \"totalDays\": 7,\n      \"totalNights\": 6,\n      \"priceAdjustment\": 3000\n    }\n  ],\n  \"itinerary\": [\n    {\n      \"dayNumber\": 1,\n      \"title\": \"Arrival in Jaipur\",\n      \"points\": [\n        {\n          \"text\": \"Check-in at hotel\",\n          \"subPoints\": [\n            \"Welcome dinner\",\n            \"Orientation briefing\"\n          ]\n        }\n      ]\n    },\n    {\n      \"dayNumber\": 2,\n      \"title\": \"City Palace & Amber Fort\",\n      \"points\": [\n        {\n          \"text\": \"Visit Amber Fort\",\n          \"subPoints\": [\n            \"Elephant ride\",\n            \"Light show\"\n          ]\n        },\n        {\n          \"text\": \"City Palace tour\"\n        }\n      ]\n    }\n  ],\n  \"inclusions\": [\n    \"Accommodation (6 nights)\",\n    \"Daily breakfast\",\n    \"AC transport\",\n    \"Tour guide\",\n    \"Entry fees\"\n  ],\n  \"exclusions\": [\n    \"Flights to/from Jaipur\",\n    \"Personal expenses\",\n    \"Lunch & dinner\",\n    \"Travel insurance\"\n  ],\n  \"faqs\": [\n    {\n      \"question\": \"Is this tour child-friendly?\",\n      \"answer\": \"Yes, the tour is suitable for children aged 5 and above.\"\n    },\n    {\n      \"question\": \"What is the cancellation policy?\",\n      \"answer\": \"Free cancellation up to 15 days before departure.\"\n    }\n  ],\n  \"isActive\": true,\n  \"isFeatured\": false\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "New Amazing Tour",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "This is a description of the amazing tour.",
+                      "type": "text"
+                    },
+                    {
+                      "key": "basePrice",
+                      "value": "1000",
+                      "type": "text"
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "thumbnailImage",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "category",
+                      "value": "Adventure",
+                      "type": "text"
+                    },
+                    {
+                      "key": "location",
+                      "value": "Mountains",
+                      "type": "text"
+                    },
+                    {
+                      "key": "state",
+                      "value": "Colorado",
+                      "type": "text"
+                    },
+                    {
+                      "key": "country",
+                      "value": "USA",
+                      "type": "text"
+                    },
+                    {
+                      "key": "highlights",
+                      "value": "[\"Hiking\", \"Camping\"]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "itinerary",
+                      "value": "[{\"dayNumber\": 1, \"title\": \"Arrival\", \"points\": [{\"text\": \"Arrive at basecamp\"}]}]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "inclusions",
+                      "value": "[\"Meals\", \"Guide\"]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "exclusions",
+                      "value": "[\"Flights\"]",
+                      "type": "text"
                     }
-                  }
+                  ]
                 },
                 "auth": {
                   "type": "bearer",
@@ -3310,20 +3366,31 @@
               "name": "Update Tour",
               "request": {
                 "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"title\": \"Rajasthan Royal Adventure – 7 Days (Updated)\",\n  \"basePrice\": 27000,\n  \"isFeatured\": true\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "Updated Amazing Tour",
+                      "type": "text"
+                    },
+                    {
+                      "key": "basePrice",
+                      "value": "1200",
+                      "type": "text"
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "thumbnailImage",
+                      "type": "file",
+                      "src": []
                     }
-                  }
+                  ]
                 },
                 "auth": {
                   "type": "bearer",
@@ -3466,63 +3533,6 @@
                 }
               ],
               "_postman_id": "tyxvwja6-1771665469824"
-            },
-            {
-              "name": "Upload Tour Images",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "images",
-                      "src": "",
-                      "type": "file",
-                      "description": "Select up to 10 images (jpg/jpeg/png/gif)"
-                    }
-                  ]
-                },
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{adminAccessToken}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/api/admin/tours/{{tourId}}/images",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "admin",
-                    "tours",
-                    "{{tourId}}",
-                    "images"
-                  ]
-                },
-                "description": ""
-              },
-              "response": [],
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test(\"Response OK\", () => {",
-                      "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
-                      "});"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
-              "_postman_id": "ujn4dqfe-1771665469824"
             },
             {
               "name": "Delete Tour Image",
@@ -4758,20 +4768,41 @@
               "name": "Create Blog",
               "request": {
                 "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"title\": \"Top 10 Destinations in India for 2025\",\n  \"content\": \"<p>India offers breathtaking destinations ranging from the Himalayas to the backwaters of Kerala...</p>\",\n  \"excerpt\": \"Discover the most stunning travel destinations across India in 2025.\",\n  \"category\": \"Travel Tips\",\n  \"tags\": [\n    \"india\",\n    \"travel\",\n    \"2025\",\n    \"destinations\"\n  ],\n  \"featuredImage\": \"https://example.com/images/top-destinations.jpg\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "New Blog Post",
+                      "type": "text"
+                    },
+                    {
+                      "key": "content",
+                      "value": "<p>Some content</p>",
+                      "type": "text"
+                    },
+                    {
+                      "key": "excerpt",
+                      "value": "Short excerpt",
+                      "type": "text"
+                    },
+                    {
+                      "key": "category",
+                      "value": "Travel Trips",
+                      "type": "text"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "[\"summer\", \"europe\"]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "featuredImage",
+                      "type": "file",
+                      "src": []
                     }
-                  }
+                  ]
                 },
                 "auth": {
                   "type": "bearer",
@@ -4947,20 +4978,26 @@
               "name": "Update Blog",
               "request": {
                 "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "header": [],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"title\": \"Top 10 Destinations in India for 2025 (Updated)\",\n  \"tags\": [\n    \"india\",\n    \"travel\",\n    \"updated\"\n  ]\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "Updated Blog Post",
+                      "type": "text"
+                    },
+                    {
+                      "key": "content",
+                      "value": "<p>Updated content</p>",
+                      "type": "text"
+                    },
+                    {
+                      "key": "featuredImage",
+                      "type": "file",
+                      "src": []
                     }
-                  }
+                  ]
                 },
                 "auth": {
                   "type": "bearer",

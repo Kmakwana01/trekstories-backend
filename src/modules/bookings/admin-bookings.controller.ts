@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Patch, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Patch, Query, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { BookingsService } from './bookings.service';
+import { AdminLogService } from '../admin/services/admin-log.service';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('admin/bookings')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminBookingsController {
-    constructor(private readonly bookingsService: BookingsService) { }
+    constructor(
+        private readonly bookingsService: BookingsService,
+        private readonly adminLogService: AdminLogService,
+    ) { }
 
     @Get()
     async getAllBookings(@Query() filters: any) {
@@ -25,18 +30,35 @@ export class AdminBookingsController {
     async updateStatus(
         @Param('id') id: string,
         @Body('status') status: string,
-        @Body('internalNotes') internalNotes?: string
+        @Body('internalNotes') internalNotes: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
     ) {
-        return this.bookingsService.adminUpdateStatus(id, status, internalNotes);
+        const booking = await this.bookingsService.adminUpdateStatus(id, status, internalNotes);
+        await this.adminLogService.logAction(adminId, 'UPDATE_BOOKING_STATUS', 'Bookings', id, { status, internalNotes }, req.ip);
+        return booking;
     }
 
     @Patch(':id/confirm')
-    async confirmBooking(@Param('id') id: string) {
-        return this.bookingsService.adminConfirmBooking(id);
+    async confirmBooking(
+        @Param('id') id: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const booking = await this.bookingsService.adminConfirmBooking(id);
+        await this.adminLogService.logAction(adminId, 'CONFIRM_BOOKING', 'Bookings', id, {}, req.ip);
+        return booking;
     }
 
     @Patch(':id/add-payment')
-    async addPayment(@Param('id') id: string, @Body('amount') amount: number) {
-        return this.bookingsService.adminUpdatePaidAmount(id, amount);
+    async addPayment(
+        @Param('id') id: string,
+        @Body('amount') amount: number,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const booking = await this.bookingsService.adminUpdatePaidAmount(id, amount);
+        await this.adminLogService.logAction(adminId, 'ADD_PAYMENT', 'Bookings', id, { amount }, req.ip);
+        return booking;
     }
 }

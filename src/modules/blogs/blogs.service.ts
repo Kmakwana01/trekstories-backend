@@ -11,7 +11,7 @@ import slugify from 'slugify';
 export class BlogsService {
     constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) { }
 
-    async create(createBlogDto: CreateBlogDto, authorId: string): Promise<Blog> {
+    async create(createBlogDto: CreateBlogDto, authorId: string, featuredImageUrl?: string): Promise<Blog> {
         const slug = this.generateSlug(createBlogDto.title);
 
         // Check for existing slug (though schema has unique, good to check)
@@ -25,6 +25,7 @@ export class BlogsService {
             ...createBlogDto,
             slug,
             author: authorId,
+            ...(featuredImageUrl ? { featuredImage: featuredImageUrl } : {}),
         });
         return newBlog.save();
     }
@@ -113,7 +114,7 @@ export class BlogsService {
         return blog;
     }
 
-    async update(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+    async update(id: string, updateBlogDto: UpdateBlogDto, featuredImageUrl?: string): Promise<Blog> {
         const blog = await this.blogModel.findById(id);
         if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
 
@@ -129,6 +130,7 @@ export class BlogsService {
         }
 
         Object.assign(blog, updateBlogDto);
+        if (featuredImageUrl) blog.featuredImage = featuredImageUrl;
         return blog.save();
     }
 
