@@ -4,6 +4,7 @@ import {
     ForbiddenException,
     Injectable,
     UnauthorizedException,
+    Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -21,6 +22,8 @@ import { Role } from '../../common/enums/roles.enum';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private jwtService: JwtService,
@@ -30,6 +33,7 @@ export class AuthService {
 
     async register(registerDto: RegisterDto) {
         const { email, phone, password } = registerDto;
+        this.logger.log(`Attempting to register user: ${email}`);
 
         const existingUser = await this.userModel.findOne({
             $or: [{ email }, { phone }],
@@ -37,6 +41,7 @@ export class AuthService {
 
         if (existingUser)
         {
+            this.logger.warn(`Registration failed: User ${email} already exists`);
             throw new ConflictException('Email or phone already exists');
         }
 
@@ -50,6 +55,7 @@ export class AuthService {
         });
 
         await user.save();
+        this.logger.log(`User registered successfully: ${email} (${user._id})`);
 
         const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
         await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
@@ -63,6 +69,7 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const { identifier, password } = loginDto;
+        this.logger.log(`User login attempt: ${identifier}`);
 
         const user = await this.userModel.findOne({
             $or: [{ email: identifier }, { phone: identifier }],
@@ -70,22 +77,26 @@ export class AuthService {
 
         if (!user)
         {
+            this.logger.warn(`Login failed: User ${identifier} not found`);
             throw new UnauthorizedException('Invalid credentials');
         }
 
         if (user.isBlocked)
         {
+            this.logger.warn(`Login failed: User ${identifier} is blocked`);
             throw new ForbiddenException('Account is blocked');
         }
 
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch)
         {
+            this.logger.warn(`Login failed: Invalid password for user ${identifier}`);
             throw new UnauthorizedException('Invalid credentials');
         }
 
         user.lastLogin = new Date();
         await user.save();
+        this.logger.log(`User logged in successfully: ${identifier}`);
 
         const tokens = await this.getTokens(user._id.toString(), user.email, user.role);
         await this.updateRefreshTokenHash(user._id.toString(), tokens.refreshToken);
@@ -123,15 +134,18 @@ export class AuthService {
         await this.userModel.findByIdAndUpdate(userId, {
             refreshTokenHash: null,
         });
+        this.logger.log(`User logged out: ${userId}`);
         return { message: 'Logged out successfully' };
     }
 
     async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
         const { email } = forgotPasswordDto;
+        this.logger.log(`Forgot password request for: ${email}`);
         const user = await this.userModel.findOne({ email });
 
         if (!user)
         {
+            this.logger.warn(`Forgot password: User ${email} not found`);
             return { message: 'If account exists, reset email sent' };
         }
 
@@ -152,11 +166,13 @@ export class AuthService {
             { otp: resetToken, name: user.name },
         );
 
+        this.logger.log(`Reset email sent to: ${email}`);
         return { message: 'If account exists, reset email sent' };
     }
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
         const { token, newPassword } = resetPasswordDto;
+        this.logger.log(`Attempting password reset with token`);
         const hashToken = crypto.createHash('sha256').update(token).digest('hex');
 
         const user = await this.userModel.findOne({
@@ -166,6 +182,7 @@ export class AuthService {
 
         if (!user)
         {
+            this.logger.warn(`Password reset failed: Invalid or expired token`);
             throw new BadRequestException('Invalid or expired token');
         }
 
@@ -175,6 +192,7 @@ export class AuthService {
         user.resetTokenExpiry = undefined;
         await user.save();
 
+        this.logger.log(`Password reset successful for user: ${user.email}`);
         return { message: 'Password updated successfully' };
     }
 

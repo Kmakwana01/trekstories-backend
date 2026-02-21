@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Tour, TourDocument } from '../../database/schemas/tour.schema';
@@ -11,6 +11,8 @@ import { generateUniqueSlug } from '../../common/helpers/slug.helper';
 
 @Injectable()
 export class ToursService {
+    private readonly logger = new Logger(ToursService.name);
+
     constructor(
         @InjectModel(Tour.name) private tourModel: Model<TourDocument>,
         @InjectModel(TourDate.name) private tourDateModel: Model<TourDateDocument>,
@@ -119,15 +121,19 @@ export class ToursService {
     // --- Admin Methods ---
 
     async adminCreateTour(createTourDto: CreateTourDto): Promise<TourDocument> {
+        this.logger.log(`Admin creating tour: ${createTourDto.title}`);
         const slug = await generateUniqueSlug(this.tourModel, createTourDto.title);
         const tour = new this.tourModel({
             ...createTourDto,
             slug,
         });
-        return tour.save();
+        const savedTour = await tour.save();
+        this.logger.log(`Tour created successfully: ${savedTour.slug} (${savedTour._id})`);
+        return savedTour;
     }
 
     async adminUpdateTour(id: string, updateTourDto: UpdateTourDto): Promise<TourDocument> {
+        this.logger.log(`Admin updating tour ${id}`);
         const tour = await this.tourModel.findByIdAndUpdate(
             id,
             { $set: updateTourDto },
@@ -136,38 +142,51 @@ export class ToursService {
 
         if (!tour)
         {
+            this.logger.warn(`Tour update failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
 
+        this.logger.log(`Tour updated successfully: ${tour.slug}`);
         return tour;
     }
 
     async adminSoftDelete(id: string): Promise<void> {
+        this.logger.log(`Admin soft-deleting tour: ${id}`);
         const result = await this.tourModel.findByIdAndUpdate(id, { isActive: false });
         if (!result)
         {
+            this.logger.warn(`Tour deletion failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
+        this.logger.log(`Tour ${id} soft-deleted successfully.`);
     }
 
     async toggleStatus(id: string): Promise<TourDocument> {
+        this.logger.log(`Toggling status for tour: ${id}`);
         const tour = await this.tourModel.findById(id);
         if (!tour)
         {
+            this.logger.warn(`Toggle status failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
         tour.isActive = !tour.isActive;
-        return tour.save();
+        const savedTour = await tour.save();
+        this.logger.log(`Tour ${id} status toggled to: ${savedTour.isActive}`);
+        return savedTour;
     }
 
     async toggleFeatured(id: string): Promise<TourDocument> {
+        this.logger.log(`Toggling featured for tour: ${id}`);
         const tour = await this.tourModel.findById(id);
         if (!tour)
         {
+            this.logger.warn(`Toggle featured failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
         tour.isFeatured = !tour.isFeatured;
-        return tour.save();
+        const savedTour = await tour.save();
+        this.logger.log(`Tour ${id} featured toggled to: ${savedTour.isFeatured}`);
+        return savedTour;
     }
 
     async adminGetTours(pagination: any) {

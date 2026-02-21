@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { InjectQueue } from '@nestjs/bull';
@@ -8,6 +8,8 @@ import { paginate } from '../../common/helpers/pagination.helper';
 
 @Injectable()
 export class NotificationsService {
+    private readonly logger = new Logger(NotificationsService.name);
+
     constructor(
         @InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>,
         @InjectQueue('email') private emailQueue: Queue,
@@ -55,6 +57,7 @@ export class NotificationsService {
     }
 
     async sendEmail(to: string, subject: string, template: string, context: any) {
+        this.logger.log(`Enqueuing email to: ${to}`);
         await this.emailQueue.add('send-email', {
             to,
             subject,
@@ -64,6 +67,7 @@ export class NotificationsService {
     }
 
     async sendWhatsApp(phone: string, message: string, template?: string, context?: any) {
+        this.logger.log(`Enqueuing WhatsApp to: ${phone}`);
         await this.whatsappQueue.add('send-whatsapp', {
             phone,
             message,

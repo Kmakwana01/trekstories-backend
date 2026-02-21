@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking, BookingDocument } from '../../database/schemas/booking.schema';
@@ -13,6 +13,8 @@ import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class BookingsService {
+    private readonly logger = new Logger(BookingsService.name);
+
     constructor(
         @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
         @InjectModel(Tour.name) private tourModel: Model<TourDocument>,
@@ -22,6 +24,7 @@ export class BookingsService {
     ) { }
 
     async previewBooking(dto: PreviewBookingDto) {
+        this.logger.log(`Previewing booking for tour date: ${dto.tourDateId}`);
         const { tourDateId, pickupOptionIndex, travelerCount, couponCode } = dto;
 
         const tourDate = await this.tourDateModel.findById(tourDateId).populate('tour').exec();
@@ -121,6 +124,7 @@ export class BookingsService {
     }
 
     async createBooking(userId: string, dto: CreateBookingDto) {
+        this.logger.log(`Creating booking for user ${userId} on tour date ${dto.tourDateId}`);
         const preview = await this.previewBooking({
             tourDateId: dto.tourDateId,
             pickupOptionIndex: dto.pickupOptionIndex,
@@ -146,6 +150,7 @@ export class BookingsService {
 
         if (!updatedTourDate)
         {
+            this.logger.warn(`Booking failed: No seats available for tour date ${dto.tourDateId}`);
             throw new ConflictException('Not enough seats available or tour date not found');
         }
 
@@ -178,6 +183,7 @@ export class BookingsService {
         }
 
         const savedBooking = await booking.save();
+        this.logger.log(`Booking created successfully: #${savedBooking.bookingNumber} (${savedBooking._id})`);
 
         // Fire 'Booking Created' notification
         try
@@ -191,7 +197,7 @@ export class BookingsService {
             );
         } catch (err)
         {
-            console.error('Failed to create notification for booking:', err);
+            this.logger.error(`Failed to create notification for booking ${savedBooking.bookingNumber}`, err.stack);
         }
 
         return savedBooking.toObject();
@@ -256,6 +262,7 @@ export class BookingsService {
     }
 
     async adminConfirmBooking(id: string) {
+        this.logger.log(`Admin confirming booking: ${id}`);
         const booking = await this.bookingModel.findById(id).exec();
         if (!booking) throw new NotFoundException('Booking not found');
         if (booking.status === 'confirmed') return booking;
@@ -298,14 +305,16 @@ export class BookingsService {
                 );
             } catch (err)
             {
-                console.error('Failed to dispatch confirm notification:', err);
+                this.logger.error(`Failed to dispatch confirm notification for booking ${populatedBooking.bookingNumber}`, err.stack);
             }
         }
 
+        this.logger.log(`Booking confirmed successfully: #${savedBooking.bookingNumber}`);
         return savedBooking;
     }
 
     async cancelBooking(id: string, userId?: string) {
+        this.logger.log(`Cancelling booking: ${id} (User: ${userId || 'Admin'})`);
         const query: any = { _id: id };
         if (userId) query.user = userId;
 
@@ -331,6 +340,7 @@ export class BookingsService {
         }
 
         const savedBooking = await booking.save();
+        this.logger.log(`Booking cancelled successfully: #${savedBooking.bookingNumber}`);
 
         try
         {
@@ -360,7 +370,7 @@ export class BookingsService {
             }
         } catch (err)
         {
-            console.error('Failed to dispatch cancel notification:', err);
+            this.logger.error(`Failed to dispatch cancel notification for booking ${booking.bookingNumber}`, err.stack);
         }
 
         return savedBooking;

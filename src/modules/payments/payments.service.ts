@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Payment, PaymentDocument } from '../../database/schemas/payment.schema';
@@ -8,6 +8,8 @@ import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PaymentsService {
+    private readonly logger = new Logger(PaymentsService.name);
+
     constructor(
         @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
         private bookingsService: BookingsService,
@@ -16,6 +18,7 @@ export class PaymentsService {
     ) { }
 
     async submitPaymentProof(userId: string, dto: any) {
+        this.logger.log(`Submitting payment proof for user ${userId}, booking ${dto.bookingId}`);
         const { bookingId, transactionId, paymentMethod, receiptImage } = dto;
 
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
@@ -59,6 +62,7 @@ export class PaymentsService {
     }
 
     async approvePayment(paymentId: string, adminId: string) {
+        this.logger.log(`Admin ${adminId} approving payment: ${paymentId}`);
         const payment = await this.paymentModel.findById(paymentId).exec();
 
         if (!payment) throw new NotFoundException('Payment not found');
@@ -111,10 +115,12 @@ export class PaymentsService {
             }
         );
 
+        this.logger.log(`Payment ${paymentId} approved successfully and booking confirmed.`);
         return payment;
     }
 
     async rejectPayment(paymentId: string, adminId: string, reason: string) {
+        this.logger.log(`Admin ${adminId} rejecting payment: ${paymentId}. Reason: ${reason}`);
         const payment = await this.paymentModel.findById(paymentId)
             .populate('user')
             .populate({ path: 'booking', populate: { path: 'tour' } })
@@ -160,13 +166,14 @@ export class PaymentsService {
             }
         } catch (err)
         {
-            console.error('Failed to dispatch payment rejection notification:', err);
+            this.logger.error(`Failed to dispatch payment rejection notification for payment ${paymentId}`, err.stack);
         }
 
         return savedPayment;
     }
 
     async recordOfflinePayment(adminId: string, dto: any) {
+        this.logger.log(`Admin ${adminId} recording offline payment for booking ${dto.bookingId}`);
         const { bookingId, amount, paymentMethod, receiptNumber, collectedAt, notes } = dto;
 
         const booking = await this.bookingsService.getBookingById(bookingId);
@@ -258,10 +265,11 @@ export class PaymentsService {
                 }
             } catch (err)
             {
-                console.error('Failed to dispatch offline payment notification:', err);
+                this.logger.error(`Failed to dispatch offline payment notification for payment ${payment._id}`, err.stack);
             }
         }
 
+        this.logger.log(`Offline payment recorded successfully: ${savedPayment._id}`);
         return savedPayment;
     }
 }
