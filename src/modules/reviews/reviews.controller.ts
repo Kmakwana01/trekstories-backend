@@ -12,15 +12,11 @@ export class ReviewsController {
     @Post('reviews')
     @UseGuards(JwtAuthGuard)
     async create(@Body() createReviewDto: CreateReviewDto, @CurrentUser() user: User) {
-        console.log('Creating review for user:', (user as any)._id, 'Dto:', createReviewDto);
         try
         {
-            const result = await this.reviewsService.create((user as any)._id.toString(), createReviewDto);
-            console.log('Review created:', result);
-            return result;
+            return await this.reviewsService.create((user as any)._id.toString(), createReviewDto);
         } catch (error)
         {
-            console.error('Error creating review:', error);
             throw error;
         }
     }
@@ -31,9 +27,7 @@ export class ReviewsController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
     ) {
-        console.log('Controller.findAllByTour:', tourId, 'page:', page, 'limit:', limit);
-        const result = await this.reviewsService.findAllByTour(tourId, Number(page) || 1, Number(limit) || 10);
-        return result;
+        return this.reviewsService.findAllByTour(tourId, Number(page) || 1, Number(limit) || 10);
     }
 
     @Get('users/my-reviews')

@@ -11,6 +11,6 @@ import { AdminLogsController } from './controllers/admin-logs.controller';
 @Module({
     providers: [AdminLogService, AdminDashboardService, AdminCrmService, ReportsService],
     controllers: [AdminDashboardController, AdminUsersController, AdminReportsController, AdminLogsController],
-    exports: [AdminLogService],
+    exports: [AdminLogService, ReportsService],
 })
 export class AdminModule { }

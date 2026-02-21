@@ -1904,6 +1904,124 @@
             ]
         },
         {
+            "name": "Notifications",
+            "item": [
+                {
+                    "name": "User",
+                    "item": [
+                        {
+                            "name": "Get My Notifications",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/notifications?page=1&limit=10",
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "limit",
+                                            "value": "10"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Mark All Read",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/notifications/read-all"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Mark Read",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{accessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/notifications/{{notificationId}}/read"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Admin",
+                    "item": [
+                        {
+                            "name": "Send Bulk Email",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"emails\": [\"user1@test.com\", \"user2@test.com\"],\n    \"subject\": \"Exclusive Offer!\",\n    \"message\": \"Check out our new winter tour deals.\",\n    \"templateName\": \"general\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/notifications/email"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Send Bulk WhatsApp",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"phones\": [\"+919800000001\", \"+919800000002\"],\n    \"message\": \"Your tour booking is confirmed!\",\n    \"templateName\": \"booking_confirmed\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/notifications/whatsapp"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Blogs",
             "item": [
                 {
@@ -2566,6 +2684,27 @@
                                     ]
                                 }
                             }
+                        },
+                        {
+                            "name": "Get Top Tours",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/dashboard/top-tours?limit=5",
+                                    "query": [
+                                        {
+                                            "key": "limit",
+                                            "value": "5"
+                                        }
+                                    ]
+                                }
+                            }
                         }
                     ]
                 },
@@ -2610,6 +2749,60 @@
                                     "raw": "{{baseUrl}}/admin/users/<userId>/block"
                                 }
                             }
+                        },
+                        {
+                            "name": "Get User By ID",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/users/<userId>"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Unblock User",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/users/<userId>/unblock"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Add User Note",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"note\": \"Important note about traveler preferences\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/users/<userId>/notes"
+                                }
+                            }
                         }
                     ]
                 },
@@ -2627,7 +2820,67 @@
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{baseUrl}}/admin/reports/revenue/csv"
+                                    "raw": "{{baseUrl}}/admin/reports/revenue/csv?startDate=2024-01-01&endDate=2024-12-31",
+                                    "query": [
+                                        {
+                                            "key": "startDate",
+                                            "value": "2024-01-01"
+                                        },
+                                        {
+                                            "key": "endDate",
+                                            "value": "2024-12-31"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Revenue PDF",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reports/revenue/pdf?startDate=2024-01-01&endDate=2024-12-31",
+                                    "query": [
+                                        {
+                                            "key": "startDate",
+                                            "value": "2024-01-01"
+                                        },
+                                        {
+                                            "key": "endDate",
+                                            "value": "2024-12-31"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Bookings CSV",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminAccessToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/admin/reports/bookings/csv?startDate=2024-01-01&endDate=2024-12-31",
+                                    "query": [
+                                        {
+                                            "key": "startDate",
+                                            "value": "2024-01-01"
+                                        },
+                                        {
+                                            "key": "endDate",
+                                            "value": "2024-12-31"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -2652,6 +2905,21 @@
                             }
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "App",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}"
+                        }
+                    }
                 }
             ]
         }

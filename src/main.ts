@@ -4,15 +4,36 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ConfigService } from '@nestjs/config';
-import mongoSanitize from 'express-mongo-sanitize';
+import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/logger/winston.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(mongoSanitize());
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig),
+  });
+  app.use(helmet());
+  app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
   const configService = app.get(ConfigService);
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   app.setGlobalPrefix('api');
+
+  const config = new DocumentBuilder()
+    .setTitle('Travel App API')
+    .setDescription('Travel Booking Platform API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  // Create Swagger Document
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
 
   app.useGlobalPipes(
     new ValidationPipe({

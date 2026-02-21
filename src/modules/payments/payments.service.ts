@@ -38,11 +38,6 @@ export class PaymentsService {
             status: 'under_review',
         });
 
-        // Update booking metadata? Or wait for approval.
-        // We might want to link the payment ID in the booking, but booking schema doesn't have it yet.
-        // But we added 'receiptImage' and 'transactionId' to booking schema in Phase 8?
-        // Let's rely on Payment collection as source of truth for payments.
-
         return payment.save();
     }
 
@@ -72,7 +67,7 @@ export class PaymentsService {
         payment.status = 'success';
         payment.verifiedBy = adminId as any;
         payment.verifiedAt = new Date();
-        payment.paidAt = new Date(); // Or create date?
+        payment.paidAt = new Date();
         await payment.save();
 
         // Confirm booking
@@ -136,26 +131,33 @@ export class PaymentsService {
 
         try
         {
-            await this.notificationsService.createNotification(
-                (payment.user as any)._id.toString(),
-                'payment_failed',
-                'Payment Rejected',
-                `Your payment for booking ${(payment.booking as any).bookingNumber} was rejected. Reason: ${reason}`,
-                { bookingId: payment.booking, paymentId: payment._id }
-            );
+            const uId = (payment.user as any)?._id?.toString() || (payment.user as any)?.toString();
+            if (uId)
+            {
+                await this.notificationsService.createNotification(
+                    uId,
+                    'payment_failed',
+                    'Payment Rejected',
+                    `Your payment for booking ${(payment.booking as any).bookingNumber} was rejected. Reason: ${reason}`,
+                    { bookingId: payment.booking, paymentId: payment._id }
+                );
 
-            await this.notificationsService.sendEmail(
-                (payment.user as any).email,
-                'Payment Rejected',
-                'payment_rejected',
+                if ((payment.user as any).email)
                 {
-                    name: (payment.user as any).name,
-                    bookingNumber: (payment.booking as any).bookingNumber,
-                    tourTitle: ((payment.booking as any).tour as any).title,
-                    amount: payment.amount,
-                    reason: reason
+                    await this.notificationsService.sendEmail(
+                        (payment.user as any).email,
+                        'Payment Rejected',
+                        'payment_rejected',
+                        {
+                            name: (payment.user as any).name,
+                            bookingNumber: (payment.booking as any).bookingNumber,
+                            tourTitle: ((payment.booking as any).tour as any).title,
+                            amount: payment.amount,
+                            reason: reason
+                        }
+                    );
                 }
-            );
+            }
         } catch (err)
         {
             console.error('Failed to dispatch payment rejection notification:', err);
@@ -174,7 +176,7 @@ export class PaymentsService {
             user: booking.user,
             booking: booking._id,
             paymentType: 'offline',
-            paymentMethod, // cash, upi
+            paymentMethod,
             offlineReceiptNumber: receiptNumber,
             offlineCollectedBy: adminId,
             offlineCollectedAt: collectedAt || new Date(),
@@ -188,10 +190,6 @@ export class PaymentsService {
         // Update booking
         await this.bookingsService.adminUpdatePaidAmount(booking._id.toString(), amount);
 
-        // If fully paid (or overpaid), confirm
-        // adminUpdatePaidAmount handles pendingAmount calculation.
-        // We need to check if pendingAmount <= 0.
-        // But adminUpdatePaidAmount returns the updated booking.
         const updatedBooking = await this.bookingsService.getBookingById(bookingId);
         if (updatedBooking.status === 'pending')
         {
@@ -200,7 +198,6 @@ export class PaymentsService {
                 await this.bookingsService.adminConfirmBooking(bookingId);
             } else
             {
-                // Partial payment -> on_hold
                 await this.bookingsService.adminUpdateStatus(bookingId, 'on_hold', 'Partial payment recorded');
             }
         } else if (updatedBooking.status === 'on_hold' && updatedBooking.pendingAmount <= 0)
@@ -233,25 +230,32 @@ export class PaymentsService {
         {
             try
             {
-                await this.notificationsService.createNotification(
-                    (populatedPayment.user as any)._id.toString(),
-                    'payment_success',
-                    'Offline Payment Received',
-                    `We have successfully received your offline payment of ${amount} for booking ${(populatedPayment.booking as any).bookingNumber}.`,
-                    { bookingId: populatedPayment.booking, paymentId: populatedPayment._id }
-                );
+                const uId = (populatedPayment.user as any)?._id?.toString() || (populatedPayment.user as any)?.toString();
+                if (uId)
+                {
+                    await this.notificationsService.createNotification(
+                        uId,
+                        'payment_success',
+                        'Offline Payment Received',
+                        `We have successfully received your offline payment of ${amount} for booking ${(populatedPayment.booking as any).bookingNumber}.`,
+                        { bookingId: populatedPayment.booking, paymentId: populatedPayment._id }
+                    );
 
-                await this.notificationsService.sendEmail(
-                    (populatedPayment.user as any).email,
-                    'Offline Payment Received',
-                    'payment_approved', // Reusing the same success template
+                    if ((populatedPayment.user as any).email)
                     {
-                        name: (populatedPayment.user as any).name,
-                        bookingNumber: (populatedPayment.booking as any).bookingNumber,
-                        tourTitle: ((populatedPayment.booking as any).tour as any).title,
-                        amount: populatedPayment.amount
+                        await this.notificationsService.sendEmail(
+                            (populatedPayment.user as any).email,
+                            'Offline Payment Received',
+                            'payment_approved',
+                            {
+                                name: (populatedPayment.user as any).name,
+                                bookingNumber: (populatedPayment.booking as any).bookingNumber,
+                                tourTitle: ((populatedPayment.booking as any).tour as any).title,
+                                amount: populatedPayment.amount
+                            }
+                        );
                     }
-                );
+                }
             } catch (err)
             {
                 console.error('Failed to dispatch offline payment notification:', err);

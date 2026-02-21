@@ -46,13 +46,13 @@ export class User {
     @Prop()
     contactAddress: string;
 
-    @Prop({ enum: Role, default: Role.CUSTOMER })
+    @Prop({ enum: Role, default: Role.CUSTOMER, index: true })
     role: string;
 
-    @Prop({ default: true })
+    @Prop({ default: true, index: true })
     isVerified: boolean;
 
-    @Prop({ default: false })
+    @Prop({ default: false, index: true })
     isBlocked: boolean;
 
     @Prop()

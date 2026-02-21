@@ -1,0 +1,11 @@
+node_modules
+dist
+test
+logs
+uploads
+.env
+.git
+.github
+README.md
+Dockerfile
+docker-compose.yml

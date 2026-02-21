@@ -25,19 +25,20 @@ const TravelerSchema = SchemaFactory.createForClass(Traveler);
 
 @Schema({ timestamps: true })
 export class Booking {
-    @Prop({ unique: true })
+    @Prop({ unique: true, index: true })
     bookingNumber: string;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true, index: true })
     user: MongooseSchema.Types.ObjectId;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Tour', required: true })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Tour', required: true, index: true })
     tour: MongooseSchema.Types.ObjectId;
 
     @Prop({
         type: MongooseSchema.Types.ObjectId,
         ref: 'TourDate',
         required: true,
+        index: true,
     })
     tourDate: MongooseSchema.Types.ObjectId;
 
@@ -50,7 +51,7 @@ export class Booking {
     @Prop()
     totalTravelers: number;
 
-    @Prop()
+    @Prop({ index: true })
     baseAmount: number;
 
     @Prop({ default: 0 })
@@ -59,7 +60,7 @@ export class Booking {
     @Prop()
     couponCode: string;
 
-    @Prop({ required: true })
+    @Prop({ required: true, index: true })
     totalAmount: number;
 
     @Prop({ default: 0 })
@@ -80,6 +81,7 @@ export class Booking {
     @Prop({
         enum: ['pending', 'confirmed', 'cancelled', 'completed', 'on_hold'],
         default: 'pending',
+        index: true,
     })
     status: string;
 

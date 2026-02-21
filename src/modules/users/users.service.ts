@@ -34,7 +34,7 @@ export class UsersService {
         const user = await this.userModel.findByIdAndUpdate(
             userId,
             { $set: updateProfileDto },
-            { returnDocument: 'after', runValidators: true, returnDocument: 'after' } as any,
+            { returnDocument: 'after', runValidators: true } as any,
         );
 
         if (!user)
@@ -80,7 +80,7 @@ export class UsersService {
         const user = await this.userModel.findByIdAndUpdate(
             userId,
             { $push: { savedTravelers: travelerDto } },
-            { returnDocument: 'after', returnDocument: 'after' } as any,
+            { returnDocument: 'after' } as any,
         );
 
         if (!user)
@@ -95,7 +95,7 @@ export class UsersService {
         const user = await this.userModel.findByIdAndUpdate(
             userId,
             { $pull: { savedTravelers: { _id: travelerId } } },
-            { returnDocument: 'after', returnDocument: 'after' } as any,
+            { returnDocument: 'after' } as any,
         );
 
         if (!user)

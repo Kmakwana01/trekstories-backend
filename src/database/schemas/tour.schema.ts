@@ -72,12 +72,13 @@ export class Tour {
     maxAge: number;
 
     @Prop()
+    @Prop({ index: true })
     category: string;
 
     @Prop()
     location: string;
 
-    @Prop()
+    @Prop({ index: true })
     state: string;
 
     @Prop()
@@ -107,10 +108,10 @@ export class Tour {
     @Prop()
     thumbnailImage: string;
 
-    @Prop({ default: true })
+    @Prop({ default: true, index: true })
     isActive: boolean;
 
-    @Prop({ default: false })
+    @Prop({ default: false, index: true })
     isFeatured: boolean;
 
     @Prop({ default: 0 })
@@ -124,3 +125,6 @@ export class Tour {
 }
 
 export const TourSchema = SchemaFactory.createForClass(Tour);
+
+// Compound index for featured tours sorting/filtering
+TourSchema.index({ isActive: 1, isFeatured: 1 });

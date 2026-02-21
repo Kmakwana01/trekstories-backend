@@ -137,7 +137,7 @@ export class ReviewsService {
         const review = await this.reviewModel.findByIdAndUpdate(
             id,
             { status: 'rejected', adminNote: reason },
-            { returnDocument: 'after', returnDocument: 'after' } as any, // Fix deprecation warning
+            { returnDocument: 'after' } as any, // Fix deprecation warning
         );
         if (!review) throw new NotFoundException('Review not found');
         return review;

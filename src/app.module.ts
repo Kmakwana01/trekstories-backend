@@ -1,5 +1,7 @@
 import { join } from 'path';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -26,6 +28,7 @@ import { CouponsModule } from './modules/coupons/coupons.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { HomeModule } from './modules/home/home.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { CronsModule } from './modules/crons/crons.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 
@@ -45,6 +48,7 @@ import * as redisStore from 'cache-manager-ioredis';
         limit: 30,
       },
     ]),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -60,6 +64,7 @@ import * as redisStore from 'cache-manager-ioredis';
     NotificationsModule,
     HomeModule,
     AdminModule,
+    CronsModule,
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
@@ -103,6 +108,7 @@ import * as redisStore from 'cache-manager-ioredis';
         },
       }),
     }),
+    CronsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -113,4 +119,8 @@ import * as redisStore from 'cache-manager-ioredis';
     },
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
