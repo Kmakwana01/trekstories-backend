@@ -43,7 +43,7 @@ export class HomeService {
 
         const today = new Date();
         const thirtyDaysLater = new Date();
-        thirtyDaysLater.setDate(today.getDate() + 30);
+        thirtyDaysLater.setDate(today.getDate() + 15);
 
         const dates = await this.tourDateModel
             .find({
@@ -74,24 +74,24 @@ export class HomeService {
     }
 
     async getLatestBlogs() {
-        const cacheKey = 'home_latest_blogs';
-        const cached = await this.cacheManager.get(cacheKey);
-        if (cached) return cached;
+        // The user wants random blogs on the home page, so we will use an aggregation pipeline 
+        // with $sample instead of cache.
+        const blogs = await this.blogModel.aggregate([
+            { $match: { isPublished: true } },
+            { $sample: { size: 5 } }
+        ]);
 
-        const blogs = await this.blogModel
-            .find({ isPublished: true })
-            .sort({ publishedAt: -1 })
-            .limit(5)
-            .exec();
+        // Populate author manually if needed since aggregate doesn't do it automatically, 
+        // though the home page currently doesn't strictly require full author population to display (it checks typeof blog.author).
+        // If needed, we could run populate, but $sample is fast.
 
-        await this.cacheManager.set(cacheKey, blogs, 900 * 1000); // 15 min
         return blogs;
     }
 
     async getToursByState() {
         const cacheKey = 'home_tours_by_state';
-        const cached = await this.cacheManager.get(cacheKey);
-        if (cached) return cached;
+        // const cached = await this.cacheManager.get(cacheKey);
+        // if (cached) return cached;
 
         const stats = await this.tourModel.aggregate([
             { $match: { isActive: true } },

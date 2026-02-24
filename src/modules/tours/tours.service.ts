@@ -29,6 +29,8 @@ export class ToursService {
             priceMin,
             priceMax,
             durationDays,
+            minDuration,
+            maxDuration,
             departureCity,
             search,
             ...pagination
@@ -37,8 +39,28 @@ export class ToursService {
         const query: any = { isActive: true };
 
         if (location) query.location = new RegExp(location, 'i');
-        if (state) query.state = new RegExp(state, 'i');
-        if (category) query.category = category;
+
+        if (state)
+        {
+            if (Array.isArray(state))
+            {
+                query.state = { $in: state.map(s => new RegExp(s, 'i')) };
+            } else
+            {
+                query.state = new RegExp(state, 'i');
+            }
+        }
+
+        if (category)
+        {
+            if (Array.isArray(category))
+            {
+                query.category = { $in: category };
+            } else
+            {
+                query.category = category;
+            }
+        }
 
         if (priceMin || priceMax)
         {
@@ -47,9 +69,18 @@ export class ToursService {
             if (priceMax) query.basePrice.$lte = priceMax;
         }
 
-        if (durationDays)
+        if (durationDays || minDuration || maxDuration)
         {
-            query['departureOptions.totalDays'] = durationDays;
+            query['departureOptions.totalDays'] = {};
+            if (durationDays) query['departureOptions.totalDays'].$eq = durationDays;
+            if (minDuration) query['departureOptions.totalDays'].$gte = minDuration;
+            if (maxDuration) query['departureOptions.totalDays'].$lte = maxDuration;
+
+            // Clean up if it's just an empty object or has only one prop
+            if (Object.keys(query['departureOptions.totalDays']).length === 0)
+            {
+                delete query['departureOptions.totalDays'];
+            }
         }
 
         if (departureCity)

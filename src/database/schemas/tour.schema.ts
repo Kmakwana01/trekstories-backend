@@ -62,6 +62,9 @@ export class Tour {
     @Prop()
     description: string;
 
+    @Prop()
+    duration: string;
+
     @Prop({ required: true })
     basePrice: number;
 

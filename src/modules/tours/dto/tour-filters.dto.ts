@@ -9,11 +9,11 @@ export class TourFiltersDto extends PaginationQuery {
 
     @IsString()
     @IsOptional()
-    state?: string;
+    state?: string | string[];
 
     @IsString()
     @IsOptional()
-    category?: string;
+    category?: string | string[];
 
     @IsNumber()
     @IsOptional()
@@ -32,6 +32,18 @@ export class TourFiltersDto extends PaginationQuery {
     @Type(() => Number)
     @Min(1)
     durationDays?: number;
+
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    @Min(1)
+    minDuration?: number;
+
+    @IsNumber()
+    @IsOptional()
+    @Type(() => Number)
+    @Min(1)
+    maxDuration?: number;
 
     @IsString()
     @IsOptional()

@@ -51,12 +51,16 @@ export class BlogsService {
 
         const total = await this.blogModel.countDocuments(query);
 
+        const totalPages = Math.ceil(total / limit);
+
         return {
-            data: blogs,
+            items: blogs,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages,
+            hasNext: page < totalPages,
+            hasPrev: page > 1,
         };
     }
 
@@ -81,12 +85,16 @@ export class BlogsService {
 
         const total = await this.blogModel.countDocuments(query);
 
+        const totalPages = Math.ceil(total / limit);
+
         return {
-            data: blogs,
+            items: blogs,
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages,
+            hasNext: page < totalPages,
+            hasPrev: page > 1,
         };
     }
 
