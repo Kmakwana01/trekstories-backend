@@ -56,6 +56,11 @@ export class NotificationsService {
         return { success: true };
     }
 
+    async getUnreadCount(userId: string) {
+        const count = await this.notificationModel.countDocuments({ user: userId, isRead: false } as any);
+        return { count };
+    }
+
     async sendEmail(to: string, subject: string, template: string, context: any) {
         this.logger.log(`Enqueuing email to: ${to}`);
         // Enrich context: always provide year (used in template footer)

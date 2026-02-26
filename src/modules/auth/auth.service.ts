@@ -149,21 +149,17 @@ export class AuthService {
             return { message: 'If account exists, reset email sent' };
         }
 
-        const resetToken = crypto.randomUUID();
-        const hashToken = crypto
-            .createHash('sha256')
-            .update(resetToken)
-            .digest('hex');
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        user.resetToken = hashToken;
-        user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+        user.otp = otp;
+        user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
         await user.save();
 
         await this.notificationsService.sendEmail(
             user.email,
-            'Password Reset',
+            'Password Reset OTP',
             'otp',
-            { otp: resetToken, name: user.name },
+            { otp, name: user.name },
         );
 
         this.logger.log(`Reset email sent to: ${email}`);
@@ -171,25 +167,25 @@ export class AuthService {
     }
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        const { token, newPassword } = resetPasswordDto;
-        this.logger.log(`Attempting password reset with token`);
-        const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+        const { email, otp, newPassword } = resetPasswordDto;
+        this.logger.log(`Attempting password reset with OTP for: ${email}`);
 
         const user = await this.userModel.findOne({
-            resetToken: hashToken,
-            resetTokenExpiry: { $gt: new Date() },
+            email,
+            otp,
+            otpExpiry: { $gt: new Date() },
         });
 
         if (!user)
         {
-            this.logger.warn(`Password reset failed: Invalid or expired token`);
-            throw new BadRequestException('Invalid or expired token');
+            this.logger.warn(`Password reset failed: Invalid or expired otp`);
+            throw new BadRequestException('Invalid or expired otp');
         }
 
         const salt = await bcrypt.genSalt(10);
         user.passwordHash = await bcrypt.hash(newPassword, salt);
-        user.resetToken = undefined;
-        user.resetTokenExpiry = undefined;
+        user.otp = undefined;
+        user.otpExpiry = undefined;
         await user.save();
 
         this.logger.log(`Password reset successful for user: ${user.email}`);

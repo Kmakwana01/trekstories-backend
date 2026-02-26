@@ -38,7 +38,14 @@ export class BlogsService {
         if (tag) query.tags = tag;
         if (search)
         {
-            query.$text = { $search: search };
+            const regex = new RegExp(search, 'i');
+            query.$or = [
+                { title: regex },
+                { excerpt: regex },
+                { content: regex },
+                { category: regex },
+                { tags: { $in: [regex] } },
+            ];
         }
 
         const blogs = await this.blogModel
@@ -72,7 +79,14 @@ export class BlogsService {
         if (tag) query.tags = tag;
         if (search)
         {
-            query.$text = { $search: search };
+            const regex = new RegExp(search, 'i');
+            query.$or = [
+                { title: regex },
+                { excerpt: regex },
+                { content: regex },
+                { category: regex },
+                { tags: { $in: [regex] } },
+            ];
         }
 
         const blogs = await this.blogModel

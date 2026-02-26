@@ -5,8 +5,11 @@ import {
     Post,
     UseGuards,
     Request,
+    Res,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -15,9 +18,13 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
+
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private configService: ConfigService,
+    ) { }
 
     @Post('register')
     async register(@Body() registerDto: RegisterDto) {
@@ -46,8 +53,12 @@ export class AuthController {
 
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    async googleAuthRedirect(@Request() req) {
-        return this.authService.googleLogin(req);
+    async googleAuthRedirect(@Request() req, @Res() res: Response) {
+        const result = await this.authService.googleLogin(req);
+
+        // Redirect to frontend callback page with tokens in URL
+        const frontendUrl = this.configService.get<string>('frontend.url') || 'http://localhost:3000';
+        return res.redirect(`${frontendUrl}/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`);
     }
 
     @UseGuards(AuthGuard('jwt-refresh'))

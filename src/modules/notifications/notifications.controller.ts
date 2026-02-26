@@ -22,4 +22,9 @@ export class NotificationsController {
     markRead(@CurrentUser('_id') userId: string, @Param('id') id: string) {
         return this.notificationsService.markRead(userId, id);
     }
+
+    @Get('unread-count')
+    getUnreadCount(@CurrentUser('_id') userId: string) {
+        return this.notificationsService.getUnreadCount(userId);
+    }
 }
