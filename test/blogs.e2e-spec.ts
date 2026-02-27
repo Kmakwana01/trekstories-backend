@@ -54,8 +54,8 @@ describe('Blogs Module (e2e)', () => {
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(200)
                 .expect((res) => {
-                    expect(res.body.data.length).toBeGreaterThan(0);
-                    expect(res.body.data[0]._id).toBe(blogId);
+                    expect(res.body.data.items.length).toBeGreaterThan(0);
+                    expect(res.body.data.items[0]._id).toBe(blogId);
                 });
         });
 
@@ -85,7 +85,7 @@ describe('Blogs Module (e2e)', () => {
                 .get('/api/blogs')
                 .expect(200)
                 .expect((res) => {
-                    const found = res.body.data.find(b => b._id === blogId);
+                    const found = res.body.data.items.find(b => b._id === blogId);
                     expect(found).toBeUndefined();
                 });
         });
@@ -134,7 +134,7 @@ describe('Blogs Module (e2e)', () => {
                 .get('/api/blogs')
                 .expect(200)
                 .expect((res) => {
-                    const found = res.body.data.find(b => b._id === blogId);
+                    const found = res.body.data.items.find(b => b._id === blogId);
                     expect(found).toBeDefined();
                 });
         });
@@ -144,7 +144,7 @@ describe('Blogs Module (e2e)', () => {
                 .get('/api/blogs?category=Technology')
                 .expect(200)
                 .expect((res) => {
-                    expect(res.body.data.length).toBeGreaterThan(0);
+                    expect(res.body.data.items.length).toBeGreaterThan(0);
                 });
         });
 
@@ -153,7 +153,7 @@ describe('Blogs Module (e2e)', () => {
                 .get('/api/blogs?category=Cooking')
                 .expect(200)
                 .expect((res) => {
-                    expect(res.body.data.length).toBe(0);
+                    expect(res.body.data.items.length).toBe(0);
                 });
         });
     });

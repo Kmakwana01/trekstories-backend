@@ -11,7 +11,8 @@ class TravelerDto {
     age: number;
 
     @IsEnum(['male', 'female', 'other'])
-    gender: string;
+    @IsOptional()
+    gender?: string;
 
     @IsString()
     @IsOptional()

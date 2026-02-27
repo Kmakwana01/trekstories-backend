@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import supertest from 'supertest';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { setupE2E, teardownE2E, E2EContext } from './helpers/e2e-bootstrap';
 import { clearTestData } from './helpers/cleanup';
 
@@ -30,8 +30,9 @@ describe('Wishlist (e2e)', () => {
             title: 'Wishlist Tour',
             slug: 'wishlist-tour',
             basePrice: 1000,
-            category: 'Adventure',
+            category: new Types.ObjectId('659c00000000000000000000'),
             location: 'Himalayas',
+            duration: '3 Days',
             state: 'HP',
             country: 'India',
             isActive: true,

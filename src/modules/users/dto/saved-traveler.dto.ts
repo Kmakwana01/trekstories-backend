@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Min, IsOptional } from 'class-validator';
 
 export class SavedTravelerDto {
     @IsString()
@@ -10,9 +10,10 @@ export class SavedTravelerDto {
     age: number;
 
     @IsEnum(['male', 'female', 'other'])
-    gender: string;
+    @IsOptional()
+    gender?: string;
 
     @IsString()
-    @IsNotEmpty()
-    idNumber: string;
+    @IsOptional()
+    idNumber?: string;
 }

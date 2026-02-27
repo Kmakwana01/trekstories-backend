@@ -47,7 +47,9 @@ describe('User Journey (e2e)', () => {
                     basePrice: 5000,
                     location: 'Test City',
                     state: 'Test State',
-                    category: 'adventure',
+                    country: 'Test Country',
+                    duration: '2 Days / 1 Night',
+                    category: '659c00000000000000000000',
                     itinerary: [{ dayNumber: 1, title: 'Arrival', points: [{ text: 'Arrive at hotel' }] }],
                     departureOptions: [{ fromCity: 'Origin', toCity: 'Test City', type: 'AC', departureTimeAndPlace: '9 AM Station', totalDays: 2, totalNights: 1 }]
                 });
@@ -172,6 +174,11 @@ describe('User Journey (e2e)', () => {
                 .send({
                     title: 'Race Condition Tour',
                     basePrice: 1000,
+                    location: 'Test City',
+                    state: 'Test State',
+                    country: 'Test Country',
+                    duration: '1 Day',
+                    category: '659c00000000000000000000',
                     itinerary: [{ dayNumber: 1, title: 'No seats', points: [{ text: 'Sold out soon' }] }],
                     departureOptions: [{ fromCity: 'X', toCity: 'Y', type: 'AC', departureTimeAndPlace: 'Z', totalDays: 1, totalNights: 0 }]
                 });

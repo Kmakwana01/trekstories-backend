@@ -130,16 +130,20 @@ export class CreateTourDto {
     maxAge?: number;
 
     @IsString()
-    @IsOptional()
-    category?: string;
+    @IsNotEmpty()
+    category: string;
 
     @IsString()
-    @IsOptional()
-    location?: string;
+    @IsNotEmpty()
+    location: string;
 
     @IsString()
     @IsOptional()
     state?: string;
+
+    @IsString()
+    @IsNotEmpty()
+    duration: string;
 
     @IsString()
     @IsOptional()

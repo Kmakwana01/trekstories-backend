@@ -178,7 +178,19 @@ export class BookingsService {
             await this.couponsService.applyCoupon(dto.couponCode);
         }
 
-        const savedBooking = await booking.save();
+        let savedBooking;
+        try
+        {
+            savedBooking = await booking.save();
+        } catch (error)
+        {
+            if (error.code === 11000)
+            {
+                this.logger.error(`Concurrency error on booking creation: duplicated booking number ${bNo}`);
+                throw new ConflictException('Concurrency error during booking. Please try again.');
+            }
+            throw error;
+        }
         this.logger.log(`Booking created successfully: #${savedBooking.bookingNumber} (${savedBooking._id})`);
 
         // Fire 'Booking Created' notification
@@ -305,8 +317,8 @@ export class BookingsService {
                     {
                         name: (populatedBooking.user as any).name,
                         bookingNumber: populatedBooking.bookingNumber,
-                        tourTitle: (populatedBooking.tour as any).title,
-                        startDate: (populatedBooking.tourDate as any).startDate,
+                        tourTitle: (populatedBooking.tour as any)?.title,
+                        startDate: (populatedBooking.tourDate as any)?.startDate,
                         amount: populatedBooking.totalAmount
                     }
                 );

@@ -32,7 +32,8 @@ describe('Tours (e2e)', () => {
                 .send({
                     title: 'E2E Himalayan Trek',
                     basePrice: 15000,
-                    category: 'Trekking',
+                    category: '659c00000000000000000000',
+                    duration: '5 Days',
                     state: 'Himachal',
                     location: 'Kasol',
                     country: 'India',

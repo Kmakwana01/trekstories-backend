@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthController', () => {
     let controller: AuthController;
@@ -26,6 +27,10 @@ describe('AuthController', () => {
                 {
                     provide: AuthService,
                     useValue: mockAuthService,
+                },
+                {
+                    provide: ConfigService,
+                    useValue: { get: jest.fn() },
                 },
             ],
         }).compile();

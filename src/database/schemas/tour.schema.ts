@@ -62,7 +62,7 @@ export class Tour {
     @Prop()
     description: string;
 
-    @Prop()
+    @Prop({ required: true })
     duration: string;
 
     @Prop({ required: true })
@@ -74,11 +74,10 @@ export class Tour {
     @Prop()
     maxAge: number;
 
-    @Prop()
-    @Prop({ index: true })
+    @Prop({ required: true, index: true })
     category: string;
 
-    @Prop()
+    @Prop({ required: true })
     location: string;
 
     @Prop({ index: true })

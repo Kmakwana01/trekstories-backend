@@ -91,7 +91,7 @@ describe('BlogsService', () => {
             model.countDocuments.mockResolvedValue(1);
 
             const result = await service.findAllPublished({ page: 1, limit: 10 });
-            expect(result.data).toEqual(blogs);
+            expect(result.items).toEqual(blogs);
             expect(result.total).toBe(1);
         });
     });

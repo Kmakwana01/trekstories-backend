@@ -51,6 +51,11 @@ describe('NotificationsController (e2e)', () => {
             description: 'Tour for E2E notifications',
             basePrice: 1000,
             isActive: true,
+            location: 'Test City',
+            state: 'Test State',
+            country: 'Test Country',
+            duration: '5 Days',
+            category: '659c00000000000000000000',
             departureOptions: [
                 {
                     fromCity: 'Test City',

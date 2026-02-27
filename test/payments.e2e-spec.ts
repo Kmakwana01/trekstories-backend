@@ -36,6 +36,7 @@ describe('PaymentsController (e2e)', () => {
                 location: 'Loc',
                 state: 'State',
                 country: 'Country',
+                duration: '2 Days',
                 departureOptions: [{ fromCity: 'City A', priceAdjustment: 0, type: 'AC', totalDays: 2, totalNights: 1 }]
             });
         if (!tourRes.body.data) throw new Error(`Tour create failed: ${JSON.stringify(tourRes.body)}`);

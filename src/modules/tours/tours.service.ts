@@ -116,6 +116,7 @@ export class ToursService {
         const tour = await this.tourModel
             .findOneAndUpdate(
                 { slug, isActive: true },
+                { $inc: { viewCount: 1 } },
                 { returnDocument: 'after' },
             )
             .exec();

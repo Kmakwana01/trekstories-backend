@@ -33,6 +33,8 @@ describe('Bookings Module (e2e)', () => {
                 description: 'Description',
                 basePrice: 1000,
                 state: 'State',
+                country: 'Country',
+                duration: '3 Days',
                 location: 'Location',
                 category: '659c00000000000000000000',
                 departureOptions: [{

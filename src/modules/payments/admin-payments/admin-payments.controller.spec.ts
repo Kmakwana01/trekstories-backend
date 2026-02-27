@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminPaymentsController } from './admin-payments.controller';
 import { PaymentsService } from '../payments.service';
+import { AdminLogService } from '../../admin/services/admin-log.service';
 
 describe('AdminPaymentsController', () => {
   let controller: AdminPaymentsController;
@@ -19,6 +20,10 @@ describe('AdminPaymentsController', () => {
         {
           provide: PaymentsService,
           useValue: mockPaymentsService,
+        },
+        {
+          provide: AdminLogService,
+          useValue: { logAction: jest.fn() },
         },
       ],
     }).compile();

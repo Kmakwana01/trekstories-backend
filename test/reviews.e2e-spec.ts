@@ -30,6 +30,9 @@ describe('Reviews Module (e2e)', () => {
             price: 100,
             rating: 0,
             reviewsCount: 0,
+            location: 'Location',
+            duration: '3 Days',
+            category: new Types.ObjectId('659c00000000000000000000')
         });
         tourId = tour.insertedId.toString();
 

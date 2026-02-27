@@ -130,7 +130,7 @@ describe('NotificationsService', () => {
             to: 'test@test.com',
             subject: 'Subject',
             template: 'otp',
-            context: { otp: '123456' },
+            context: { otp: '123456', message: '', year: new Date().getFullYear() },
         });
     });
 });
