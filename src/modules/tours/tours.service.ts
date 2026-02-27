@@ -233,16 +233,24 @@ export class ToursService {
 
     async toggleFeatured(id: string): Promise<TourDocument> {
         this.logger.log(`Toggling featured for tour: ${id}`);
-        const tour = await this.tourModel.findById(id);
+        // First get the tour to know its current state
+        const tour = await this.tourModel.findById(id).select('isFeatured').exec();
+
         if (!tour)
         {
             this.logger.warn(`Toggle featured failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
-        tour.isFeatured = !tour.isFeatured;
-        const savedTour = await tour.save();
-        this.logger.log(`Tour ${id} featured toggled to: ${savedTour.isFeatured}`);
-        return savedTour;
+
+        // Update only the isFeatured field bypassing full schema validation
+        const updatedTour = await this.tourModel.findByIdAndUpdate(
+            id,
+            { $set: { isFeatured: !tour.isFeatured } },
+            { new: true, runValidators: false }
+        ).exec();
+
+        this.logger.log(`Tour ${id} featured toggled to: ${updatedTour?.isFeatured}`);
+        return updatedTour as TourDocument;
     }
 
     async adminGetTours(pagination: any) {
