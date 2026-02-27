@@ -657,6 +657,7 @@ async function bootstrap() {
             tags: ['Ladakh', 'Packing', 'Adventure', 'Himalaya'],
             featuredImage: 'https://images.unsplash.com/photo-1544085311-11a028465b03?q=80&w=1600&auto=format&fit=crop',
             isPublished: true,
+            author: admin._id,
         },
         {
             title: 'Best Time to Visit Goa: Month-by-Month Guide',
@@ -667,6 +668,7 @@ async function bootstrap() {
             tags: ['Goa', 'Beach', 'Travel Planning', 'Monsoon'],
             featuredImage: 'https://images.unsplash.com/photo-1512783558244-97e3a6a9be27?q=80&w=1600&auto=format&fit=crop',
             isPublished: true,
+            author: admin._id,
             readTime: 7,
         },
         {
@@ -678,6 +680,7 @@ async function bootstrap() {
             tags: ['Kerala', 'Houseboat', 'Backwaters', 'Leisure'],
             featuredImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1600&auto=format&fit=crop',
             isPublished: true,
+            author: admin._id,
             readTime: 9,
         },
         {
@@ -689,6 +692,7 @@ async function bootstrap() {
             tags: ['Solo Travel', 'India', 'Safety', 'Hidden Gems'],
             featuredImage: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1600&auto=format&fit=crop',
             isPublished: true,
+            author: admin._id,
             readTime: 11,
         },
         {
@@ -700,6 +704,7 @@ async function bootstrap() {
             tags: ['Spiti', 'Road Trip', 'Himachal Pradesh', 'Adventure'],
             featuredImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop',
             isPublished: false, // Draft – tests unpublished state in admin
+            author: admin._id,
             readTime: 13,
         },
     );

@@ -10,7 +10,35 @@ import {
     Min,
     ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
+
+const ParseJson = () => Transform(({ value }) => {
+    if (typeof value === 'string')
+    {
+        try
+        {
+            return JSON.parse(value);
+        } catch (e)
+        {
+            return value;
+        }
+    }
+    return value;
+});
+
+const ParseBoolean = () => Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+});
+
+const ParseNumber = () => Transform(({ value }) => {
+    if (typeof value === 'string' && !isNaN(Number(value)))
+    {
+        return Number(value);
+    }
+    return value;
+});
 
 class ItineraryPointDto {
     @IsString()
@@ -86,14 +114,17 @@ export class CreateTourDto {
     @IsOptional()
     description?: string;
 
+    @ParseNumber()
     @IsNumber()
     @Min(0)
     basePrice: number;
 
+    @ParseNumber()
     @IsInt()
     @IsOptional()
     minAge?: number;
 
+    @ParseNumber()
     @IsInt()
     @IsOptional()
     maxAge?: number;
@@ -114,39 +145,46 @@ export class CreateTourDto {
     @IsOptional()
     country?: string;
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     highlights?: string[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => PickupPointDto)
     @IsOptional()
     departureOptions?: PickupPointDto[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ItineraryDayDto)
     @IsOptional()
     itinerary?: ItineraryDayDto[];
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     inclusions?: string[];
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     exclusions?: string[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => FAQDto)
     @IsOptional()
     faqs?: FAQDto[];
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
@@ -156,10 +194,12 @@ export class CreateTourDto {
     @IsOptional()
     thumbnailImage?: string;
 
+    @ParseBoolean()
     @IsBoolean()
     @IsOptional()
     isActive?: boolean;
 
+    @ParseBoolean()
     @IsBoolean()
     @IsOptional()
     isFeatured?: boolean;
@@ -174,15 +214,18 @@ export class UpdateTourDto {
     @IsOptional()
     description?: string;
 
+    @ParseNumber()
     @IsNumber()
     @Min(0)
     @IsOptional()
     basePrice?: number;
 
+    @ParseNumber()
     @IsInt()
     @IsOptional()
     minAge?: number;
 
+    @ParseNumber()
     @IsInt()
     @IsOptional()
     maxAge?: number;
@@ -203,43 +246,51 @@ export class UpdateTourDto {
     @IsOptional()
     country?: string;
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     highlights?: string[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => PickupPointDto)
     @IsOptional()
     departureOptions?: PickupPointDto[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ItineraryDayDto)
     @IsOptional()
     itinerary?: ItineraryDayDto[];
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     inclusions?: string[];
 
+    @ParseJson()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
     exclusions?: string[];
 
+    @ParseJson()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => FAQDto)
     @IsOptional()
     faqs?: FAQDto[];
 
+    @ParseBoolean()
     @IsBoolean()
     @IsOptional()
     isActive?: boolean;
 
+    @ParseBoolean()
     @IsBoolean()
     @IsOptional()
     isFeatured?: boolean;

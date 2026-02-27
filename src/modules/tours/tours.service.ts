@@ -37,66 +37,78 @@ export class ToursService {
         } = filters;
 
         const query: any = { isActive: true };
+        this.logger.debug(`Filters received: ${JSON.stringify(filters)}`);
 
         if (location) query.location = new RegExp(location, 'i');
 
         if (state)
         {
-            if (Array.isArray(state))
+            const stateArray = typeof state === 'string' ? state.split(',') : state;
+            if (Array.isArray(stateArray) && stateArray.length > 0)
             {
-                query.state = { $in: state.map(s => new RegExp(s, 'i')) };
-            } else
+                query.state = { $in: stateArray.map(s => new RegExp(s.trim(), 'i')) };
+            } else if (typeof state === 'string' && state.trim())
             {
-                query.state = new RegExp(state, 'i');
+                query.state = new RegExp(state.trim(), 'i');
             }
         }
 
         if (category)
         {
-            if (Array.isArray(category))
+            const catArray = typeof category === 'string' ? category.split(',') : category;
+            if (Array.isArray(catArray) && catArray.length > 0)
             {
-                query.category = { $in: category };
-            } else
+                query.category = { $in: catArray.map(c => c.trim()) };
+            } else if (typeof category === 'string' && category.trim())
             {
-                query.category = category;
+                query.category = category.trim();
             }
         }
 
         if (priceMin || priceMax)
         {
             query.basePrice = {};
-            if (priceMin) query.basePrice.$gte = priceMin;
-            if (priceMax) query.basePrice.$lte = priceMax;
+            if (priceMin !== undefined && priceMin !== null) query.basePrice.$gte = priceMin;
+            if (priceMax !== undefined && priceMax !== null) query.basePrice.$lte = priceMax;
+
+            if (Object.keys(query.basePrice).length === 0) delete query.basePrice;
         }
 
         if (durationDays || minDuration || maxDuration)
         {
-            query['departureOptions.totalDays'] = {};
-            if (durationDays) query['departureOptions.totalDays'].$eq = durationDays;
-            if (minDuration) query['departureOptions.totalDays'].$gte = minDuration;
-            if (maxDuration) query['departureOptions.totalDays'].$lte = maxDuration;
+            const durationQuery: any = {};
+            if (durationDays) durationQuery.$eq = durationDays;
+            if (minDuration) durationQuery.$gte = minDuration;
+            if (maxDuration) durationQuery.$lte = maxDuration;
 
-            // Clean up if it's just an empty object or has only one prop
-            if (Object.keys(query['departureOptions.totalDays']).length === 0)
+            if (Object.keys(durationQuery).length > 0)
             {
-                delete query['departureOptions.totalDays'];
+                query['departureOptions.totalDays'] = durationQuery;
             }
         }
 
         if (departureCity)
         {
-            query['departureOptions.fromCity'] = new RegExp(departureCity, 'i');
+            const cityArray = typeof departureCity === 'string' ? departureCity.split(',') : departureCity;
+            if (Array.isArray(cityArray) && cityArray.length > 0)
+            {
+                query['departureOptions.fromCity'] = { $in: cityArray.map(c => new RegExp(c.trim(), 'i')) };
+            } else if (typeof departureCity === 'string' && departureCity.trim())
+            {
+                query['departureOptions.fromCity'] = new RegExp(departureCity.trim(), 'i');
+            }
         }
 
         if (search)
         {
             query.$or = [
-                { title: new RegExp(search, 'i') },
-                { description: new RegExp(search, 'i') },
-                { state: new RegExp(search, 'i') },
+                { title: new RegExp(search.trim(), 'i') },
+                { description: new RegExp(search.trim(), 'i') },
+                { state: new RegExp(search.trim(), 'i') },
             ];
         }
 
+        this.logger.log(`Tours query generated: ${JSON.stringify(query)}`);
         return paginate(this.tourModel, query, pagination);
     }
 
@@ -104,7 +116,6 @@ export class ToursService {
         const tour = await this.tourModel
             .findOneAndUpdate(
                 { slug, isActive: true },
-                { $inc: { viewCount: 1 } },
                 { returnDocument: 'after' },
             )
             .exec();
