@@ -6,6 +6,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { BulkEmailDto } from './dto/bulk-email.dto';
 import { BulkWhatsAppDto } from './dto/bulk-whatsapp.dto';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 @Controller('admin/notifications')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,7 +28,7 @@ export class AdminNotificationsController {
             await this.notificationsService.sendEmail(
                 email,
                 dto.subject,
-                dto.templateName || 'general',
+                dto.templateName || NotificationType.GENERAL,
                 context,
             );
         }

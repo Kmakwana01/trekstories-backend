@@ -7,6 +7,7 @@ import { CreateCouponDto, UpdateCouponDto } from './dto/coupon.dto';
 import { paginate } from '../../common/helpers/pagination.helper';
 import { DateUtil } from '../../utils/date.util';
 import { CouponType } from '../../common/enums/coupon.enum';
+import { BookingStatus } from '../../common/enums/booking-status.enum';
 
 @Injectable()
 export class CouponsService {
@@ -110,7 +111,7 @@ export class CouponsService {
             const userUsageCount = await this.bookingModel.countDocuments({
                 user: userId as any,
                 couponCode: code.toUpperCase(),
-                status: { $ne: 'cancelled' }
+                status: { $ne: BookingStatus.CANCELLED }
             });
 
             if (userUsageCount >= coupon.maxUsagePerUser)
@@ -166,7 +167,7 @@ export class CouponsService {
         const coupon = await this.findOne(id);
         return paginate(
             this.bookingModel,
-            { couponCode: coupon.code, status: { $ne: 'cancelled' } },
+            { couponCode: coupon.code, status: { $ne: BookingStatus.CANCELLED } },
             pagination
         );
     }

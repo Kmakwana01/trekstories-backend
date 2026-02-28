@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../../database/schemas/user.schema';
-
 import { Booking, BookingDocument } from '../../../database/schemas/booking.schema';
 import { paginate } from '../../../common/helpers/pagination.helper';
 import { AdminLogService } from './admin-log.service';
+import { Role } from '../../../common/enums/roles.enum';
+import { BookingStatus } from '../../../common/enums/booking-status.enum';
 
 @Injectable()
 export class AdminCrmService {
@@ -16,7 +17,7 @@ export class AdminCrmService {
     ) { }
 
     async getAllUsers(filters: any, paginationQuery: any) {
-        const query: any = { role: 'customer' };
+        const query: any = { role: Role.CUSTOMER };
         if (filters.isVerified !== undefined) query.isVerified = filters.isVerified === 'true';
         if (filters.isBlocked !== undefined) query.isBlocked = filters.isBlocked === 'true';
         if (filters.search)
@@ -36,9 +37,9 @@ export class AdminCrmService {
         if (!user) throw new NotFoundException('User not found');
 
         const [bookingCount, totalSpent] = await Promise.all([
-            this.bookingModel.countDocuments({ user: id as any, status: 'confirmed' }),
+            this.bookingModel.countDocuments({ user: id as any, status: BookingStatus.CONFIRMED }),
             this.bookingModel.aggregate([
-                { $match: { user: new Types.ObjectId(id), status: 'confirmed' } },
+                { $match: { user: new Types.ObjectId(id), status: BookingStatus.CONFIRMED } },
                 { $group: { _id: null, total: { $sum: '$paidAmount' } } },
             ]),
         ]);

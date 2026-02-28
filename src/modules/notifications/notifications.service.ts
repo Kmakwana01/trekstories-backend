@@ -6,6 +6,7 @@ import type { Queue } from 'bull';
 import { Notification, NotificationDocument } from '../../database/schemas/notification.schema';
 import { paginate } from '../../common/helpers/pagination.helper';
 import { DateUtil } from '../../utils/date.util';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 @Injectable()
 export class NotificationsService {
@@ -19,7 +20,7 @@ export class NotificationsService {
 
     async createNotification(
         userId: string,
-        type: string,
+        type: NotificationType | string,
         title: string,
         message: string,
         metadata?: any,

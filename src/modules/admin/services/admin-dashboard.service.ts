@@ -6,6 +6,9 @@ import { User, UserDocument } from '../../../database/schemas/user.schema';
 import { Tour, TourDocument } from '../../../database/schemas/tour.schema';
 import { Transaction, TransactionDocument } from '../../../database/schemas/transaction.schema';
 import { DateUtil } from '../../../utils/date.util';
+import { BookingStatus } from '../../../common/enums/booking-status.enum';
+import { Role } from '../../../common/enums/roles.enum';
+import { TransactionType, TransactionStatus } from '../../../common/enums/transaction.enum';
 
 @Injectable()
 export class AdminDashboardService {
@@ -28,14 +31,14 @@ export class AdminDashboardService {
             statusCounts,
         ] = await Promise.all([
             this.bookingModel.countDocuments(),
-            this.userModel.countDocuments({ role: 'customer' }),
+            this.userModel.countDocuments({ role: Role.CUSTOMER }),
             this.bookingModel.aggregate([
-                { $match: { status: { $ne: 'cancelled' } } },
+                { $match: { status: { $ne: BookingStatus.CANCELLED } } },
                 { $group: { _id: null, total: { $sum: '$paidAmount' } } },
             ]),
             this.bookingModel.countDocuments({ createdAt: { $gte: today } }),
             this.bookingModel.aggregate([
-                { $match: { createdAt: { $gte: today }, status: { $ne: 'cancelled' } } },
+                { $match: { createdAt: { $gte: today }, status: { $ne: BookingStatus.CANCELLED } } },
                 { $group: { _id: null, total: { $sum: '$paidAmount' } } },
             ]),
             this.bookingModel.aggregate([
@@ -75,7 +78,7 @@ export class AdminDashboardService {
         }
 
         return this.transactionModel.aggregate([
-            { $match: { type: 'payment', status: 'success' } },
+            { $match: { type: TransactionType.PAYMENT, status: TransactionStatus.SUCCESS } },
             { $group: { _id: groupBy, revenue: { $sum: '$amount' } } },
             { $sort: { _id: 1 } },
             { $limit: 30 },
@@ -84,7 +87,7 @@ export class AdminDashboardService {
 
     async getTopTours(limit = 5) {
         return this.bookingModel.aggregate([
-            { $match: { status: 'confirmed' } },
+            { $match: { status: BookingStatus.CONFIRMED } },
             { $group: { _id: '$tour', bookingCount: { $sum: 1 } } },
             { $sort: { bookingCount: -1 } },
             { $limit: limit },

@@ -10,6 +10,7 @@ const PDFDocument = require('pdfkit');
 
 import { PassThrough } from 'stream';
 import { DateUtil } from '../../../utils/date.util';
+import { TransactionType, TransactionStatus } from '../../../common/enums/transaction.enum';
 
 @Injectable()
 export class ReportsService {
@@ -22,8 +23,8 @@ export class ReportsService {
     async generateRevenueCSV(startDate: Date, endDate: Date): Promise<string> {
         const transactions = await this.transactionModel
             .find({
-                type: 'payment',
-                status: 'success',
+                type: TransactionType.PAYMENT,
+                status: TransactionStatus.SUCCESS,
                 createdAt: { $gte: startDate, $lte: endDate },
             })
             .populate('user', 'name email')
@@ -88,8 +89,8 @@ export class ReportsService {
     async generateRevenuePDF(startDate: Date, endDate: Date): Promise<Buffer> {
         const transactions = await this.transactionModel
             .find({
-                type: 'payment',
-                status: 'success',
+                type: TransactionType.PAYMENT,
+                status: TransactionStatus.SUCCESS,
                 createdAt: { $gte: startDate, $lte: endDate },
             })
             .populate('user', 'name email')

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { TourDate, TourDateDocument } from '../../database/schemas/tour-date.schema';
 import { CreateTourDateDto, UpdateTourDateDto } from './dto/create-tour-date.dto';
 import { DateUtil } from '../../utils/date.util';
+import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 
 @Injectable()
 export class TourDatesService {
@@ -14,7 +15,7 @@ export class TourDatesService {
     async getUpcomingDates(tourId: string): Promise<TourDate[]> {
         const query: any = {
             tour: tourId,
-            status: 'upcoming',
+            status: TourDateStatus.UPCOMING,
             startDate: { $gt: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) }
         };
         return this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
@@ -89,19 +90,19 @@ export class TourDatesService {
         // Mark completed
         const completedResult = await this.tourDateModel.updateMany(
             {
-                status: 'upcoming',
+                status: TourDateStatus.UPCOMING,
                 endDate: { $lt: today }
             },
-            { status: 'completed' }
+            { status: TourDateStatus.COMPLETED }
         );
 
         // Mark full (virtual availableSeats is not available in query, so we use totalSeats - bookedSeats)
         const fullResult = await this.tourDateModel.updateMany(
             {
-                status: 'upcoming',
+                status: TourDateStatus.UPCOMING,
                 $expr: { $lte: ['$totalSeats', '$bookedSeats'] }
             },
-            { status: 'full' }
+            { status: TourDateStatus.FULL }
         );
 
         return `Updated ${completedResult.modifiedCount} to completed and ${fullResult.modifiedCount} to full.`;

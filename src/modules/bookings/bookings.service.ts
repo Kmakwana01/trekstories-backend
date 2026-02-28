@@ -12,6 +12,7 @@ import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { BookingStatus } from '../../common/enums/booking-status.enum';
 import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 @Injectable()
 export class BookingsService {
@@ -202,7 +203,7 @@ export class BookingsService {
         {
             await this.notificationsService.createNotification(
                 userId,
-                'booking_created',
+                NotificationType.BOOKING_CREATED,
                 'Booking Created',
                 `Your booking #${savedBooking.bookingNumber} has been created successfully!`,
                 { bookingId: savedBooking._id }
@@ -308,7 +309,7 @@ export class BookingsService {
             {
                 await this.notificationsService.createNotification(
                     (populatedBooking.user as any)._id.toString(),
-                    'booking_confirmed',
+                    NotificationType.BOOKING_CONFIRMED,
                     'Booking Confirmed',
                     `Your booking #${populatedBooking.bookingNumber} has been confirmed!`,
                     { bookingId: populatedBooking._id }
@@ -317,7 +318,7 @@ export class BookingsService {
                 await this.notificationsService.sendEmail(
                     (populatedBooking.user as any).email,
                     'Booking Confirmed',
-                    'booking_confirmed',
+                    NotificationType.BOOKING_CONFIRMED,
                     {
                         name: (populatedBooking.user as any).name,
                         bookingNumber: populatedBooking.bookingNumber,
@@ -380,7 +381,7 @@ export class BookingsService {
             {
                 await this.notificationsService.createNotification(
                     uId,
-                    'booking_cancelled',
+                    NotificationType.BOOKING_CANCELLED,
                     'Booking Cancelled',
                     `Your booking #${booking.bookingNumber} has been cancelled successfully.`,
                     { bookingId: booking._id }
@@ -391,7 +392,7 @@ export class BookingsService {
                     await this.notificationsService.sendEmail(
                         (booking.user as any).email,
                         'Booking Cancelled',
-                        'general',
+                        NotificationType.GENERAL,
                         {
                             name: (booking.user as any).name,
                             message: `Your booking #${booking.bookingNumber} for ${(booking.tour as any).title} has been cancelled.`

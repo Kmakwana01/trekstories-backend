@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 export type NotificationDocument = Notification & Document;
 
@@ -9,17 +10,8 @@ export class Notification {
     user: MongooseSchema.Types.ObjectId;
 
     @Prop({
-        enum: [
-            'booking_created',
-            'booking_confirmed',
-            'booking_cancelled',
-            'payment_success',
-            'payment_failed',
-            'payment_under_review',
-            'trip_reminder',
-            'offer',
-            'general',
-        ],
+        enum: Object.values(NotificationType),
+        default: NotificationType.GENERAL,
     })
     type: string;
 

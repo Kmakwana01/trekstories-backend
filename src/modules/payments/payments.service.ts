@@ -9,6 +9,7 @@ import { DateUtil } from '../../utils/date.util';
 import { BookingStatus } from '../../common/enums/booking-status.enum';
 import { PaymentStatus, PaymentMethod } from '../../common/enums/payment-status.enum';
 import { TransactionType, TransactionStatus } from '../../common/enums/transaction.enum';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -101,7 +102,7 @@ export class PaymentsService {
         const booking = await this.bookingsService.getBookingById(payment.booking.toString());
         await this.notificationsService.createNotification(
             payment.user.toString(),
-            'payment_success',
+            NotificationType.PAYMENT_SUCCESS,
             'Payment Approved',
             `Your payment for booking ${booking.bookingNumber} has been approved. Your booking is now confirmed!`,
             { bookingId: payment.booking, paymentId: payment._id }
@@ -146,7 +147,7 @@ export class PaymentsService {
             {
                 await this.notificationsService.createNotification(
                     uId,
-                    'payment_failed',
+                    NotificationType.PAYMENT_FAILED,
                     'Payment Rejected',
                     `Your payment for booking ${(payment.booking as any).bookingNumber} was rejected. Reason: ${reason}`,
                     { bookingId: payment.booking, paymentId: payment._id }
@@ -246,7 +247,7 @@ export class PaymentsService {
                 {
                     await this.notificationsService.createNotification(
                         uId,
-                        'payment_success',
+                        NotificationType.PAYMENT_SUCCESS,
                         'Offline Payment Received',
                         `We have successfully received your offline payment of ${amount} for booking ${(populatedPayment.booking as any).bookingNumber}.`,
                         { bookingId: populatedPayment.booking, paymentId: populatedPayment._id }

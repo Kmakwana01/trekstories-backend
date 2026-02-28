@@ -14,6 +14,7 @@ import { Coupon } from '../../database/schemas/coupon.schema';
 import type { CouponDocument } from '../../database/schemas/coupon.schema';
 import { Setting } from '../../database/schemas/setting.schema';
 import type { SettingDocument } from '../../database/schemas/setting.schema';
+import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 
 @Injectable()
 export class HomeService {
@@ -114,7 +115,7 @@ export class HomeService {
         const dates = await this.tourDateModel
             .find({
                 startDate: { $gte: today, $lte: thirtyDaysLater },
-                status: 'upcoming',
+                status: TourDateStatus.UPCOMING,
             })
             .populate('tour')
             .sort({ startDate: 1 })
