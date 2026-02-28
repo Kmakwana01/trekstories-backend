@@ -3,23 +3,20 @@ import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
+import { ImgbbService } from '../../common/services/imgbb.service';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
-    constructor(private readonly paymentsService: PaymentsService) { }
+    constructor(
+        private readonly paymentsService: PaymentsService,
+        private readonly imgbbService: ImgbbService,
+    ) { }
 
     @Post('submit-proof')
     @UseInterceptors(FileInterceptor('receiptImage', {
-        storage: diskStorage({
-            destination: './uploads/receipts',
-            filename: (req, file, cb) => {
-                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-                return cb(null, `${randomName}${extname(file.originalname)}`);
-            },
-        }),
+        storage: memoryStorage(),
         fileFilter: (req, file, cb) => {
             if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/))
             {
@@ -38,9 +35,7 @@ export class PaymentsController {
     ) {
         if (!file) throw new BadRequestException('Receipt image is required');
 
-        // Construct file path relative to domain or absolute? 
-        // We'll store the relative path.
-        const receiptImage = `/uploads/receipts/${file.filename}`;
+        const receiptImage = await this.imgbbService.uploadImage(file);
 
         return this.paymentsService.submitPaymentProof(userId, { ...dto, receiptImage });
     }

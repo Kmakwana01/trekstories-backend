@@ -8,7 +8,11 @@ import {
     Post,
     Query,
     UseGuards,
+    UseInterceptors,
+    UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -19,12 +23,16 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SavedTravelerDto } from './dto/saved-traveler.dto';
 import { PaginationQuery } from '../../common/helpers/pagination.helper';
+import { ImgbbService } from '../../common/services/imgbb.service';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.CUSTOMER, Role.ADMIN) // Both can access profile, though usually CUSTOMER for these specific ones
 export class UsersController {
-    constructor(private usersService: UsersService) { }
+    constructor(
+        private usersService: UsersService,
+        private imgbbService: ImgbbService,
+    ) { }
 
     @Get('profile')
     async getProfile(@CurrentUser() user) {
@@ -32,10 +40,25 @@ export class UsersController {
     }
 
     @Patch('profile')
+    @UseInterceptors(FileInterceptor('avatar', {
+        storage: memoryStorage(),
+        fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/))
+            {
+                return cb(new Error('Only image files are allowed!'), false);
+            }
+            cb(null, true);
+        },
+    }))
     async updateProfile(
         @CurrentUser() user,
         @Body() updateProfileDto: UpdateProfileDto,
+        @UploadedFile() file?: Express.Multer.File,
     ) {
+        if (file)
+        {
+            updateProfileDto.avatar = await this.imgbbService.uploadImage(file);
+        }
         return this.usersService.updateProfile(user._id, updateProfileDto);
     }
 

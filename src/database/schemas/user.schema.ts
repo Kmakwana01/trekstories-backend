@@ -32,6 +32,9 @@ export class User {
     phone: string;
 
     @Prop()
+    avatar?: string;
+
+    @Prop()
     passwordHash: string;
 
     @Prop({ enum: ['male', 'female', 'other'] })

@@ -28,4 +28,7 @@ export default () => ({
     upload: {
         dest: process.env.UPLOAD_DEST || './uploads',
     },
+    imgbb: {
+        apiKey: process.env.IMGBB_API_KEY,
+    },
 });

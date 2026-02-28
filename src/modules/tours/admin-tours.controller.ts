@@ -21,23 +21,13 @@ import { Role } from '../../common/enums/roles.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { PaginationQuery } from '../../common/helpers/pagination.helper';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { extname } from 'path';
-import * as fs from 'fs';
 import { AdminLogService } from '../admin/services/admin-log.service';
+import { ImgbbService } from '../../common/services/imgbb.service';
 
 const tourMulterOptions = {
-    storage: diskStorage({
-        destination: (req, file, cb) => {
-            const uploadPath = './uploads/tours';
-            if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
-            cb(null, uploadPath);
-        },
-        filename: (req, file, cb) => {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-    }),
+    storage: memoryStorage(),
     fileFilter: (req, file, cb) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/))
         {
@@ -54,6 +44,7 @@ export class AdminToursController {
     constructor(
         private readonly toursService: ToursService,
         private readonly adminLogService: AdminLogService,
+        private readonly imgbbService: ImgbbService,
     ) { }
 
     @Get()
@@ -72,10 +63,18 @@ export class AdminToursController {
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
-        const imageUrls = files?.images?.map(f => `/uploads/tours/${f.filename}`) || [];
-        const thumbnailUrl = files?.thumbnailImage?.[0]
-            ? `/uploads/tours/${files.thumbnailImage[0].filename}`
-            : undefined;
+        let imageUrls: string[] = [];
+        if (files?.images)
+        {
+            imageUrls = await this.imgbbService.uploadImages(files.images);
+        }
+
+        let thumbnailUrl: string | undefined;
+        if (files?.thumbnailImage?.[0])
+        {
+            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+        }
+
         const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl);
         await this.adminLogService.logAction(adminId, 'CREATE_TOUR', 'Tours', (tour as any)._id?.toString(), { title: tour.title }, req.ip);
         return tour;
@@ -98,10 +97,18 @@ export class AdminToursController {
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
-        const imageUrls = files?.images?.map(f => `/uploads/tours/${f.filename}`) || [];
-        const thumbnailUrl = files?.thumbnailImage?.[0]
-            ? `/uploads/tours/${files.thumbnailImage[0].filename}`
-            : undefined;
+        let imageUrls: string[] = [];
+        if (files?.images)
+        {
+            imageUrls = await this.imgbbService.uploadImages(files.images);
+        }
+
+        let thumbnailUrl: string | undefined;
+        if (files?.thumbnailImage?.[0])
+        {
+            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+        }
+
         const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl);
         await this.adminLogService.logAction(adminId, 'UPDATE_TOUR', 'Tours', id, { fields: Object.keys(updateTourDto) }, req.ip);
         return tour;

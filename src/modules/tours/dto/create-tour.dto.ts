@@ -40,7 +40,7 @@ const ParseNumber = () => Transform(({ value }) => {
     return value;
 });
 
-class ItineraryPointDto {
+export class ItineraryPointDto {
     @IsString()
     @IsNotEmpty()
     text: string;
@@ -51,7 +51,7 @@ class ItineraryPointDto {
     subPoints?: string[];
 }
 
-class ItineraryDayDto {
+export class ItineraryDayDto {
     @IsInt()
     @Min(1)
     dayNumber: number;
@@ -66,7 +66,7 @@ class ItineraryDayDto {
     points: ItineraryPointDto[];
 }
 
-class PickupPointDto {
+export class PickupPointDto {
     @IsString()
     @IsOptional()
     fromCity?: string;
@@ -95,7 +95,7 @@ class PickupPointDto {
     priceAdjustment?: number = 0;
 }
 
-class FAQDto {
+export class FAQDto {
     @IsString()
     @IsNotEmpty()
     question: string;
@@ -142,8 +142,8 @@ export class CreateTourDto {
     state?: string;
 
     @IsString()
-    @IsNotEmpty()
-    duration: string;
+    @IsOptional()
+    duration?: string;
 
     @IsString()
     @IsOptional()
@@ -288,6 +288,14 @@ export class UpdateTourDto {
     @Type(() => FAQDto)
     @IsOptional()
     faqs?: FAQDto[];
+
+    @IsString()
+    @IsOptional()
+    thumbnailImage?: string;
+
+    @IsString()
+    @IsOptional()
+    duration?: string;
 
     @ParseBoolean()
     @IsBoolean()

@@ -51,6 +51,16 @@ export class PickupPoint {
 }
 export const PickupPointSchema = SchemaFactory.createForClass(PickupPoint);
 
+@Schema({ _id: false })
+class FAQ {
+    @Prop({ required: true })
+    question: string;
+
+    @Prop({ required: true })
+    answer: string;
+}
+const FAQSchema = SchemaFactory.createForClass(FAQ);
+
 @Schema({ timestamps: true })
 export class Tour {
     @Prop({ required: true })
@@ -62,7 +72,7 @@ export class Tour {
     @Prop()
     description: string;
 
-    @Prop({ required: true })
+    @Prop({ required: false })
     duration: string;
 
     @Prop({ required: true })
@@ -101,8 +111,8 @@ export class Tour {
     @Prop([String])
     exclusions: string[];
 
-    @Prop({ type: [{ question: String, answer: String }], _id: false })
-    faqs: { question: string; answer: string }[];
+    @Prop({ type: [FAQSchema] })
+    faqs: FAQ[];
 
     @Prop([String])
     images: string[];

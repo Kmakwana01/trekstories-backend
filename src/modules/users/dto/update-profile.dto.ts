@@ -25,4 +25,8 @@ export class UpdateProfileDto {
     @IsString()
     @IsOptional()
     contactAddress?: string;
+
+    @IsString()
+    @IsOptional()
+    avatar?: string;
 }

@@ -1,11 +1,10 @@
 import {
     Controller, Get, Post, Body, Patch, Param, Delete,
     UseGuards, Query, UseInterceptors, UploadedFile, Req,
+    // FileInterceptor, // removed from here
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import * as fs from 'fs';
+import { memoryStorage } from 'multer';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -17,19 +16,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { AdminLogService } from '../admin/services/admin-log.service';
 import type { UserDocument } from '../../database/schemas/user.schema';
+import { ImgbbService } from '../../common/services/imgbb.service';
 
 const blogMulter = {
-    storage: diskStorage({
-        destination: (req, file, cb) => {
-            const p = './uploads/blogs';
-            if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
-            cb(null, p);
-        },
-        filename: (req, file, cb) => {
-            const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, `blog-${unique}${extname(file.originalname)}`);
-        },
-    }),
+    storage: memoryStorage(),
     fileFilter: (req, file, cb) => {
         if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/))
         {
@@ -46,6 +36,7 @@ export class AdminBlogsController {
     constructor(
         private readonly blogsService: BlogsService,
         private readonly adminLogService: AdminLogService,
+        private readonly imgbbService: ImgbbService,
     ) { }
 
     @Post()
@@ -56,7 +47,11 @@ export class AdminBlogsController {
         @CurrentUser() user: UserDocument,
         @Req() req: any,
     ) {
-        const featuredImageUrl = file ? `/uploads/blogs/${file.filename}` : undefined;
+        let featuredImageUrl: string | undefined;
+        if (file)
+        {
+            featuredImageUrl = await this.imgbbService.uploadImage(file);
+        }
         const blog = await this.blogsService.create(createBlogDto, (user as any)._id.toString(), featuredImageUrl);
         await this.adminLogService.logAction((user as any)._id.toString(), 'CREATE_BLOG', 'Blogs', (blog as any)._id?.toString(), { title: createBlogDto.title }, req.ip);
         return blog;
@@ -81,7 +76,11 @@ export class AdminBlogsController {
         @CurrentUser() user: UserDocument,
         @Req() req: any,
     ) {
-        const featuredImageUrl = file ? `/uploads/blogs/${file.filename}` : undefined;
+        let featuredImageUrl: string | undefined;
+        if (file)
+        {
+            featuredImageUrl = await this.imgbbService.uploadImage(file);
+        }
         const blog = await this.blogsService.update(id, updateBlogDto, featuredImageUrl);
         await this.adminLogService.logAction((user as any)._id.toString(), 'UPDATE_BLOG', 'Blogs', id, { fields: Object.keys(updateBlogDto) }, req.ip);
         return blog;

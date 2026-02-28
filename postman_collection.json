@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "iwzm7mfn-1771665469824",
     "name": "🌍 Tours & Travels API – Production Collection",
-    "description": "## Tours & Travels App – Full API Collection\n\n### 🚀 Quick Start\n1. **Import** this collection + the **environment file** into Postman.\n2. Set the environment **active**.\n3. Run **Admin Login** → tokens saved automatically.\n4. Run **Register User** (uses random email) → tokens saved automatically.\n5. Run **Create Tour** → tourId saved. Then **Create Tour Date** → tourDateId saved.\n6. Now run booking, payment, review flows.\n\n### 🔐 Auth Flow\n- User tokens stored in `accessToken`, `refreshToken`\n- Admin tokens stored in `adminAccessToken`, `adminRefreshToken`\n- All test scripts auto-save IDs (tourId, bookingId, paymentId, etc.)\n\n### 📁 Folder Structure\n**USER:** Auth → Home → Tours → Bookings → Payments → Reviews → Users → Wishlist → Notifications → Blogs → Coupons\n**ADMIN:** Auth → Dashboard → Tours → Tour Dates → Bookings → Payments → Reviews → Blogs → Coupons → Users → Notifications → Reports",
+    "description": "## Tours & Travels App – Full API Collection\n\n### 🚀 Quick Start\n1. **Import** this collection + the **environment file** into Postman.\n2. Set the environment **active**.\n3. Run **Admin Login** → tokens saved automatically.\n4. Run **Register User** (uses random email) → tokens saved automatically.\n5. Run **Create Tour** → tourId saved. Then **Create Tour Date** → tourDateId saved.\n6. Now run booking, payment, review flows.\n\n### 🔐 Auth Flow\n- User tokens stored in `accessToken`, `refreshToken`\n- Admin tokens stored in `adminAccessToken`, `adminRefreshToken`\n- All test scripts auto-save IDs (tourId, bookingId, paymentId, etc.)\n\n### 📁 Folder Structure\n**USER:** Auth → Home → Tours → Bookings → Payments → Reviews → Users → Wishlist → Notifications → Blogs → Coupons\n**ADMIN:** Auth → Dashboard → Tours → Tour Dates → Bookings → Payments → Reviews → Blogs → Coupons → Users → Notifications → Reports\n\n### 🖼️ Image Hosting (ImgBB)\nImage uploads (Tours, Blogs, Payments) are now hosted on **ImgBB**. Ensure `IMGBB_API_KEY` is set in the server's `.env` file.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -1495,7 +1495,7 @@
                       "key": "receiptImage",
                       "src": "",
                       "type": "file",
-                      "description": "Upload receipt image (jpg/png/webp, max 5MB)"
+                      "description": "receiptImage (hosted on ImgBB)"
                     }
                   ]
                 },
@@ -1520,7 +1520,7 @@
                     "submit-proof"
                   ]
                 },
-                "description": ""
+                "description": "Submits payment proof for a booking. Image is hosted on ImgBB."
               },
               "response": [],
               "event": [
@@ -3218,12 +3218,14 @@
                     {
                       "key": "images",
                       "type": "file",
-                      "src": []
+                      "src": [],
+                      "description": "images (hosted on ImgBB)"
                     },
                     {
                       "key": "thumbnailImage",
                       "type": "file",
-                      "src": []
+                      "src": [],
+                      "description": "thumbnailImage (hosted on ImgBB)"
                     },
                     {
                       "key": "category",
@@ -3288,7 +3290,7 @@
                     "tours"
                   ]
                 },
-                "description": ""
+                "description": "Creates a new tour. Images are hosted on ImgBB."
               },
               "response": [],
               "event": [
@@ -4800,7 +4802,8 @@
                     {
                       "key": "featuredImage",
                       "type": "file",
-                      "src": []
+                      "src": [],
+                      "description": "featuredImage (hosted on ImgBB)"
                     }
                   ]
                 },
@@ -4825,7 +4828,7 @@
                     "blogs"
                   ]
                 },
-                "description": ""
+                "description": "Creates a new blog post. Image is hosted on ImgBB."
               },
               "response": [],
               "event": [

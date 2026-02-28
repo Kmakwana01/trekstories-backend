@@ -29,8 +29,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { HomeModule } from './modules/home/home.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { CronsModule } from './modules/crons/crons.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import * as redisStore from 'cache-manager-ioredis';
       isGlobal: true,
       load: [configuration],
     }),
+    CommonModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
@@ -65,6 +68,7 @@ import * as redisStore from 'cache-manager-ioredis';
     HomeModule,
     AdminModule,
     CronsModule,
+    SettingsModule,
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],

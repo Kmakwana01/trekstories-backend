@@ -12,6 +12,7 @@ import { ReviewSchema } from './schemas/review.schema';
 import { CouponSchema } from './schemas/coupon.schema';
 import { NotificationSchema } from './schemas/notification.schema';
 import { AdminLogSchema } from './schemas/admin-log.schema';
+import { SettingSchema } from './schemas/setting.schema';
 
 @Global()
 @Module({
@@ -34,6 +35,7 @@ import { AdminLogSchema } from './schemas/admin-log.schema';
             { name: 'Coupon', schema: CouponSchema },
             { name: 'Notification', schema: NotificationSchema },
             { name: 'AdminLog', schema: AdminLogSchema },
+            { name: 'Setting', schema: SettingSchema },
         ]),
     ],
     exports: [MongooseModule],
