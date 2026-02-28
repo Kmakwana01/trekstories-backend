@@ -1,6 +1,7 @@
 
 import { Prop, Schema as SchemaField, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { BlogCategory } from '../../common/enums/blog-category.enum';
 @SchemaField({ timestamps: true })
 export class Blog {
     @Prop({ required: true, unique: true, trim: true })
@@ -15,14 +16,20 @@ export class Blog {
     @Prop({ required: true })
     excerpt: string;
 
+    @Prop({
+        type: String,
+        required: true,
+        enum: Object.values(BlogCategory),
+        uppercase: true,
+        trim: true
+    })
+    category: string;
+
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
     author: MongooseSchema.Types.ObjectId;
 
     @Prop()
     featuredImage: string;
-
-    @Prop({ required: true, index: true })
-    category: string;
 
     @Prop({ type: [String], index: true })
     tags: string[];

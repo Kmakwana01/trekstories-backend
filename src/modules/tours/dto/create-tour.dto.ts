@@ -11,6 +11,8 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { TourCategory } from '../../../common/enums/tour-category.enum';
+import { PickupType } from '../../../common/enums/pickup-type.enum';
 
 const ParseJson = () => Transform(({ value }) => {
     if (typeof value === 'string')
@@ -75,7 +77,7 @@ export class PickupPointDto {
     @IsOptional()
     toCity?: string;
 
-    @IsEnum(['AC', 'NON-AC', 'FLIGHT', 'TRAIN'])
+    @IsEnum(PickupType)
     type: string;
 
     @IsString()
@@ -129,7 +131,7 @@ export class CreateTourDto {
     @IsOptional()
     maxAge?: number;
 
-    @IsString()
+    @IsEnum(TourCategory)
     @IsNotEmpty()
     category: string;
 
@@ -234,7 +236,7 @@ export class UpdateTourDto {
     @IsOptional()
     maxAge?: number;
 
-    @IsString()
+    @IsEnum(TourCategory)
     @IsOptional()
     category?: string;
 

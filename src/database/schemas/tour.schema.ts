@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { TourCategory } from '../../common/enums/tour-category.enum';
+import { PickupType } from '../../common/enums/pickup-type.enum';
 
 export type TourDocument = Tour & Document;
 
@@ -34,7 +36,12 @@ export class PickupPoint {
     @Prop()
     toCity: string;
 
-    @Prop({ enum: ['AC', 'NON-AC', 'FLIGHT', 'TRAIN'] })
+    @Prop({
+        type: String,
+        enum: Object.values(PickupType),
+        uppercase: true,
+        trim: true
+    })
     type: string;
 
     @Prop()
@@ -84,7 +91,14 @@ export class Tour {
     @Prop()
     maxAge: number;
 
-    @Prop({ required: true, index: true })
+    @Prop({
+        type: String,
+        required: true,
+        enum: Object.values(TourCategory),
+        uppercase: true,
+        trim: true,
+        index: true
+    })
     category: string;
 
     @Prop({ required: true })

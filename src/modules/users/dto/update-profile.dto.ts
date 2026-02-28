@@ -1,4 +1,5 @@
 import { IsEmail, IsEnum, IsOptional, IsString, IsDateString, IsNotEmpty, Matches } from 'class-validator';
+import { Gender } from '../../../common/enums/gender.enum';
 
 export class UpdateProfileDto {
     @IsString()
@@ -10,7 +11,7 @@ export class UpdateProfileDto {
     @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'Phone number must be valid international format' })
     phone: string;
 
-    @IsEnum(['male', 'female', 'other'], { message: 'Gender must be male, female, or other' })
+    @IsEnum(Gender, { message: 'Gender must be a valid enum value' })
     @IsOptional()
     gender?: string;
 

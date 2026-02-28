@@ -10,6 +10,8 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { generateBookingNumber } from '../../common/helpers/booking-number.helper';
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { BookingStatus } from '../../common/enums/booking-status.enum';
+import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 
 @Injectable()
 export class BookingsService {
@@ -77,24 +79,26 @@ export class BookingsService {
         const taxAmount = Math.round(taxableAmount * 0.05);
         const totalAmount = taxableAmount + taxAmount;
 
+        const fmt = (val: number) => new Intl.NumberFormat('en-IN').format(val);
+
         // 5. Generate Readable Summary
         let pricingSummary = '';
         if (pickupOption.priceAdjustment > 0)
         {
-            pricingSummary += `${baseAmountPerPerson.toLocaleString()} (Base) + ${pickupOption.priceAdjustment.toLocaleString()} (${pickupOption.type} Pickup) = ${perPersonPrice.toLocaleString()} per person. `;
+            pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (${pickupOption.type} Pickup) = ${fmt(perPersonPrice)} per person. `;
         } else
         {
-            pricingSummary += `${perPersonPrice.toLocaleString()} per person. `;
+            pricingSummary += `${fmt(perPersonPrice)} per person. `;
         }
 
-        pricingSummary += `Total for ${travelerCount} traveler(s): ${subtotal.toLocaleString()}. `;
+        pricingSummary += `Total for ${travelerCount} traveler(s): ${fmt(subtotal)}. `;
 
         if (couponDiscount > 0)
         {
-            pricingSummary += `Coupon (${appliedCoupon?.code}): -${couponDiscount.toLocaleString()}. `;
+            pricingSummary += `Coupon (${appliedCoupon?.code}): -${fmt(couponDiscount)}. `;
         }
 
-        pricingSummary += `Tax (5%): ${taxAmount.toLocaleString()}. Grand Total: ${totalAmount.toLocaleString()}.`;
+        pricingSummary += `Tax (5%): ${fmt(taxAmount)}. Grand Total: ${fmt(totalAmount)}.`;
 
         return {
             baseAmount: baseAmountPerPerson,
@@ -112,14 +116,14 @@ export class BookingsService {
     async getUpcomingDepartures(startDate: Date, endDate: Date): Promise<Booking[]> {
         const dates = await this.tourDateModel.find({
             startDate: { $gte: startDate, $lte: endDate },
-            status: 'upcoming'
+            status: TourDateStatus.UPCOMING
         }).exec();
 
         const dateIds = dates.map(d => d._id);
 
         return this.bookingModel.find({
             tourDate: { $in: dateIds as any[] },
-            status: { $in: ['confirmed'] }
+            status: { $in: [BookingStatus.CONFIRMED] }
         } as any).populate('user').populate({ path: 'tourDate', populate: { path: 'tour' } }).exec();
     }
 
@@ -145,7 +149,7 @@ export class BookingsService {
             this.logger.warn(`Booking failed: Only ${available} seats available for tour date ${dto.tourDateId}`);
             throw new ConflictException(`Not enough seats available. Only ${available} seat(s) left.`);
         }
-        if (tourDate.status === 'full' || tourDate.status === 'cancelled')
+        if (tourDate.status === TourDateStatus.FULL || tourDate.status === TourDateStatus.CANCELLED)
         {
             throw new ConflictException(`Tour date is ${tourDate.status} and not accepting bookings.`);
         }
@@ -167,7 +171,7 @@ export class BookingsService {
             couponCode: dto.couponCode?.toUpperCase(),
             totalAmount: preview.totalAmount,
             pendingAmount: preview.totalAmount,
-            status: 'pending',
+            status: BookingStatus.PENDING,
             additionalRequests: dto.additionalRequests,
             pricingSummary: preview.pricingSummary,
         });
@@ -273,7 +277,7 @@ export class BookingsService {
         this.logger.log(`Admin confirming booking: ${id}`);
         const booking = await this.bookingModel.findById(id).exec();
         if (!booking) throw new NotFoundException('Booking not found');
-        if (booking.status === 'confirmed') return booking;
+        if (booking.status === BookingStatus.CONFIRMED) return booking;
 
         // Atomically increment bookedSeats on confirmation (NOT at booking creation)
         const updatedDate = await this.tourDateModel.findByIdAndUpdate(
@@ -285,11 +289,11 @@ export class BookingsService {
         // Auto-mark tour date as 'full' when all seats are taken
         if (updatedDate && updatedDate.bookedSeats >= updatedDate.totalSeats)
         {
-            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: 'full' });
+            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: TourDateStatus.FULL });
             this.logger.log(`Tour date ${booking.tourDate} marked as FULL after confirmation of booking ${id}`);
         }
 
-        booking.status = 'confirmed';
+        booking.status = BookingStatus.CONFIRMED;
         const savedBooking = await booking.save();
         const populatedBooking = await this.bookingModel.findById(booking._id)
             .populate('user')
@@ -340,10 +344,10 @@ export class BookingsService {
         const booking = await this.bookingModel.findOne(query).populate('user').populate('tour').exec();
         if (!booking) throw new NotFoundException('Booking not found');
 
-        if (booking.status === 'cancelled') return booking;
+        if (booking.status === BookingStatus.CANCELLED) return booking;
 
         // Only restore bookedSeats if the booking was CONFIRMED (seats were only incremented on confirmation)
-        if (booking.status === 'confirmed')
+        if (booking.status === BookingStatus.CONFIRMED)
         {
             const restoredDate = await this.tourDateModel.findByIdAndUpdate(
                 booking.tourDate,
@@ -351,14 +355,14 @@ export class BookingsService {
                 { returnDocument: 'after' }
             ).exec();
             // If it was marked full, revert back to upcoming
-            if (restoredDate && restoredDate.status === 'full')
+            if (restoredDate && restoredDate.status === TourDateStatus.FULL)
             {
-                await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: 'upcoming' });
+                await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: TourDateStatus.UPCOMING });
                 this.logger.log(`Tour date ${booking.tourDate} reverted from FULL to upcoming after cancellation of booking ${id}`);
             }
         }
 
-        booking.status = 'cancelled';
+        booking.status = BookingStatus.CANCELLED;
 
         // Release coupon if used
         if (booking.couponCode)

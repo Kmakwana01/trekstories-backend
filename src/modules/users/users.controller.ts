@@ -103,4 +103,9 @@ export class UsersController {
     ) {
         return this.usersService.getMyReviews(user._id, paginationQuery);
     }
+
+    @Get('dashboard-summary')
+    async getDashboardSummary(@CurrentUser() user) {
+        return this.usersService.getDashboardSummary(user._id);
+    }
 }

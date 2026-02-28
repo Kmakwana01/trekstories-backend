@@ -1,10 +1,11 @@
 import { Model } from 'mongoose';
+import { DateUtil } from '../../utils/date.util';
 
 export async function generateBookingNumber(
     model: Model<any>,
     field: string = 'bookingNumber',
 ): Promise<string> {
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+    const dateStr = DateUtil.nowIST().format('YYYYMMDD'); // YYYYMMDD in IST
     const prefix = `TRV-${dateStr}-`;
 
     // Find the last booking number for today

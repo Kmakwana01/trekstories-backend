@@ -93,4 +93,4 @@ export class Setting {
     otherSettings: OtherSettings;
 }
 
-export const SettingSchema = SchemaFactory.createForClass(Setting
+export const SettingSchema = SchemaFactory.createForClass(Setting);

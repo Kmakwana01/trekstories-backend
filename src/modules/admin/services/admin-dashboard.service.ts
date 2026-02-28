@@ -5,6 +5,7 @@ import { Booking, BookingDocument } from '../../../database/schemas/booking.sche
 import { User, UserDocument } from '../../../database/schemas/user.schema';
 import { Tour, TourDocument } from '../../../database/schemas/tour.schema';
 import { Transaction, TransactionDocument } from '../../../database/schemas/transaction.schema';
+import { DateUtil } from '../../../utils/date.util';
 
 @Injectable()
 export class AdminDashboardService {
@@ -16,8 +17,7 @@ export class AdminDashboardService {
     ) { }
 
     async getSummary() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = DateUtil.startOfDayIST();
 
         const [
             totalBookings,

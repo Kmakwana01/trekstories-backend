@@ -6,6 +6,8 @@ import { Booking, BookingDocument } from '../../database/schemas/booking.schema'
 import { Tour, TourDocument } from '../../database/schemas/tour.schema';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { FilterReviewDto } from './dto/filter-review.dto';
+import { ReviewStatus } from '../../common/enums/review-status.enum';
+import { BookingStatus } from '../../common/enums/booking-status.enum';
 
 @Injectable()
 export class ReviewsService {
@@ -31,7 +33,7 @@ export class ReviewsService {
         }
 
         // 2. Verify booking status is completed
-        if (booking.status !== 'completed' && booking.status !== 'confirmed')
+        if (booking.status !== BookingStatus.COMPLETED && booking.status !== BookingStatus.CONFIRMED)
         {
             throw new BadRequestException('You can only review completed (or confirmed) bookings');
         }
@@ -50,7 +52,7 @@ export class ReviewsService {
             booking: bookingId,
             rating,
             comment,
-            status: 'pending',
+            status: ReviewStatus.PENDING,
         });
 
         return review.save();
@@ -61,7 +63,7 @@ export class ReviewsService {
         const l = Math.max(1, Number(limit) || 10);
         const skip = (p - 1) * l;
 
-        const query = { tour: tourId, status: 'approved' };
+        const query = { tour: tourId, status: ReviewStatus.APPROVED };
 
         const reviews = await this.reviewModel
             .find(query as any)
@@ -125,7 +127,7 @@ export class ReviewsService {
         const review = await this.reviewModel.findById(id);
         if (!review) throw new NotFoundException('Review not found');
 
-        review.status = 'approved';
+        review.status = ReviewStatus.APPROVED;
         await review.save();
 
         await this.updateTourRating(review.tour.toString());
@@ -136,7 +138,7 @@ export class ReviewsService {
     async reject(id: string, reason: string): Promise<Review> {
         const review = await this.reviewModel.findByIdAndUpdate(
             id,
-            { status: 'rejected', adminNote: reason },
+            { status: ReviewStatus.REJECTED, adminNote: reason },
             { returnDocument: 'after' } as any, // Fix deprecation warning
         );
         if (!review) throw new NotFoundException('Review not found');
@@ -148,7 +150,7 @@ export class ReviewsService {
         if (!review) throw new NotFoundException('Review not found');
 
         const tourId = review.tour.toString();
-        const wasApproved = review.status === 'approved';
+        const wasApproved = review.status === ReviewStatus.APPROVED;
 
         await this.reviewModel.deleteOne({ _id: id });
 
@@ -161,7 +163,7 @@ export class ReviewsService {
     private async updateTourRating(tourId: string) {
         const tourObjectId = new Types.ObjectId(tourId);
         const stats = await this.reviewModel.aggregate([
-            { $match: { tour: tourObjectId, status: 'approved' } },
+            { $match: { tour: tourObjectId, status: ReviewStatus.APPROVED } },
             {
                 $group: {
                     _id: '$tour',

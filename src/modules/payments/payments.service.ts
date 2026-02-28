@@ -5,6 +5,10 @@ import { Payment, PaymentDocument } from '../../database/schemas/payment.schema'
 import { BookingsService } from '../bookings/bookings.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { DateUtil } from '../../utils/date.util';
+import { BookingStatus } from '../../common/enums/booking-status.enum';
+import { PaymentStatus, PaymentMethod } from '../../common/enums/payment-status.enum';
+import { TransactionType, TransactionStatus } from '../../common/enums/transaction.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -23,7 +27,7 @@ export class PaymentsService {
 
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking) throw new NotFoundException('Booking not found');
-        if (booking.status !== 'pending') throw new BadRequestException('Booking is not pending');
+        if (booking.status !== BookingStatus.PENDING) throw new BadRequestException('Booking is not pending');
 
         // Check if payment already exists for this transaction ID
         const existing = await this.paymentModel.findOne({ transactionId }).exec();
@@ -33,12 +37,12 @@ export class PaymentsService {
         const payment = new this.paymentModel({
             user: userId,
             booking: bookingId,
-            paymentType: 'online',
+            method: PaymentMethod.ONLINE,
             paymentMethod,
             transactionId,
             paymentReceiptImage: receiptImage,
             amount: booking.totalAmount, // Assuming full payment for now
-            status: 'under_review',
+            status: PaymentStatus.UNDER_REVIEW,
         });
 
         return payment.save();
@@ -54,7 +58,7 @@ export class PaymentsService {
 
     // Admin methods
     async getPendingPayments() {
-        return this.paymentModel.find({ status: 'under_review' })
+        return this.paymentModel.find({ status: PaymentStatus.UNDER_REVIEW })
             .populate('user', 'name email')
             .populate('booking', 'bookingNumber totalAmount')
             .sort({ createdAt: 1 })
@@ -66,12 +70,12 @@ export class PaymentsService {
         const payment = await this.paymentModel.findById(paymentId).exec();
 
         if (!payment) throw new NotFoundException('Payment not found');
-        if (payment.status !== 'under_review') throw new BadRequestException('Payment not under review');
+        if (payment.status !== PaymentStatus.UNDER_REVIEW) throw new BadRequestException('Payment not under review');
 
-        payment.status = 'success';
+        payment.status = PaymentStatus.SUCCESS;
         payment.verifiedBy = adminId as any;
-        payment.verifiedAt = new Date();
-        payment.paidAt = new Date();
+        payment.verifiedAt = DateUtil.nowUTC();
+        payment.paidAt = DateUtil.nowUTC();
         await payment.save();
 
         // Confirm booking
@@ -83,13 +87,13 @@ export class PaymentsService {
             user: payment.user as any,
             booking: payment.booking as any,
             payment: payment._id as any,
-            type: 'payment',
+            type: TransactionType.PAYMENT,
             amount: payment.amount,
             paymentMethod: payment.paymentMethod,
             transactionId: payment.transactionId,
-            status: 'success',
+            status: TransactionStatus.SUCCESS,
             processedBy: adminId as any,
-            processedAt: new Date(),
+            processedAt: DateUtil.nowUTC(),
             description: 'Online payment approved'
         });
 
@@ -128,9 +132,9 @@ export class PaymentsService {
 
         if (!payment) throw new NotFoundException('Payment not found');
 
-        payment.status = 'rejected';
+        payment.status = PaymentStatus.REJECTED;
         payment.verifiedBy = adminId as any;
-        payment.verifiedAt = new Date();
+        payment.verifiedAt = DateUtil.nowUTC();
         payment.rejectionReason = reason;
 
         const savedPayment = await payment.save();
@@ -182,14 +186,14 @@ export class PaymentsService {
         const payment = new this.paymentModel({
             user: booking.user,
             booking: booking._id,
-            paymentType: 'offline',
+            method: PaymentMethod.OFFLINE,
             paymentMethod,
             offlineReceiptNumber: receiptNumber,
             offlineCollectedBy: adminId,
-            offlineCollectedAt: collectedAt || new Date(),
+            offlineCollectedAt: collectedAt || DateUtil.nowUTC(),
             amount,
-            status: 'success',
-            paidAt: collectedAt || new Date(),
+            status: PaymentStatus.SUCCESS,
+            paidAt: collectedAt || DateUtil.nowUTC(),
             metadata: { notes }
         });
         await payment.save();
@@ -198,16 +202,16 @@ export class PaymentsService {
         await this.bookingsService.adminUpdatePaidAmount(booking._id.toString(), amount);
 
         const updatedBooking = await this.bookingsService.getBookingById(bookingId);
-        if (updatedBooking.status === 'pending')
+        if (updatedBooking.status === BookingStatus.PENDING)
         {
             if (updatedBooking.pendingAmount <= 0)
             {
                 await this.bookingsService.adminConfirmBooking(bookingId);
             } else
             {
-                await this.bookingsService.adminUpdateStatus(bookingId, 'on_hold', 'Partial payment recorded');
+                await this.bookingsService.adminUpdateStatus(bookingId, BookingStatus.ON_HOLD, 'Partial payment recorded');
             }
-        } else if (updatedBooking.status === 'on_hold' && updatedBooking.pendingAmount <= 0)
+        } else if (updatedBooking.status === BookingStatus.ON_HOLD && updatedBooking.pendingAmount <= 0)
         {
             await this.bookingsService.adminConfirmBooking(bookingId);
         }
@@ -217,12 +221,12 @@ export class PaymentsService {
             user: booking.user as any,
             booking: booking._id as any,
             payment: payment._id as any,
-            type: 'payment',
+            type: TransactionType.PAYMENT,
             amount,
             paymentMethod,
-            status: 'success',
+            status: TransactionStatus.SUCCESS,
             processedBy: adminId as any,
-            processedAt: new Date(),
+            processedAt: DateUtil.nowUTC(),
             description: `Offline payment recorded (${notes || ''})`
         });
 

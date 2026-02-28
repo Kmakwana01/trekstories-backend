@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
+import { DateUtil } from '../../utils/date.util';
 import { Tour } from '../../database/schemas/tour.schema';
 import type { TourDocument } from '../../database/schemas/tour.schema';
 import { TourDate } from '../../database/schemas/tour-date.schema';
@@ -11,6 +12,8 @@ import { Blog } from '../../database/schemas/blog.schema';
 import type { BlogDocument } from '../../database/schemas/blog.schema';
 import { Coupon } from '../../database/schemas/coupon.schema';
 import type { CouponDocument } from '../../database/schemas/coupon.schema';
+import { Setting } from '../../database/schemas/setting.schema';
+import type { SettingDocument } from '../../database/schemas/setting.schema';
 
 @Injectable()
 export class HomeService {
@@ -19,8 +22,72 @@ export class HomeService {
         @InjectModel(TourDate.name) private tourDateModel: Model<TourDateDocument>,
         @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
         @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
+        @InjectModel(Setting.name) private settingModel: Model<SettingDocument>,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) { }
+
+    async getHomeData() {
+        const cacheKey = 'home_data_payload';
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) return cached;
+
+        // Run independent queries in parallel
+        const [
+            states,
+            categories,
+            departureCities,
+            featuredTours,
+            toursByState,
+            latestBlogs,
+            settings
+        ] = await Promise.all([
+            this.tourModel.distinct('state', { isActive: true }),
+            this.tourModel.distinct('category', { isActive: true }),
+            this.tourModel.distinct('departureOptions.fromCity', { isActive: true }),
+            this.tourModel.find({ isFeatured: true, isActive: true }).lean().limit(6).exec(),
+            this.tourModel.aggregate([
+                { $match: { isActive: true } },
+                {
+                    $group: {
+                        _id: '$state',
+                        tourCount: { $sum: 1 },
+                        sampleTours: { $push: '$$ROOT' },
+                    },
+                },
+                {
+                    $project: {
+                        state: '$_id',
+                        tourCount: 1,
+                        sampleTours: { $slice: ['$sampleTours', 3] },
+                        _id: 0,
+                    },
+                },
+                { $sort: { tourCount: -1 } },
+            ]),
+            this.blogModel.aggregate([
+                { $match: { isPublished: true } },
+                { $sample: { size: 5 } }
+            ]),
+            this.settingModel.findOne({ isGlobal: true }).lean().exec()
+        ]);
+
+        const filterOptions = {
+            states,
+            categories,
+            departureCities: departureCities.filter(city => city),
+        };
+
+        const result = {
+            filterOptions,
+            featuredTours,
+            toursByState,
+            latestBlogs,
+            settings
+        };
+
+        await this.cacheManager.set(cacheKey, result, 300 * 1000); // 5 min
+        return result;
+    }
 
     async getFeaturedTours() {
         const cacheKey = 'home_featured_tours';
@@ -41,9 +108,8 @@ export class HomeService {
         const cached = await this.cacheManager.get(cacheKey);
         if (cached) return cached;
 
-        const today = new Date();
-        const thirtyDaysLater = new Date();
-        thirtyDaysLater.setDate(today.getDate() + 15);
+        const today = DateUtil.startOfDayIST(DateUtil.nowIST().toDate());
+        const thirtyDaysLater = DateUtil.nowIST().add(15, 'day').endOf('day').utc().toDate();
 
         const dates = await this.tourDateModel
             .find({
@@ -65,7 +131,7 @@ export class HomeService {
         if (cached) return cached;
 
         const offers = await this.couponModel
-            .find({ isActive: true, expiryDate: { $gt: new Date() } })
+            .find({ isActive: true, expiryDate: { $gt: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) } })
             .limit(5)
             .exec();
 

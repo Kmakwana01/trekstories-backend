@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TourDate, TourDateDocument } from '../../database/schemas/tour-date.schema';
 import { CreateTourDateDto, UpdateTourDateDto } from './dto/create-tour-date.dto';
+import { DateUtil } from '../../utils/date.util';
 
 @Injectable()
 export class TourDatesService {
@@ -14,7 +15,7 @@ export class TourDatesService {
         const query: any = {
             tour: tourId,
             status: 'upcoming',
-            startDate: { $gt: new Date() }
+            startDate: { $gt: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) }
         };
         return this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
     }
@@ -22,12 +23,16 @@ export class TourDatesService {
     async adminCreateTourDate(createTourDateDto: CreateTourDateDto): Promise<TourDate> {
         const { startDate, endDate } = createTourDateDto;
 
-        if (new Date(startDate) >= new Date(endDate))
+        if (DateUtil.parseISTToUTC(startDate) >= DateUtil.parseISTToUTC(endDate))
         {
             throw new BadRequestException('Start date must be before end date');
         }
 
-        const newDate = new this.tourDateModel(createTourDateDto);
+        const newDate = new this.tourDateModel({
+            ...createTourDateDto,
+            startDate: DateUtil.parseISTToUTC(startDate),
+            endDate: DateUtil.parseISTToUTC(endDate)
+        });
         return newDate.save();
     }
 
@@ -37,9 +42,13 @@ export class TourDatesService {
     }
 
     async adminUpdateTourDate(id: string, updateTourDateDto: UpdateTourDateDto): Promise<TourDate> {
+        const updateData: any = { ...updateTourDateDto };
+        if (updateData.startDate) updateData.startDate = DateUtil.parseISTToUTC(updateData.startDate);
+        if (updateData.endDate) updateData.endDate = DateUtil.parseISTToUTC(updateData.endDate);
+
         const updatedDate = await this.tourDateModel.findByIdAndUpdate(
             id,
-            updateTourDateDto,
+            updateData,
             { returnDocument: 'after' }
         ).exec();
 
@@ -75,7 +84,7 @@ export class TourDatesService {
     }
 
     async autoUpdateStatuses(): Promise<string> {
-        const today = new Date();
+        const today = DateUtil.startOfDayIST(DateUtil.nowIST().toDate());
 
         // Mark completed
         const completedResult = await this.tourDateModel.updateMany(

@@ -8,6 +8,8 @@ import { CreateTourDto, UpdateTourDto } from './dto/create-tour.dto';
 import { TourFiltersDto } from './dto/tour-filters.dto';
 import { paginate, PaginationResult } from '../../common/helpers/pagination.helper';
 import { generateUniqueSlug } from '../../common/helpers/slug.helper';
+import { DateUtil } from '../../utils/date.util';
+import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 
 @Injectable()
 export class ToursService {
@@ -58,10 +60,10 @@ export class ToursService {
             const catArray = typeof category === 'string' ? category.split(',') : category;
             if (Array.isArray(catArray) && catArray.length > 0)
             {
-                query.category = { $in: catArray.map(c => c.trim()) };
+                query.category = { $in: catArray.map(c => c.trim().toUpperCase()) };
             } else if (typeof category === 'string' && category.trim())
             {
-                query.category = category.trim();
+                query.category = category.trim().toUpperCase();
             }
         }
 
@@ -112,13 +114,14 @@ export class ToursService {
         return paginate(this.tourModel, query, pagination);
     }
 
-    async getTourBySlug(slug: string): Promise<TourDocument> {
+    async getTourBySlug(slug: string): Promise<any> {
         const tour = await this.tourModel
             .findOneAndUpdate(
                 { slug, isActive: true },
                 { $inc: { viewCount: 1 } },
                 { returnDocument: 'after' },
             )
+            .lean()
             .exec();
 
         if (!tour)
@@ -126,15 +129,25 @@ export class ToursService {
             throw new NotFoundException('Tour not found');
         }
 
-        return tour;
+        const availableDates = await this.tourDateModel
+            .find({
+                tour: (tour as any)._id,
+                status: TourDateStatus.UPCOMING,
+                startDate: { $gte: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) },
+            })
+            .sort({ startDate: 1 })
+            .lean()
+            .exec();
+
+        return { ...tour, availableDates };
     }
 
     async getTourDates(tourId: string): Promise<TourDateDocument[]> {
         return this.tourDateModel
             .find({
                 tour: tourId as any,
-                status: 'upcoming',
-                startDate: { $gte: new Date() },
+                status: TourDateStatus.UPCOMING,
+                startDate: { $gte: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) },
             })
             .sort({ startDate: 1 })
             .exec();

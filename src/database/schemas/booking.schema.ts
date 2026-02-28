@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { PickupPoint, PickupPointSchema } from './tour.schema';
+import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
+import { Gender } from '../../common/enums/gender.enum';
 
 export type BookingDocument = Booking & Document;
 
@@ -12,7 +14,12 @@ class Traveler {
     @Prop()
     age: number;
 
-    @Prop()
+    @Prop({
+        type: String,
+        enum: Object.values(Gender),
+        uppercase: true,
+        trim: true
+    })
     gender: string;
 
     @Prop()
@@ -75,12 +82,20 @@ export class Booking {
     @Prop()
     pendingAmount: number;
 
-    @Prop({ enum: ['online', 'offline', 'partial'] })
+    @Prop({
+        type: String,
+        enum: Object.values(PaymentType),
+        uppercase: true,
+        trim: true
+    })
     paymentType: string;
 
     @Prop({
-        enum: ['pending', 'confirmed', 'cancelled', 'completed', 'on_hold'],
-        default: 'pending',
+        type: String,
+        enum: Object.values(BookingStatus),
+        default: BookingStatus.PENDING,
+        uppercase: true,
+        trim: true,
         index: true,
     })
     status: string;

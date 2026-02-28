@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsInt, Min, IsArray, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Gender } from '../../../common/enums/gender.enum';
 
 class TravelerDto {
     @IsString()
@@ -10,7 +11,7 @@ class TravelerDto {
     @Min(1)
     age: number;
 
-    @IsEnum(['male', 'female', 'other'])
+    @IsEnum(Gender)
     @IsOptional()
     gender?: string;
 

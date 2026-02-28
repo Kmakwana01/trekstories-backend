@@ -10,6 +10,11 @@ import type { UserDocument } from '../../database/schemas/user.schema';
 export class HomeController {
     constructor(private readonly homeService: HomeService) { }
 
+    @Get('home-data')
+    async getHomeData() {
+        return this.homeService.getHomeData();
+    }
+
     @Get('featured-tours')
     async getFeaturedTours() {
         return this.homeService.getFeaturedTours();

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { CouponType } from '../../common/enums/coupon.enum';
 
 export type CouponDocument = Coupon & Document;
 
@@ -11,7 +12,13 @@ export class Coupon {
     @Prop()
     description: string;
 
-    @Prop({ enum: ['percent', 'flat'], required: true })
+    @Prop({
+        type: String,
+        enum: Object.values(CouponType),
+        required: true,
+        uppercase: true,
+        trim: true
+    })
     discountType: string;
 
     @Prop({ required: true })

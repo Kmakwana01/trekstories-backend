@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import { Gender } from '../../../common/enums/gender.enum';
 
 export class RegisterDto {
     @IsNotEmpty()
@@ -19,7 +20,7 @@ export class RegisterDto {
     @MinLength(8, { message: 'Password must be at least 8 characters long' })
     password: string;
 
-    @IsEnum(['male', 'female', 'other'], { message: 'Gender must be male, female, or other' })
+    @IsEnum(Gender, { message: 'Gender must be a valid enum value' })
     @IsOptional()
     gender?: string;
 

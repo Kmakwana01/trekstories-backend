@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { PaymentStatus, PaymentMethod } from '../../common/enums/payment-status.enum';
 
 export type PaymentDocument = Payment & Document;
 
@@ -11,8 +12,13 @@ export class Payment {
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
     user: MongooseSchema.Types.ObjectId;
 
-    @Prop({ enum: ['online', 'offline'] })
-    paymentType: string;
+    @Prop({
+        type: String,
+        enum: Object.values(PaymentMethod),
+        uppercase: true,
+        trim: true
+    })
+    method: string;
 
     @Prop()
     paymentMethod: string;
@@ -47,8 +53,12 @@ export class Payment {
     currency: string;
 
     @Prop({
-        enum: ['pending', 'under_review', 'success', 'failed', 'rejected'],
-        default: 'pending',
+        type: String,
+        enum: Object.values(PaymentStatus),
+        default: PaymentStatus.PENDING,
+        uppercase: true,
+        trim: true,
+        index: true,
     })
     status: string;
 

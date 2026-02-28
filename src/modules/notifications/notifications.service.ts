@@ -5,6 +5,7 @@ import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
 import { Notification, NotificationDocument } from '../../database/schemas/notification.schema';
 import { paginate } from '../../common/helpers/pagination.helper';
+import { DateUtil } from '../../utils/date.util';
 
 @Injectable()
 export class NotificationsService {
@@ -40,7 +41,7 @@ export class NotificationsService {
     async markRead(userId: string, id: string): Promise<NotificationDocument> {
         const notification = await this.notificationModel.findOneAndUpdate(
             { _id: id, user: userId } as any,
-            { isRead: true, readAt: new Date() },
+            { isRead: true, readAt: DateUtil.nowUTC() },
             { returnDocument: 'after' },
         ).exec();
 
@@ -51,7 +52,7 @@ export class NotificationsService {
     async markAllRead(userId: string) {
         await this.notificationModel.updateMany(
             { user: userId, isRead: false } as any,
-            { isRead: true, readAt: new Date() },
+            { isRead: true, readAt: DateUtil.nowUTC() },
         ).exec();
         return { success: true };
     }
@@ -66,7 +67,7 @@ export class NotificationsService {
         // Enrich context: always provide year (used in template footer)
         // and ensure message is never undefined so Handlebars strict mode passes
         const enrichedContext = {
-            year: new Date().getFullYear(),
+            year: DateUtil.nowUTC().getFullYear(),
             message: '',
             ...context,
         };

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ReviewStatus } from '../../common/enums/review-status.enum';
 import { User } from '../schemas/user.schema';
 import { Tour } from '../schemas/tour.schema';
 import { Booking } from '../schemas/booking.schema';
@@ -23,7 +24,15 @@ export class Review {
     @Prop({ required: true })
     comment: string;
 
-    @Prop({ required: true, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true })
+    @Prop({
+        type: String,
+        required: true,
+        enum: Object.values(ReviewStatus),
+        default: ReviewStatus.PENDING,
+        uppercase: true,
+        trim: true,
+        index: true
+    })
     status: string;
 
     @Prop()

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { TransactionType, TransactionStatus } from '../../common/enums/transaction.enum';
 
 export type TransactionDocument = Transaction & Document;
 
@@ -15,8 +16,11 @@ export class Transaction {
     payment: MongooseSchema.Types.ObjectId;
 
     @Prop({
-        enum: ['payment', 'refund', 'manual_credit', 'manual_debit'],
+        type: String,
+        enum: Object.values(TransactionType),
         required: true,
+        uppercase: true,
+        trim: true
     })
     type: string;
 
@@ -29,7 +33,13 @@ export class Transaction {
     @Prop()
     transactionId: string;
 
-    @Prop({ enum: ['pending', 'success', 'failed'], default: 'pending' })
+    @Prop({
+        type: String,
+        enum: Object.values(TransactionStatus),
+        default: TransactionStatus.PENDING,
+        uppercase: true,
+        trim: true
+    })
     status: string;
 
     @Prop()

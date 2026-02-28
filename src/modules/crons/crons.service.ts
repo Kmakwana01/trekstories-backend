@@ -4,6 +4,7 @@ import { TourDatesService } from '../tour-dates/tour-dates.service';
 import { BookingsService } from '../bookings/bookings.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ReportsService } from '../admin/services/reports.service';
+import { DateUtil } from '../../utils/date.util';
 
 @Injectable()
 export class CronsService {
@@ -34,13 +35,8 @@ export class CronsService {
     //     this.logger.log('Sending trip reminders for next 24 hours...');
     //     try
     //     {
-    //         const now = new Date();
-    //         const tomorrowStart = new Date(now);
-    //         tomorrowStart.setDate(tomorrowStart.getDate() + 1);
-    //         tomorrowStart.setHours(0, 0, 0, 0);
-
-    //         const tomorrowEnd = new Date(tomorrowStart);
-    //         tomorrowEnd.setHours(23, 59, 59, 999);
+    //         const tomorrowStart = DateUtil.nowIST().add(1, 'day').startOf('day').utc().toDate();
+    //         const tomorrowEnd = DateUtil.nowIST().add(1, 'day').endOf('day').utc().toDate();
 
     //         const upcomingBookings = await this.bookingsService.getUpcomingDepartures(tomorrowStart, tomorrowEnd);
 
@@ -78,13 +74,8 @@ export class CronsService {
     //     this.logger.log('Generating weekly finance summary...');
     //     try
     //     {
-    //         const now = new Date();
-    //         const lastWeekStart = new Date(now);
-    //         lastWeekStart.setDate(now.getDate() - 7);
-    //         lastWeekStart.setHours(0, 0, 0, 0);
-    //         const lastWeekEnd = new Date(now);
-    //         lastWeekEnd.setDate(now.getDate() - 1);
-    //         lastWeekEnd.setHours(23, 59, 59, 999);
+    //         const lastWeekStart = DateUtil.nowIST().subtract(7, 'day').startOf('day').utc().toDate();
+    //         const lastWeekEnd = DateUtil.nowIST().subtract(1, 'day').endOf('day').utc().toDate();
 
     //         const csv = await this.reportsService.generateRevenueCSV(lastWeekStart, lastWeekEnd);
     //         this.logger.log(`Weekly finance summary generated. Length: ${csv.length}`);

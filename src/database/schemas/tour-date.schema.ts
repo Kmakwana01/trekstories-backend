@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 
 export type TourDateDocument = TourDate & Document;
 
@@ -27,8 +28,12 @@ export class TourDate {
     departureNote: string;
 
     @Prop({
-        enum: ['upcoming', 'full', 'completed', 'cancelled'],
-        default: 'upcoming',
+        type: String,
+        enum: Object.values(TourDateStatus),
+        default: TourDateStatus.UPCOMING,
+        uppercase: true,
+        trim: true,
+        index: true,
     })
     status: string;
 }

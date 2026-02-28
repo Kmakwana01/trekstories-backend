@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsMongoId, IsDateString, IsNumber, Min, IsOptional, IsString, IsEnum } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { TourDateStatus } from '../../../common/enums/tour-date-status.enum';
 
 export class CreateTourDateDto {
     @IsMongoId()
@@ -30,7 +31,7 @@ export class CreateTourDateDto {
 }
 
 export class UpdateTourDateDto extends PartialType(CreateTourDateDto) {
-    @IsEnum(['upcoming', 'full', 'completed', 'cancelled'])
+    @IsEnum(TourDateStatus)
     @IsOptional()
     status?: string;
 }

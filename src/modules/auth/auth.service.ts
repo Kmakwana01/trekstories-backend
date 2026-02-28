@@ -19,6 +19,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Role } from '../../common/enums/roles.enum';
+import { DateUtil } from '../../utils/date.util';
 
 @Injectable()
 export class AuthService {
@@ -94,7 +95,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        user.lastLogin = new Date();
+        user.lastLogin = DateUtil.nowUTC();
         await user.save();
         this.logger.log(`User logged in successfully: ${identifier}`);
 
@@ -152,7 +153,7 @@ export class AuthService {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         user.otp = otp;
-        user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+        user.otpExpiry = DateUtil.nowIST().add(15, 'minute').utc().toDate(); // 15 mins expiry
         await user.save();
 
         await this.notificationsService.sendEmail(
@@ -173,7 +174,7 @@ export class AuthService {
         const user = await this.userModel.findOne({
             email,
             otp,
-            otpExpiry: { $gt: new Date() },
+            otpExpiry: { $gt: DateUtil.nowUTC() },
         });
 
         if (!user)

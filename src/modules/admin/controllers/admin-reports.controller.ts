@@ -5,7 +5,7 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 import { Role } from '../../../common/enums/roles.enum';
 import { ReportsService } from '../services/reports.service';
 import type { Response } from 'express';
-
+import { DateUtil } from '../../../utils/date.util';
 
 @Controller('admin/reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -19,10 +19,10 @@ export class AdminReportsController {
         @Query('endDate') endDate: string,
         @Res() res: Response,
     ) {
-        const csv = await this.reportsService.generateRevenueCSV(
-            new Date(startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
-            new Date(endDate || Date.now()),
-        );
+        const start = startDate ? DateUtil.startOfDayIST(startDate) : DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const end = endDate ? DateUtil.endOfDayIST(endDate) : DateUtil.nowUTC();
+
+        const csv = await this.reportsService.generateRevenueCSV(start, end);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=revenue-report.csv');
         res.send(csv);
@@ -34,10 +34,10 @@ export class AdminReportsController {
         @Query('endDate') endDate: string,
         @Res() res: Response,
     ) {
-        const buffer = await this.reportsService.generateRevenuePDF(
-            new Date(startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
-            new Date(endDate || Date.now()),
-        );
+        const start = startDate ? DateUtil.startOfDayIST(startDate) : DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const end = endDate ? DateUtil.endOfDayIST(endDate) : DateUtil.nowUTC();
+
+        const buffer = await this.reportsService.generateRevenuePDF(start, end);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=revenue-report.pdf');
         res.send(buffer);
@@ -49,10 +49,10 @@ export class AdminReportsController {
         @Query('endDate') endDate: string,
         @Res() res: Response,
     ) {
-        const csv = await this.reportsService.generateBookingCSV(
-            new Date(startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
-            new Date(endDate || Date.now()),
-        );
+        const start = startDate ? DateUtil.startOfDayIST(startDate) : DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const end = endDate ? DateUtil.endOfDayIST(endDate) : DateUtil.nowUTC();
+
+        const csv = await this.reportsService.generateBookingCSV(start, end);
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=booking-report.csv');
         res.send(csv);

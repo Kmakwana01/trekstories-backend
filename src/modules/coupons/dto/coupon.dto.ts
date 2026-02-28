@@ -1,4 +1,5 @@
 import { IsString, IsEnum, IsNumber, IsOptional, IsDateString, IsBoolean, IsArray, IsMongoId, Min, Max } from 'class-validator';
+import { CouponType } from '../../../common/enums/coupon.enum';
 
 export class CreateCouponDto {
     @IsString()
@@ -8,7 +9,7 @@ export class CreateCouponDto {
     @IsString()
     description?: string;
 
-    @IsEnum(['percent', 'flat'])
+    @IsEnum(CouponType)
     discountType: string;
 
     @IsNumber()
@@ -59,7 +60,7 @@ export class UpdateCouponDto {
     description?: string;
 
     @IsOptional()
-    @IsEnum(['percent', 'flat'])
+    @IsEnum(CouponType)
     discountType?: string;
 
     @IsOptional()

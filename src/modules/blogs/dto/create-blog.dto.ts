@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsArray, IsNotEmpty, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNotEmpty, IsUrl, IsEnum } from 'class-validator';
+import { BlogCategory } from '../../../common/enums/blog-category.enum';
 
 export class CreateBlogDto {
     @IsString()
@@ -13,7 +14,7 @@ export class CreateBlogDto {
     @IsNotEmpty()
     excerpt: string;
 
-    @IsString()
+    @IsEnum(BlogCategory)
     @IsNotEmpty()
     category: string;
 

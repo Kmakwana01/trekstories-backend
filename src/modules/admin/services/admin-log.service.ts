@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AdminLog, AdminLogDocument } from '../../../database/schemas/admin-log.schema';
 import { paginate } from '../../../common/helpers/pagination.helper';
+import { DateUtil } from '../../../utils/date.util';
 
 @Injectable()
 export class AdminLogService {
@@ -37,8 +38,8 @@ export class AdminLogService {
         if (filters.dateFrom || filters.dateTo)
         {
             query.createdAt = {};
-            if (filters.dateFrom) query.createdAt.$gte = new Date(filters.dateFrom);
-            if (filters.dateTo) query.createdAt.$lte = new Date(filters.dateTo);
+            if (filters.dateFrom) query.createdAt.$gte = DateUtil.startOfDayIST(filters.dateFrom);
+            if (filters.dateTo) query.createdAt.$lte = DateUtil.endOfDayIST(filters.dateTo);
         }
 
         return paginate(this.adminLogModel, query, paginationQuery, ['admin']);

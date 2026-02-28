@@ -5,6 +5,8 @@ import { Coupon, CouponDocument } from '../../database/schemas/coupon.schema';
 import { Booking, BookingDocument } from '../../database/schemas/booking.schema';
 import { CreateCouponDto, UpdateCouponDto } from './dto/coupon.dto';
 import { paginate } from '../../common/helpers/pagination.helper';
+import { DateUtil } from '../../utils/date.util';
+import { CouponType } from '../../common/enums/coupon.enum';
 
 @Injectable()
 export class CouponsService {
@@ -23,6 +25,7 @@ export class CouponsService {
         const coupon = new this.couponModel({
             ...createCouponDto,
             code: createCouponDto.code.toUpperCase(),
+            expiryDate: createCouponDto.expiryDate ? DateUtil.parseISTToUTC(createCouponDto.expiryDate) : undefined
         });
         return coupon.save();
     }
@@ -41,10 +44,15 @@ export class CouponsService {
     }
 
     async update(id: string, updateCouponDto: UpdateCouponDto): Promise<Coupon> {
-        const updateData = { ...updateCouponDto };
+        const updateData: any = { ...updateCouponDto };
         if (updateData.code)
         {
             updateData.code = updateData.code.toUpperCase();
+        }
+
+        if (updateData.expiryDate)
+        {
+            updateData.expiryDate = DateUtil.parseISTToUTC(updateData.expiryDate);
         }
 
         const coupon = await this.couponModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
@@ -71,7 +79,7 @@ export class CouponsService {
             throw new BadRequestException('Invalid or inactive coupon code');
         }
 
-        const now = new Date();
+        const now = DateUtil.nowUTC();
         if (coupon.expiryDate && coupon.expiryDate < now)
         {
             throw new BadRequestException('Coupon has expired');
@@ -113,7 +121,7 @@ export class CouponsService {
 
         // Calculate discount
         let discountAmount = 0;
-        if (coupon.discountType === 'percent')
+        if (coupon.discountType === CouponType.PERCENT)
         {
             discountAmount = (orderAmount * coupon.discountValue) / 100;
             if (coupon.maxDiscountAmount)

@@ -6,6 +6,8 @@ import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { FilterBlogDto } from './dto/filter-blog.dto';
 import slugify from 'slugify';
+import { DateUtil } from '../../utils/date.util';
+import { BlogCategory } from '../../common/enums/blog-category.enum';
 
 @Injectable()
 export class BlogsService {
@@ -34,7 +36,7 @@ export class BlogsService {
         const { category, tag, search, page = 1, limit = 10 } = filters;
         const query: any = { isPublished: true };
 
-        if (category) query.category = category;
+        if (category) query.category = category.toUpperCase();
         if (tag) query.tags = tag;
         if (search)
         {
@@ -75,7 +77,7 @@ export class BlogsService {
         const { category, tag, search, page = 1, limit = 10 } = filters;
         const query: any = {}; // No isPublished filter
 
-        if (category) query.category = category;
+        if (category) query.category = category.toUpperCase();
         if (tag) query.tags = tag;
         if (search)
         {
@@ -164,7 +166,7 @@ export class BlogsService {
     async publish(id: string): Promise<Blog> {
         const blog = await this.blogModel.findByIdAndUpdate(
             id,
-            { isPublished: true, publishedAt: new Date() },
+            { isPublished: true, publishedAt: DateUtil.nowUTC() },
             { returnDocument: 'after' },
         );
         if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);

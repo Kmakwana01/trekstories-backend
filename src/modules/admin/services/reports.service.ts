@@ -9,6 +9,7 @@ const PDFDocument = require('pdfkit');
 
 
 import { PassThrough } from 'stream';
+import { DateUtil } from '../../../utils/date.util';
 
 @Injectable()
 export class ReportsService {
@@ -41,7 +42,7 @@ export class ReportsService {
         });
 
         const records = transactions.map((t: any) => ({
-            date: t.createdAt.toISOString().split('T')[0],
+            date: DateUtil.formatToIST(t.createdAt, 'YYYY-MM-DD'),
             transactionId: t.transactionId,
             userName: (t.user as any)?.name || 'N/A',
             userEmail: (t.user as any)?.email || 'N/A',
@@ -73,7 +74,7 @@ export class ReportsService {
         });
 
         const records = bookings.map((b: any) => ({
-            date: b.createdAt.toISOString().split('T')[0],
+            date: DateUtil.formatToIST(b.createdAt, 'YYYY-MM-DD'),
             bookingNumber: b.bookingNumber,
             customer: (b.user as any)?.name || 'N/A',
             tour: (b.tour as any)?.title || 'N/A',
@@ -109,7 +110,7 @@ export class ReportsService {
 
 
             doc.fontSize(20).text('Revenue Report', { align: 'center' });
-            doc.fontSize(12).text(`Period: ${startDate.toDateString()} to ${endDate.toDateString()}`, { align: 'center' });
+            doc.fontSize(12).text(`Period: ${DateUtil.formatToIST(startDate)} to ${DateUtil.formatToIST(endDate)}`, { align: 'center' });
             doc.moveDown();
 
             doc.fontSize(14).text('Summary Table', { underline: true });
@@ -117,7 +118,7 @@ export class ReportsService {
 
             transactions.forEach((t: any) => {
                 doc.fontSize(10).text(
-                    `${t.createdAt.toISOString().split('T')[0]} | ${t.transactionId} | ${(t.user as any)?.name} | INR ${t.amount}`
+                    `${DateUtil.formatToIST(t.createdAt, 'YYYY-MM-DD')} | ${t.transactionId} | ${(t.user as any)?.name} | INR ${t.amount}`
                 );
             });
 

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema, Document } from 'mongoose';
 import { Role } from '../../common/enums/roles.enum';
+import { Gender } from '../../common/enums/gender.enum';
 
 export type UserDocument = User & Document;
 
@@ -12,7 +13,12 @@ class SavedTraveler {
     @Prop()
     age: number;
 
-    @Prop()
+    @Prop({
+        type: String,
+        enum: Object.values(Gender),
+        uppercase: true,
+        trim: true
+    })
     gender: string;
 
     @Prop()
@@ -37,7 +43,12 @@ export class User {
     @Prop()
     passwordHash: string;
 
-    @Prop({ enum: ['male', 'female', 'other'] })
+    @Prop({
+        type: String,
+        enum: Object.values(Gender),
+        uppercase: true,
+        trim: true
+    })
     gender: string;
 
     @Prop()
@@ -49,7 +60,14 @@ export class User {
     @Prop()
     contactAddress: string;
 
-    @Prop({ enum: Role, default: Role.CUSTOMER, index: true })
+    @Prop({
+        type: String,
+        enum: Object.values(Role),
+        default: Role.CUSTOMER,
+        uppercase: true,
+        trim: true,
+        index: true
+    })
     role: string;
 
     @Prop({ default: true, index: true })
