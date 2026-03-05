@@ -40,7 +40,7 @@ export class UsersController {
     }
 
     @Patch('profile')
-    @UseInterceptors(FileInterceptor('avatar', {
+    @UseInterceptors(FileInterceptor('avatarFile', {
         storage: memoryStorage(),
         fileFilter: (req, file, cb) => {
             if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/))
@@ -59,7 +59,10 @@ export class UsersController {
         {
             updateProfileDto.avatar = await this.imgbbService.uploadImage(file);
         }
-        return this.usersService.updateProfile(user._id, updateProfileDto);
+        delete updateProfileDto.avatarFile;
+        // Convert to plain object to ensure all set properties are included
+        const updateData = { ...updateProfileDto };
+        return this.usersService.updateProfile(user._id, updateData as any);
     }
 
     @Patch('change-password')
@@ -94,14 +97,6 @@ export class UsersController {
         @Query() paginationQuery: PaginationQuery,
     ) {
         return this.usersService.getMyBookings(user._id, paginationQuery);
-    }
-
-    @Get('my-reviews')
-    async getMyReviews(
-        @CurrentUser() user,
-        @Query() paginationQuery: PaginationQuery,
-    ) {
-        return this.usersService.getMyReviews(user._id, paginationQuery);
     }
 
     @Get('dashboard-summary')

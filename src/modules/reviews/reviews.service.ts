@@ -87,7 +87,7 @@ export class ReviewsService {
     async findAllByUser(userId: string) {
         const results = await this.reviewModel
             .find({ user: userId } as any)
-            .populate('tour', 'title featuredImage')
+            .populate('tour', 'title thumbnailImage slug')
             .sort({ createdAt: -1 })
             .exec();
         return results;

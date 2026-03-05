@@ -117,14 +117,6 @@ export class UsersService {
         );
     }
 
-    async getMyReviews(userId: string, paginationQuery: PaginationQuery) {
-        return paginate(
-            this.reviewModel,
-            { user: new Types.ObjectId(userId) },
-            paginationQuery,
-        );
-    }
-
     async getDashboardSummary(userId: string) {
         const uid = new Types.ObjectId(userId);
 

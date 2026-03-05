@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, IsDateString, IsNotEmpty, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, IsDateString, IsNotEmpty, Matches, Allow } from 'class-validator';
 import { Gender } from '../../../common/enums/gender.enum';
 
 export class UpdateProfileDto {
@@ -30,4 +30,8 @@ export class UpdateProfileDto {
     @IsString()
     @IsOptional()
     avatar?: string;
+
+    @Allow()
+    @IsOptional()
+    avatarFile?: any;
 }

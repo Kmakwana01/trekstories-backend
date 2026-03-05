@@ -102,7 +102,7 @@ export class AdminDashboardService {
                 $group: {
                     _id: '$tour',
                     bookingCount: { $sum: 1 },
-                    revenue: { $sum: '$totalAmount' },
+                    revenue: { $sum: '$paidAmount' },
                 },
             },
             { $sort: { bookingCount: -1 } },
