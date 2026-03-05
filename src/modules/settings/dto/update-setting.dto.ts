@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEmail, ValidateNested, IsBoolean, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsEmail, ValidateNested, IsBoolean, IsUrl, IsNumber, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -8,10 +8,12 @@ export class BusinessDetailsDto {
     @IsOptional()
     upiId?: string;
 
-    @ApiPropertyOptional()
-    @IsString()
+    @ApiPropertyOptional({ description: 'GST rate as a percentage (e.g. 5 for 5%). Range: 0–28.' })
+    @IsNumber()
+    @Min(0)
+    @Max(28)
     @IsOptional()
-    gstNumber?: string;
+    gstRate?: number;
 
     @ApiPropertyOptional()
     @IsString()

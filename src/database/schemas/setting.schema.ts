@@ -8,8 +8,8 @@ export class BusinessDetails {
     @Prop()
     upiId?: string;
 
-    @Prop()
-    gstNumber?: string;
+    @Prop({ default: 5 })
+    gstRate?: number;
 
     @Prop()
     phoneNumber?: string;

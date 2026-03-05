@@ -4,12 +4,12 @@ import { Model } from 'mongoose';
 import { Booking, BookingDocument } from '../../database/schemas/booking.schema';
 import { Tour, TourDocument } from '../../database/schemas/tour.schema';
 import { TourDate, TourDateDocument } from '../../database/schemas/tour-date.schema';
-import { Coupon, CouponDocument } from '../../database/schemas/coupon.schema';
 import { PreviewBookingDto } from './dto/preview-booking.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { generateBookingNumber } from '../../common/helpers/booking-number.helper';
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { SettingsService } from '../settings/settings.service';
 import { BookingStatus } from '../../common/enums/booking-status.enum';
 import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 import { NotificationType } from '../../common/enums/notification-type.enum';
@@ -24,6 +24,7 @@ export class BookingsService {
         @InjectModel(TourDate.name) private tourDateModel: Model<TourDateDocument>,
         private readonly couponsService: CouponsService,
         private readonly notificationsService: NotificationsService,
+        private readonly settingsService: SettingsService,
     ) { }
 
     async previewBooking(dto: PreviewBookingDto) {
@@ -75,9 +76,11 @@ export class BookingsService {
             }
         }
 
-        // 4. GST 5%
+        // 4. GST — rate fetched dynamically from admin settings
+        const settings = await this.settingsService.getSettings();
+        const gstRate = settings?.businessDetails?.gstRate ?? 5; // fallback to 5% if not configured
         const taxableAmount = subtotal - couponDiscount;
-        const taxAmount = Math.round(taxableAmount * 0.05);
+        const taxAmount = gstRate > 0 ? Math.round(taxableAmount * (gstRate / 100)) : 0;
         const totalAmount = taxableAmount + taxAmount;
 
         const fmt = (val: number) => new Intl.NumberFormat('en-IN').format(val);
@@ -99,7 +102,11 @@ export class BookingsService {
             pricingSummary += `Coupon (${appliedCoupon?.code}): -${fmt(couponDiscount)}. `;
         }
 
-        pricingSummary += `Tax (5%): ${fmt(taxAmount)}. Grand Total: ${fmt(totalAmount)}.`;
+        if (gstRate > 0)
+        {
+            pricingSummary += `Tax (${gstRate}%): ${fmt(taxAmount)}. `;
+        }
+        pricingSummary += `Grand Total: ${fmt(totalAmount)}.`;
 
         return {
             baseAmount: baseAmountPerPerson,
@@ -107,6 +114,7 @@ export class BookingsService {
             subtotal,
             couponDiscount,
             taxAmount,
+            taxRate: gstRate,
             totalAmount,
             appliedCoupon,
             pickupOption,
@@ -168,6 +176,7 @@ export class BookingsService {
             perPersonPrice: preview.perPersonPrice,
             baseAmount: preview.baseAmount,
             taxAmount: preview.taxAmount,
+            taxRate: preview.taxRate,
             discountAmount: preview.couponDiscount,
             couponCode: dto.couponCode?.toUpperCase(),
             totalAmount: preview.totalAmount,

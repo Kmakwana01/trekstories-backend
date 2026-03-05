@@ -9,6 +9,7 @@ import { TourDate, TourDateSchema } from '../../database/schemas/tour-date.schem
 import { CouponsModule } from '../coupons/coupons.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AdminModule } from '../admin/admin.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { AdminModule } from '../admin/admin.module';
         CouponsModule,
         NotificationsModule,
         AdminModule,
+        SettingsModule,
     ],
     providers: [BookingsService],
     controllers: [BookingsController, AdminBookingsController],

@@ -112,7 +112,6 @@ import { CommonModule } from './common/common.module';
         },
       }),
     }),
-    CronsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -73,6 +73,9 @@ export class Booking {
     @Prop({ default: 0 })
     taxAmount: number;
 
+    @Prop({ default: 5 })
+    taxRate: number;
+
     @Prop()
     perPersonPrice: number;
 
