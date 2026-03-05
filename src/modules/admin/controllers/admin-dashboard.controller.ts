@@ -25,4 +25,9 @@ export class AdminDashboardController {
     async getTopTours(@Query('limit') limit: string) {
         return this.dashboardService.getTopTours(parseInt(limit) || 5);
     }
+
+    @Get('recent-bookings')
+    async getRecentBookings(@Query('limit') limit: string) {
+        return this.dashboardService.getRecentBookings(parseInt(limit) || 5);
+    }
 }

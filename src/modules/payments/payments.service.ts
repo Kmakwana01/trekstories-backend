@@ -6,7 +6,7 @@ import { BookingsService } from '../bookings/bookings.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { DateUtil } from '../../utils/date.util';
-import { BookingStatus } from '../../common/enums/booking-status.enum';
+import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
 import { PaymentStatus, PaymentMethod } from '../../common/enums/payment-status.enum';
 import { TransactionType, TransactionStatus } from '../../common/enums/transaction.enum';
 import { NotificationType } from '../../common/enums/notification-type.enum';
@@ -28,11 +28,25 @@ export class PaymentsService {
 
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking) throw new NotFoundException('Booking not found');
-        if (booking.status !== BookingStatus.PENDING) throw new BadRequestException('Booking is not pending');
 
-        // Check if payment already exists for this transaction ID
+        // Allow receipt upload for PENDING and ON_HOLD (re-upload after rejection)
+        if (booking.status !== BookingStatus.PENDING && booking.status !== BookingStatus.ON_HOLD)
+        {
+            throw new BadRequestException('Booking is not in a payable state');
+        }
+
+        // Block duplicate submissions — if a receipt is already UNDER_REVIEW, don't allow another
+        const pendingPayment = await this.paymentModel.findOne({
+            booking: bookingId,
+            status: PaymentStatus.UNDER_REVIEW,
+        }).exec();
+        if (pendingPayment)
+        {
+            throw new ConflictException('A payment receipt is already under review for this booking');
+        }
+
+        // Check if transaction ID was already used
         const existing = await this.paymentModel.findOne({ transactionId }).exec();
-
         if (existing) throw new ConflictException('Transaction ID already used');
 
         const payment = new this.paymentModel({
@@ -42,11 +56,31 @@ export class PaymentsService {
             paymentMethod,
             transactionId,
             paymentReceiptImage: receiptImage,
-            amount: booking.totalAmount, // Assuming full payment for now
+            amount: booking.totalAmount,
             status: PaymentStatus.UNDER_REVIEW,
         });
 
-        return payment.save();
+        const savedPayment = await payment.save();
+
+        // ── Sync receipt info onto Booking so it appears in admin booking detail ──
+        try
+        {
+            await this.bookingsService.syncBookingReceiptInfo(bookingId, receiptImage, transactionId, PaymentType.ONLINE);
+        } catch (_) { /* non-critical — booking still has payment record */ }
+
+        // Notify admin via user notification system
+        try
+        {
+            await this.notificationsService.createNotification(
+                userId,
+                NotificationType.PAYMENT_UNDER_REVIEW,
+                'Receipt Submitted',
+                `Your payment receipt for booking ${booking.bookingNumber} has been submitted and is under review.`,
+                { bookingId, paymentId: savedPayment._id }
+            );
+        } catch (_) { /* non-critical */ }
+
+        return savedPayment;
     }
 
     async getMyPayments(userId: string) {
@@ -79,9 +113,19 @@ export class PaymentsService {
         payment.paidAt = DateUtil.nowUTC();
         await payment.save();
 
-        // Confirm booking
-        await this.bookingsService.adminConfirmBooking(payment.booking.toString());
+        // Update booking payment fields FIRST (paidAmount, pendingAmount, paymentVerifiedAt)
         await this.bookingsService.adminUpdatePaidAmount(payment.booking.toString(), payment.amount);
+        await this.bookingsService.syncBookingReceiptInfo(
+            payment.booking.toString(),
+            payment.paymentReceiptImage || '',
+            payment.transactionId || '',
+            PaymentType.ONLINE
+        );
+        // Mark receipt as verified on the booking
+        await this.bookingsService.markPaymentVerified(payment.booking.toString());
+
+        // Then confirm booking (sets status → CONFIRMED, increments seats, sends notification)
+        await this.bookingsService.adminConfirmBooking(payment.booking.toString());
 
         // Create transaction record
         await this.transactionsService.createTransaction({

@@ -4,6 +4,19 @@ import { PickupPoint, PickupPointSchema } from './tour.schema';
 import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
 import { Gender } from '../../common/enums/gender.enum';
 
+@Schema({ _id: false })
+class InternalNote {
+    @Prop({ required: true })
+    note: string;
+
+    @Prop({ default: () => new Date() })
+    createdAt: Date;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
+    adminId: MongooseSchema.Types.ObjectId;
+}
+const InternalNoteSchema = SchemaFactory.createForClass(InternalNote);
+
 export type BookingDocument = Booking & Document;
 
 @Schema()
@@ -115,8 +128,8 @@ export class Booking {
     @Prop()
     paymentVerifiedAt: Date;
 
-    @Prop()
-    internalNotes: string;
+    @Prop({ type: [InternalNoteSchema], default: [] })
+    internalNotes: InternalNote[];
 
     @Prop()
     pricingSummary: string;

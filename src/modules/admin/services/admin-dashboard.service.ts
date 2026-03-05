@@ -4,11 +4,11 @@ import { Model } from 'mongoose';
 import { Booking, BookingDocument } from '../../../database/schemas/booking.schema';
 import { User, UserDocument } from '../../../database/schemas/user.schema';
 import { Tour, TourDocument } from '../../../database/schemas/tour.schema';
-import { Transaction, TransactionDocument } from '../../../database/schemas/transaction.schema';
+import { Review, ReviewDocument } from '../../../database/schemas/review.schema';
 import { DateUtil } from '../../../utils/date.util';
 import { BookingStatus } from '../../../common/enums/booking-status.enum';
 import { Role } from '../../../common/enums/roles.enum';
-import { TransactionType, TransactionStatus } from '../../../common/enums/transaction.enum';
+import { ReviewStatus } from '../../../common/enums/review-status.enum';
 
 @Injectable()
 export class AdminDashboardService {
@@ -16,7 +16,7 @@ export class AdminDashboardService {
         @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         @InjectModel(Tour.name) private tourModel: Model<TourDocument>,
-        @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
+        @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
     ) { }
 
     async getSummary() {
@@ -29,6 +29,8 @@ export class AdminDashboardService {
             bookingsToday,
             revenueTodayData,
             statusCounts,
+            activeTours,
+            pendingReviews,
         ] = await Promise.all([
             this.bookingModel.countDocuments(),
             this.userModel.countDocuments({ role: Role.CUSTOMER }),
@@ -44,6 +46,8 @@ export class AdminDashboardService {
             this.bookingModel.aggregate([
                 { $group: { _id: '$status', count: { $sum: 1 } } },
             ]),
+            this.tourModel.countDocuments({ isActive: true }),
+            this.reviewModel.countDocuments({ status: ReviewStatus.PENDING }),
         ]);
 
         const totalRevenue = totalRevenueData[0]?.total || 0;
@@ -60,12 +64,15 @@ export class AdminDashboardService {
             totalUsers,
             bookingsToday,
             revenueToday,
+            activeTours,
+            pendingReviews,
             stats,
         };
     }
 
     async getRevenueChart(period: 'daily' | 'monthly' | 'yearly') {
         let groupBy: any;
+
         if (period === 'daily')
         {
             groupBy = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
@@ -77,18 +84,27 @@ export class AdminDashboardService {
             groupBy = { $dateToString: { format: '%Y', date: '$createdAt' } };
         }
 
-        return this.transactionModel.aggregate([
-            { $match: { type: TransactionType.PAYMENT, status: TransactionStatus.SUCCESS } },
-            { $group: { _id: groupBy, revenue: { $sum: '$amount' } } },
+        // Use bookings.paidAmount (same source as KPI total revenue)
+        const raw = await this.bookingModel.aggregate([
+            { $match: { status: { $ne: BookingStatus.CANCELLED }, paidAmount: { $gt: 0 } } },
+            { $group: { _id: groupBy, revenue: { $sum: '$paidAmount' } } },
             { $sort: { _id: 1 } },
             { $limit: 30 },
         ]);
+
+        return raw.map(item => ({ date: item._id, revenue: item.revenue }));
     }
 
     async getTopTours(limit = 5) {
-        return this.bookingModel.aggregate([
-            { $match: { status: BookingStatus.CONFIRMED } },
-            { $group: { _id: '$tour', bookingCount: { $sum: 1 } } },
+        const results = await this.bookingModel.aggregate([
+            { $match: { status: { $ne: BookingStatus.CANCELLED } } },
+            {
+                $group: {
+                    _id: '$tour',
+                    bookingCount: { $sum: 1 },
+                    revenue: { $sum: '$totalAmount' },
+                },
+            },
             { $sort: { bookingCount: -1 } },
             { $limit: limit },
             {
@@ -104,10 +120,25 @@ export class AdminDashboardService {
                 $project: {
                     _id: 1,
                     bookingCount: 1,
+                    revenue: 1,
                     title: '$tourDetails.title',
                     slug: '$tourDetails.slug',
+                    thumbnailImage: '$tourDetails.thumbnailImage',
                 },
             },
         ]);
+
+        return results;
+    }
+
+    async getRecentBookings(limit = 5) {
+        return this.bookingModel
+            .find()
+            .populate('user', 'name email')
+            .populate('tour', 'title thumbnailImage slug')
+            .populate('tourDate', 'startDate')
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .exec();
     }
 }

@@ -34,7 +34,7 @@ export class AdminBookingsController {
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
-        const booking = await this.bookingsService.adminUpdateStatus(id, status, internalNotes);
+        const booking = await this.bookingsService.adminUpdateStatus(id, status, internalNotes, adminId);
         await this.adminLogService.logAction(adminId, 'UPDATE_BOOKING_STATUS', 'Bookings', id, { status, internalNotes }, req.ip);
         return booking;
     }
@@ -47,6 +47,29 @@ export class AdminBookingsController {
     ) {
         const booking = await this.bookingsService.adminConfirmBooking(id);
         await this.adminLogService.logAction(adminId, 'CONFIRM_BOOKING', 'Bookings', id, {}, req.ip);
+        return booking;
+    }
+
+    @Patch(':id/cancel')
+    async cancelBooking(
+        @Param('id') id: string,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const booking = await this.bookingsService.adminCancelBooking(id);
+        await this.adminLogService.logAction(adminId, 'CANCEL_BOOKING', 'Bookings', id, {}, req.ip);
+        return booking;
+    }
+
+    @Patch(':id/verify-receipt')
+    async verifyReceipt(
+        @Param('id') id: string,
+        @Body('approve') approve: boolean,
+        @CurrentUser('_id') adminId: string,
+        @Req() req: any,
+    ) {
+        const booking = await this.bookingsService.adminVerifyReceipt(id, approve, adminId);
+        await this.adminLogService.logAction(adminId, approve ? 'APPROVE_RECEIPT' : 'REJECT_RECEIPT', 'Bookings', id, { approve }, req.ip);
         return booking;
     }
 

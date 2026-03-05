@@ -249,19 +249,50 @@ export class BookingsService {
     }
 
     async adminGetAllBookings(filters: any = {}) {
-        return this.bookingModel.find(filters)
-            .populate('user', 'name email')
-            .populate('tour', 'title')
-            .populate('tourDate', 'startDate')
-            .sort({ createdAt: -1 })
-            .exec();
+        const { search, status, startDate, endDate, page = 1, limit = 10 } = filters;
+        const query: any = {};
+
+        if (status) query.status = status;
+        if (startDate || endDate)
+        {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate);
+            if (endDate)
+            {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                query.createdAt.$lte = end;
+            }
+        }
+        if (search) query.bookingNumber = { $regex: search, $options: 'i' };
+
+        const skip = (Number(page) - 1) * Number(limit);
+        const [items, total] = await Promise.all([
+            this.bookingModel.find(query)
+                .populate('user', 'name email')
+                .populate('tour', 'title thumbnailImage')
+                .populate('tourDate', 'startDate endDate')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(Number(limit))
+                .exec(),
+            this.bookingModel.countDocuments(query),
+        ]);
+
+        return { items, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
     }
 
-    async adminUpdateStatus(id: string, status: string, internalNotes?: string) {
-        const update: any = { status };
-        if (internalNotes) update.internalNotes = internalNotes;
-
-        const booking = await this.bookingModel.findByIdAndUpdate(id, update, { returnDocument: 'after' }).exec();
+    async adminUpdateStatus(id: string, status: string, note?: string, adminId?: string) {
+        const updateOp: any = { status };
+        if (note)
+        {
+            updateOp.$push = {
+                internalNotes: { note, createdAt: new Date(), adminId: adminId || null },
+            };
+        }
+        const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after', new: true })
+            .populate('user', 'name email')
+            .exec();
         if (!booking) throw new NotFoundException('Booking not found');
         return booking;
     }
@@ -271,16 +302,75 @@ export class BookingsService {
         if (!booking) throw new NotFoundException('Booking not found');
 
         booking.paidAmount += amount;
-        booking.pendingAmount = booking.totalAmount - booking.paidAmount;
-
-        if (booking.pendingAmount <= 0)
-        {
-            booking.pendingAmount = 0;
-            // If fully paid, we might auto-confirm, but usually admin does it.
-            // Let's keep it manual or based on business rule.
-        }
+        booking.pendingAmount = Math.max(0, booking.totalAmount - booking.paidAmount);
 
         return booking.save();
+    }
+
+    /** Called by PaymentsService after receipt upload to sync fields onto the Booking document */
+    async syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string, paymentType: string) {
+        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId, paymentType }, { new: true }).exec();
+    }
+
+    /** Called by PaymentsService after approving a payment to mark the receipt as verified */
+    async markPaymentVerified(id: string) {
+        return this.bookingModel.findByIdAndUpdate(id, { paymentVerifiedAt: new Date() }, { new: true }).exec();
+    }
+
+    async adminCancelBooking(id: string) {
+        return this.cancelBooking(id);
+    }
+
+    async adminVerifyReceipt(id: string, approve: boolean, adminId?: string) {
+        const booking = await this.bookingModel.findById(id).populate('user').populate('tour').exec();
+        if (!booking) throw new NotFoundException('Booking not found');
+
+        if (approve)
+        {
+            // Set payment fields FIRST, then let adminConfirmBooking handle status + seats + notifications
+            booking.paymentVerifiedAt = new Date();
+            booking.paidAmount = booking.totalAmount;
+            booking.pendingAmount = 0;
+            // Do NOT set booking.status = CONFIRMED here — adminConfirmBooking checks for it and would exit early
+            await booking.save();
+
+            // Confirm the booking (sets status → CONFIRMED, increments booked seats, sends notification + email)
+            await this.adminConfirmBooking(id);
+
+            this.logger.log(`Receipt approved and booking confirmed: #${booking.bookingNumber}`);
+        } else
+        {
+            // Reject receipt — put booking on hold AND clear receipt fields so user can re-upload
+            await this.bookingModel.findByIdAndUpdate(id, {
+                status: BookingStatus.ON_HOLD,
+                receiptImage: null,
+                transactionId: null,
+                $push: { internalNotes: { note: 'Payment receipt was rejected by admin.', createdAt: new Date(), adminId: adminId || null } },
+            }).exec();
+
+            this.logger.log(`Receipt rejected for booking: #${booking.bookingNumber}`);
+
+            // Notify user
+            const uId = (booking.user as any)?._id?.toString() || (booking.user as any)?.toString();
+            if (uId)
+            {
+                try
+                {
+                    await this.notificationsService.createNotification(
+                        uId,
+                        NotificationType.PAYMENT_FAILED,
+                        'Payment Receipt Rejected',
+                        `Your payment receipt for booking #${booking.bookingNumber} was rejected. Please re-upload a valid receipt.`,
+                        { bookingId: booking._id }
+                    );
+                } catch (err)
+                {
+                    this.logger.error(`Failed to notify user on receipt rejection: ${booking.bookingNumber}`, err.stack);
+                }
+            }
+        }
+
+        return this.bookingModel.findById(id).populate('user', 'name email').populate('tour').populate('tourDate').exec();
     }
 
     async adminConfirmBooking(id: string) {
