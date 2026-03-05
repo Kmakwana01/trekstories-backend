@@ -78,6 +78,7 @@ export class PickupPointDto {
     toCity?: string;
 
     @IsEnum(PickupType)
+    @IsNotEmpty()
     type: string;
 
     @IsString()
@@ -86,14 +87,17 @@ export class PickupPointDto {
 
     @IsInt()
     @Min(1)
+    @Type(() => Number)
     totalDays: number;
 
     @IsInt()
     @Min(0)
+    @Type(() => Number)
     totalNights: number;
 
     @IsNumber()
     @IsOptional()
+    @Type(() => Number)
     priceAdjustment?: number = 0;
 }
 
