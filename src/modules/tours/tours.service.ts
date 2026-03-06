@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Tour, TourDocument } from '../../database/schemas/tour.schema';
@@ -193,30 +193,64 @@ export class ToursService {
 
     async adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string): Promise<TourDocument> {
         this.logger.log(`Admin updating tour ${id}`);
-        const updatePayload: any = { $set: { ...updateTourDto } };
 
-        if (thumbnailUrl) updatePayload.$set.thumbnailImage = thumbnailUrl;
-
-        // Push new uploaded images into the existing images array
-        if (uploadedImages.length > 0)
-        {
-            updatePayload.$push = { images: { $each: uploadedImages } };
-        }
-
-        const tour = await this.tourModel.findByIdAndUpdate(
-            id,
-            updatePayload,
-            { returnDocument: 'after', runValidators: true },
-        );
-
+        const tour = await this.tourModel.findById(id).exec();
         if (!tour)
         {
             this.logger.warn(`Tour update failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
 
-        this.logger.log(`Tour updated successfully: ${tour.slug}`);
-        return tour;
+        const { images: dtoImages, ...restDto } = updateTourDto;
+
+        this.logger.debug(`Transformed restDto Keys: ${Object.keys(restDto).join(', ')}`);
+        if (restDto.itinerary) this.logger.debug(`Itinerary present with ${restDto.itinerary.length} days`);
+        if (restDto.faqs) this.logger.debug(`FAQs present with ${restDto.faqs.length} items`);
+
+        // Manually update fields to ensure Mongoose picks up changes in nested arrays
+        Object.entries(restDto).forEach(([key, value]) => {
+            if (value !== undefined)
+            {
+                if (Array.isArray(value))
+                {
+                    this.logger.debug(`Updating Array field: ${key}`);
+                    // Ensure plain objects for Mongoose to avoid class-transformer / Mongoose serialization issues
+                    const plainValue = JSON.parse(JSON.stringify(value));
+                    tour.set(key, plainValue);
+                } else
+                {
+                    this.logger.debug(`Updating Simple field: ${key}`);
+                    tour.set(key, value);
+                }
+            }
+        });
+
+        if (thumbnailUrl)
+        {
+            tour.thumbnailImage = thumbnailUrl;
+        }
+
+        // Handle Images
+        if (dtoImages !== undefined)
+        {
+            tour.images = dtoImages;
+        }
+
+        if (uploadedImages.length > 0)
+        {
+            tour.images = [...(tour.images || []), ...uploadedImages];
+        }
+
+        try
+        {
+            const updatedTour = await tour.save();
+            this.logger.log(`Tour updated successfully: ${updatedTour.slug}`);
+            return updatedTour;
+        } catch (error)
+        {
+            this.logger.error(`Failed to update tour ${id}: ${error.message}`, error.stack);
+            throw new InternalServerErrorException('Failed to update tour: ' + error.message);
+        }
     }
 
     async adminSoftDelete(id: string): Promise<void> {

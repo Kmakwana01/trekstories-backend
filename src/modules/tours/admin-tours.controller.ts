@@ -25,6 +25,7 @@ import { memoryStorage } from 'multer';
 import { extname } from 'path';
 import { AdminLogService } from '../admin/services/admin-log.service';
 import { ImgbbService } from '../../common/services/imgbb.service';
+import { FormDataParserInterceptor } from '../../common/interceptors/form-data-parser.interceptor';
 
 const tourMulterOptions = {
     storage: memoryStorage(),
@@ -53,16 +54,23 @@ export class AdminToursController {
     }
 
     @Post()
-    @UseInterceptors(FileFieldsInterceptor([
-        { name: 'images', maxCount: 10 },
-        { name: 'thumbnailImage', maxCount: 1 },
-    ], tourMulterOptions))
+    @UseInterceptors(
+        FileFieldsInterceptor([
+            { name: 'images', maxCount: 10 },
+            { name: 'thumbnailImage', maxCount: 1 },
+        ], tourMulterOptions),
+        FormDataParserInterceptor
+    )
     async createTour(
         @Body() createTourDto: CreateTourDto,
         @UploadedFiles() files: { images?: Express.Multer.File[], thumbnailImage?: Express.Multer.File[] },
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
+        console.log('--- REQ.BODY IN CONTROLLER ---');
+        console.log(req.body);
+        console.log('--- DTO IN CONTROLLER ---');
+        console.log(createTourDto);
         let imageUrls: string[] = [];
         if (files?.images)
         {
@@ -86,10 +94,13 @@ export class AdminToursController {
     }
 
     @Patch(':id')
-    @UseInterceptors(FileFieldsInterceptor([
-        { name: 'images', maxCount: 10 },
-        { name: 'thumbnailImage', maxCount: 1 },
-    ], tourMulterOptions))
+    @UseInterceptors(
+        FileFieldsInterceptor([
+            { name: 'images', maxCount: 10 },
+            { name: 'thumbnailImage', maxCount: 1 },
+        ], tourMulterOptions),
+        FormDataParserInterceptor
+    )
     async updateTour(
         @Param('id') id: string,
         @Body() updateTourDto: UpdateTourDto,
@@ -97,6 +108,8 @@ export class AdminToursController {
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
+        // console.log('RAW BODY:', req.body);
+        console.log(updateTourDto);
         let imageUrls: string[] = [];
         if (files?.images)
         {

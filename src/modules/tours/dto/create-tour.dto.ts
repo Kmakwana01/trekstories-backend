@@ -10,43 +10,97 @@ import {
     Min,
     ValidateNested,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Type, Transform, Expose, plainToInstance } from 'class-transformer';
 import { TourCategory } from '../../../common/enums/tour-category.enum';
 import { PickupType } from '../../../common/enums/pickup-type.enum';
 
-const ParseJson = () => Transform(({ value }) => {
-    if (typeof value === 'string')
-    {
-        try
-        {
-            return JSON.parse(value);
-        } catch (e)
-        {
-            return value;
+// ---------------------------------------------------------------------------
+// Helper transforms
+// ---------------------------------------------------------------------------
+
+/**
+ * Parses a JSON-string value OR accepts an already-parsed object/array.
+ * When a `type` class is supplied, each element/object is run through
+ * plainToInstance so its own @Transform decorators fire (e.g. @ParseNumber).
+ */
+const ParseJson = (type?: any) =>
+    Transform(({ value }) => {
+        // ── Case 1: JSON string (e.g. '[{"type":"AC","totalDays":2}]') ──────────
+        if (typeof value === 'string') {
+            try {
+                const parsed = JSON.parse(value);
+                if (type) {
+                    return plainToInstance(type, parsed, {
+                        enableImplicitConversion: true,
+                        excludeExtraneousValues: false,
+                    });
+                }
+                return parsed;
+            } catch {
+                return value; // not valid JSON – pass through as-is
+            }
         }
-    }
-    return value;
-});
 
-const ParseBoolean = () => Transform(({ value }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-});
+        // ── Case 2: Already an object/array (reconstructed from bracket notation) ─
+        if (type && (Array.isArray(value) || (typeof value === 'object' && value !== null))) {
+            return plainToInstance(type, value, {
+                enableImplicitConversion: true,
+                excludeExtraneousValues: false,
+            });
+        }
 
-const ParseNumber = () => Transform(({ value }) => {
-    if (typeof value === 'string' && !isNaN(Number(value)))
-    {
-        return Number(value);
-    }
-    return value;
-});
+        return value;
+    });
+
+/**
+ * Coerces a value to boolean.
+ * Handles the string representations sent by FormData.
+ */
+const ParseBoolean = () =>
+    Transform(({ value }) => {
+        if (value === 'true' || value === true) return true;
+        if (value === 'false' || value === false) return false;
+        if (value === '' || value === undefined || value === null) return undefined;
+        return value;
+    });
+
+/**
+ * Coerces a value to number.
+ * Works for string "2", numeric 2, and ignores empty/null.
+ */
+const ParseNumber = () =>
+    Transform(({ value }) => {
+        if (value === '' || value === null || value === undefined) return undefined;
+        // Already a number (e.g. came from JSON.parse or bracket-notation parsed by qs)
+        if (typeof value === 'number' && !isNaN(value)) return value;
+        if (typeof value === 'string') {
+            const num = Number(value);
+            if (!isNaN(num)) return num;
+        }
+        return value;
+    });
+
+/**
+ * Trims and uppercases a string value.
+ * Required for enum fields because FormData values are raw strings and
+ * class-validator's @IsEnum is case-sensitive.
+ */
+const ParseUppercase = () =>
+    Transform(({ value }) =>
+        typeof value === 'string' ? value.trim().toUpperCase() : value,
+    );
+
+// ---------------------------------------------------------------------------
+// Nested DTOs
+// ---------------------------------------------------------------------------
 
 export class ItineraryPointDto {
+    @Expose()
     @IsString()
     @IsNotEmpty()
     text: string;
 
+    @Expose()
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
@@ -54,14 +108,18 @@ export class ItineraryPointDto {
 }
 
 export class ItineraryDayDto {
+    @Expose()
+    @ParseNumber()
     @IsInt()
     @Min(1)
     dayNumber: number;
 
+    @Expose()
     @IsString()
     @IsNotEmpty()
     title: string;
 
+    @Expose()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ItineraryPointDto)
@@ -69,47 +127,64 @@ export class ItineraryDayDto {
 }
 
 export class PickupPointDto {
+    @Expose()
     @IsString()
-    @IsOptional()
-    fromCity?: string;
+    @IsNotEmpty({ message: 'Route Start is required' })
+    fromCity: string;
 
+    @Expose()
     @IsString()
-    @IsOptional()
-    toCity?: string;
+    @IsNotEmpty({ message: 'Destination End is required' })
+    toCity: string;
 
+    /**
+     * FIX: FormData sends "ac" / "AC" / " AC " as plain strings.
+     * @ParseUppercase trims and uppercases before @IsEnum runs.
+     */
+    @Expose()
+    @ParseUppercase()
     @IsEnum(PickupType)
-    @IsNotEmpty()
     type: string;
 
+    @Expose()
     @IsString()
     @IsOptional()
     departureTimeAndPlace?: string;
 
-    @IsInt()
+    @Expose()
+    @ParseNumber()
+    @IsNumber()
     @Min(1)
-    @Type(() => Number)
     totalDays: number;
 
-    @IsInt()
+    @Expose()
+    @ParseNumber()
+    @IsNumber()
     @Min(0)
-    @Type(() => Number)
     totalNights: number;
 
+    @Expose()
+    @ParseNumber()
     @IsNumber()
     @IsOptional()
-    @Type(() => Number)
-    priceAdjustment?: number = 0;
+    priceAdjustment?: number;
 }
 
 export class FAQDto {
+    @Expose()
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Question is required' })
     question: string;
 
+    @Expose()
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Answer is required' })
     answer: string;
 }
+
+// ---------------------------------------------------------------------------
+// CreateTourDto
+// ---------------------------------------------------------------------------
 
 export class CreateTourDto {
     @IsString()
@@ -135,6 +210,10 @@ export class CreateTourDto {
     @IsOptional()
     maxAge?: number;
 
+    /**
+     * FIX: Uppercase before enum validation.
+     */
+    @ParseUppercase()
     @IsEnum(TourCategory)
     @IsNotEmpty()
     category: string;
@@ -161,14 +240,14 @@ export class CreateTourDto {
     @IsOptional()
     highlights?: string[];
 
-    @ParseJson()
+    @ParseJson(PickupPointDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => PickupPointDto)
     @IsOptional()
     departureOptions?: PickupPointDto[];
 
-    @ParseJson()
+    @ParseJson(ItineraryDayDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ItineraryDayDto)
@@ -187,7 +266,7 @@ export class CreateTourDto {
     @IsOptional()
     exclusions?: string[];
 
-    @ParseJson()
+    @ParseJson(FAQDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => FAQDto)
@@ -215,6 +294,10 @@ export class CreateTourDto {
     isFeatured?: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// UpdateTourDto
+// ---------------------------------------------------------------------------
+
 export class UpdateTourDto {
     @IsString()
     @IsOptional()
@@ -240,6 +323,10 @@ export class UpdateTourDto {
     @IsOptional()
     maxAge?: number;
 
+    /**
+     * FIX: Uppercase before enum validation.
+     */
+    @ParseUppercase()
     @IsEnum(TourCategory)
     @IsOptional()
     category?: string;
@@ -262,14 +349,14 @@ export class UpdateTourDto {
     @IsOptional()
     highlights?: string[];
 
-    @ParseJson()
+    @ParseJson(PickupPointDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => PickupPointDto)
     @IsOptional()
     departureOptions?: PickupPointDto[];
 
-    @ParseJson()
+    @ParseJson(ItineraryDayDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ItineraryDayDto)
@@ -288,12 +375,18 @@ export class UpdateTourDto {
     @IsOptional()
     exclusions?: string[];
 
-    @ParseJson()
+    @ParseJson(FAQDto)
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => FAQDto)
     @IsOptional()
     faqs?: FAQDto[];
+
+    @ParseJson()
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    images?: string[];
 
     @IsString()
     @IsOptional()
