@@ -18,6 +18,7 @@ export class AdminLogService {
         targetId?: string,
         details?: any,
         ip?: string,
+        userAgent?: string,
     ) {
         const log = new this.adminLogModel({
             admin: adminId,
@@ -25,7 +26,8 @@ export class AdminLogService {
             module,
             targetId,
             details,
-            ip,
+            ipAddress: ip,
+            userAgent,
         });
         return log.save();
     }
@@ -40,6 +42,12 @@ export class AdminLogService {
             query.createdAt = {};
             if (filters.dateFrom) query.createdAt.$gte = DateUtil.startOfDayIST(filters.dateFrom);
             if (filters.dateTo) query.createdAt.$lte = DateUtil.endOfDayIST(filters.dateTo);
+        }
+
+        // Default to latest first if no order is specified
+        if (!paginationQuery.order)
+        {
+            paginationQuery.order = 'desc';
         }
 
         return paginate(this.adminLogModel, query, paginationQuery, ['admin']);

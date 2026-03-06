@@ -7,6 +7,7 @@ import { Role } from '../../common/enums/roles.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CreateCouponDto, UpdateCouponDto, ValidateCouponDto } from './dto/coupon.dto';
 import { AdminLogService } from '../admin/services/admin-log.service';
+import { PaginationQuery } from '../../common/helpers/pagination.helper';
 
 @Controller('coupons')
 export class CouponsController {
@@ -35,13 +36,14 @@ export class AdminCouponsController {
         @Req() req: any,
     ) {
         const coupon = await this.couponsService.create(dto);
-        await this.adminLogService.logAction(adminId, 'CREATE_COUPON', 'Coupons', (coupon as any)._id?.toString(), { code: dto.code }, req.ip);
+        await this.adminLogService.logAction(adminId, 'CREATE_COUPON', 'Coupons', (coupon as any)._id?.toString(), { code: dto.code }, req.ip, req.headers['user-agent']);
         return coupon;
     }
 
     @Get()
-    async findAll(@Query() query: any) {
-        return this.couponsService.findAll(query);
+    async findAll(@Query() query: PaginationQuery) {
+        const { page, limit, sort, order, search, ...filters } = query;
+        return this.couponsService.findAll(filters, query);
     }
 
     @Get(':id')
@@ -57,7 +59,7 @@ export class AdminCouponsController {
         @Req() req: any,
     ) {
         const coupon = await this.couponsService.update(id, dto);
-        await this.adminLogService.logAction(adminId, 'UPDATE_COUPON', 'Coupons', id, { fields: Object.keys(dto) }, req.ip);
+        await this.adminLogService.logAction(adminId, 'UPDATE_COUPON', 'Coupons', id, { fields: Object.keys(dto) }, req.ip, req.headers['user-agent']);
         return coupon;
     }
 
@@ -68,7 +70,7 @@ export class AdminCouponsController {
         @Req() req: any,
     ) {
         await this.couponsService.remove(id);
-        await this.adminLogService.logAction(adminId, 'DELETE_COUPON', 'Coupons', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'DELETE_COUPON', 'Coupons', id, {}, req.ip, req.headers['user-agent']);
         return { message: 'Coupon deleted successfully' };
     }
 

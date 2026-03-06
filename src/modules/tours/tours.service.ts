@@ -254,28 +254,34 @@ export class ToursService {
     }
 
     async adminSoftDelete(id: string): Promise<void> {
-        this.logger.log(`Admin soft-deleting tour: ${id}`);
-        const result = await this.tourModel.findByIdAndUpdate(id, { isActive: false });
+        this.logger.log(`Admin permanently deleting tour: ${id}`);
+        const result = await this.tourModel.findByIdAndDelete(id);
         if (!result)
         {
             this.logger.warn(`Tour deletion failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
-        this.logger.log(`Tour ${id} soft-deleted successfully.`);
+        this.logger.log(`Tour ${id} permanently deleted.`);
     }
 
     async toggleStatus(id: string): Promise<TourDocument> {
         this.logger.log(`Toggling status for tour: ${id}`);
-        const tour = await this.tourModel.findById(id);
+        const tour = await this.tourModel.findById(id).select('isActive').exec();
         if (!tour)
         {
             this.logger.warn(`Toggle status failed: Tour ${id} not found`);
             throw new NotFoundException('Tour not found');
         }
-        tour.isActive = !tour.isActive;
-        const savedTour = await tour.save();
-        this.logger.log(`Tour ${id} status toggled to: ${savedTour.isActive}`);
-        return savedTour;
+
+        // Update only the isActive field bypassing full schema validation
+        const updatedTour = await this.tourModel.findByIdAndUpdate(
+            id,
+            { $set: { isActive: !tour.isActive } },
+            { new: true, runValidators: false }
+        ).exec();
+
+        this.logger.log(`Tour ${id} status toggled to: ${updatedTour?.isActive}`);
+        return updatedTour as TourDocument;
     }
 
     async toggleFeatured(id: string): Promise<TourDocument> {

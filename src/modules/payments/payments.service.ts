@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { paginate, PaginationQuery } from '../../common/helpers/pagination.helper';
 import { Payment, PaymentDocument } from '../../database/schemas/payment.schema';
 import { BookingsService } from '../bookings/bookings.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -92,12 +93,13 @@ export class PaymentsService {
     }
 
     // Admin methods
-    async getPendingPayments() {
-        return this.paymentModel.find({ status: PaymentStatus.UNDER_REVIEW })
-            .populate('user', 'name email')
-            .populate('booking', 'bookingNumber totalAmount')
-            .sort({ createdAt: 1 })
-            .exec();
+    async getPendingPayments(paginationQuery: PaginationQuery) {
+        return paginate(
+            this.paymentModel,
+            { status: PaymentStatus.UNDER_REVIEW },
+            paginationQuery,
+            ['user', 'booking']
+        );
     }
 
     async approvePayment(paymentId: string, adminId: string) {

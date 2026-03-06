@@ -40,8 +40,7 @@ export class AdminUsersController {
         @CurrentUser() admin: UserDocument,
         @Req() req: any,
     ) {
-        const result = await this.crmService.blockUser(id, admin._id.toString(), reason, req.ip);
-        await this.adminLogService.logAction(admin._id.toString(), 'BLOCK_USER', 'Users', id, { reason }, req.ip);
+        const result = await this.crmService.blockUser(id, admin._id.toString(), reason, req.ip, req.headers['user-agent']);
         return result;
     }
 
@@ -51,8 +50,7 @@ export class AdminUsersController {
         @CurrentUser() admin: UserDocument,
         @Req() req: any,
     ) {
-        const result = await this.crmService.unblockUser(id, admin._id.toString(), req.ip);
-        await this.adminLogService.logAction(admin._id.toString(), 'UNBLOCK_USER', 'Users', id, {}, req.ip);
+        const result = await this.crmService.unblockUser(id, admin._id.toString(), req.ip, req.headers['user-agent']);
         return result;
     }
 
@@ -64,7 +62,7 @@ export class AdminUsersController {
         @Req() req: any,
     ) {
         const result = await this.crmService.addUserNote(id, note);
-        await this.adminLogService.logAction(admin._id.toString(), 'ADD_USER_NOTE', 'Users', id, { note }, req.ip);
+        await this.adminLogService.logAction(admin._id.toString(), 'ADD_USER_NOTE', 'Users', id, { note }, req.ip, req.headers['user-agent']);
         return result;
     }
 }

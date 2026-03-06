@@ -30,7 +30,7 @@ export class AdminReviewsController {
         @Req() req: any,
     ) {
         const review = await this.reviewsService.approve(id);
-        await this.adminLogService.logAction(adminId, 'APPROVE_REVIEW', 'Reviews', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'APPROVE_REVIEW', 'Reviews', id, {}, req.ip, req.headers['user-agent']);
         return review;
     }
 
@@ -42,7 +42,7 @@ export class AdminReviewsController {
         @Req() req: any,
     ) {
         const review = await this.reviewsService.reject(id, rejectReviewDto.reason);
-        await this.adminLogService.logAction(adminId, 'REJECT_REVIEW', 'Reviews', id, { reason: rejectReviewDto.reason }, req.ip);
+        await this.adminLogService.logAction(adminId, 'REJECT_REVIEW', 'Reviews', id, { reason: rejectReviewDto.reason }, req.ip, req.headers['user-agent']);
         return review;
     }
 
@@ -53,7 +53,7 @@ export class AdminReviewsController {
         @Req() req: any,
     ) {
         await this.reviewsService.delete(id);
-        await this.adminLogService.logAction(adminId, 'DELETE_REVIEW', 'Reviews', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'DELETE_REVIEW', 'Reviews', id, {}, req.ip, req.headers['user-agent']);
         return { message: 'Review deleted successfully' };
     }
 }

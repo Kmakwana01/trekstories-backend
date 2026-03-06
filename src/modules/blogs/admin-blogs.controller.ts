@@ -53,7 +53,7 @@ export class AdminBlogsController {
             featuredImageUrl = await this.imgbbService.uploadImage(file);
         }
         const blog = await this.blogsService.create(createBlogDto, (user as any)._id.toString(), featuredImageUrl);
-        await this.adminLogService.logAction((user as any)._id.toString(), 'CREATE_BLOG', 'Blogs', (blog as any)._id?.toString(), { title: createBlogDto.title }, req.ip);
+        await this.adminLogService.logAction((user as any)._id.toString(), 'CREATE_BLOG', 'Blogs', (blog as any)._id?.toString(), { title: createBlogDto.title }, req.ip, req.headers['user-agent']);
         return blog;
     }
 
@@ -82,7 +82,7 @@ export class AdminBlogsController {
             featuredImageUrl = await this.imgbbService.uploadImage(file);
         }
         const blog = await this.blogsService.update(id, updateBlogDto, featuredImageUrl);
-        await this.adminLogService.logAction((user as any)._id.toString(), 'UPDATE_BLOG', 'Blogs', id, { fields: Object.keys(updateBlogDto) }, req.ip);
+        await this.adminLogService.logAction((user as any)._id.toString(), 'UPDATE_BLOG', 'Blogs', id, { fields: Object.keys(updateBlogDto) }, req.ip, req.headers['user-agent']);
         return blog;
     }
 
@@ -93,7 +93,7 @@ export class AdminBlogsController {
         @Req() req: any,
     ) {
         await this.blogsService.remove(id);
-        await this.adminLogService.logAction((user as any)._id.toString(), 'DELETE_BLOG', 'Blogs', id, {}, req.ip);
+        await this.adminLogService.logAction((user as any)._id.toString(), 'DELETE_BLOG', 'Blogs', id, {}, req.ip, req.headers['user-agent']);
         return { message: 'Blog deleted successfully' };
     }
 
@@ -104,7 +104,7 @@ export class AdminBlogsController {
         @Req() req: any,
     ) {
         const blog = await this.blogsService.publish(id);
-        await this.adminLogService.logAction((user as any)._id.toString(), 'PUBLISH_BLOG', 'Blogs', id, {}, req.ip);
+        await this.adminLogService.logAction((user as any)._id.toString(), 'PUBLISH_BLOG', 'Blogs', id, {}, req.ip, req.headers['user-agent']);
         return blog;
     }
 
@@ -115,7 +115,7 @@ export class AdminBlogsController {
         @Req() req: any,
     ) {
         const blog = await this.blogsService.unpublish(id);
-        await this.adminLogService.logAction((user as any)._id.toString(), 'UNPUBLISH_BLOG', 'Blogs', id, {}, req.ip);
+        await this.adminLogService.logAction((user as any)._id.toString(), 'UNPUBLISH_BLOG', 'Blogs', id, {}, req.ip, req.headers['user-agent']);
         return blog;
     }
 }

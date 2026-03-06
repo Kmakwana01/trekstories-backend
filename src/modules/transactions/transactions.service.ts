@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction, TransactionDocument } from '../../database/schemas/transaction.schema';
+import { paginate, PaginationQuery } from '../../common/helpers/pagination.helper';
 
 @Injectable()
 export class TransactionsService {
@@ -27,15 +28,14 @@ export class TransactionsService {
     }
 
     // Admin methods
-    async getAllTransactions(filters: any = {}) {
-        return this.transactionModel.find(filters)
-            .populate('user', 'name email')
-            .sort({ createdAt: -1 })
-            .exec();
+    async getAllTransactions(filters: any = {}, paginationQuery: PaginationQuery = {}) {
+        const query = { ...filters };
+        return paginate(this.transactionModel, query, paginationQuery, ['user']);
     }
 
     async exportToCSV(filters: any = {}): Promise<Buffer> {
-        const transactions = await this.getAllTransactions(filters);
+        const result = await this.getAllTransactions(filters, { limit: 1000 }); // Export more for CSV
+        const transactions = result.items as any[];
         const header = 'Date,Transaction ID,User,Type,Amount,Status,Method,Description\n';
         const rows = transactions.map(t => {
             const userEmail = (t.user as any)?.email || 'Unknown';

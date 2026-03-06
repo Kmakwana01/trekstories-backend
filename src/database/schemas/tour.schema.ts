@@ -148,9 +148,16 @@ export class Tour {
 
     @Prop({ default: 0 })
     reviewCount: number;
+
+    @Prop({ default: false, index: true })
+    isDeleted: boolean;
+
+    @Prop({ type: Date, default: null })
+    deletedAt: Date | null;
 }
 
 export const TourSchema = SchemaFactory.createForClass(Tour);
 
 // Compound index for featured tours sorting/filtering
 TourSchema.index({ isActive: 1, isFeatured: 1 });
+TourSchema.index({ isDeleted: 1 });

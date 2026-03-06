@@ -21,7 +21,7 @@ export class PaginationQuery {
 
     @IsOptional()
     @IsIn(['asc', 'desc'])
-    order?: 'asc' | 'desc' = 'asc';
+    order?: 'asc' | 'desc';
 
     @IsOptional()
     @IsString()

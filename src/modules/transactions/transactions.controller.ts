@@ -6,6 +6,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '../../common/enums/roles.enum';
+import { PaginationQuery } from '../../common/helpers/pagination.helper';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -43,8 +44,9 @@ export class TransactionsController {
     @Get('admin/transactions')
     @UseGuards(RolesGuard)
     @Roles(Role.ADMIN)
-    async getAllTransactions(@Query() filters: any) {
-        return this.transactionsService.getAllTransactions(filters);
+    async getAllTransactions(@Query() query: PaginationQuery) {
+        const { page, limit, sort, order, search, ...filters } = query;
+        return this.transactionsService.getAllTransactions(filters, query);
     }
 
     @Get('admin/transactions/:id')

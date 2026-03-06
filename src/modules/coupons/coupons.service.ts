@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Coupon, CouponDocument } from '../../database/schemas/coupon.schema';
 import { Booking, BookingDocument } from '../../database/schemas/booking.schema';
 import { CreateCouponDto, UpdateCouponDto } from './dto/coupon.dto';
-import { paginate } from '../../common/helpers/pagination.helper';
+import { paginate, PaginationQuery } from '../../common/helpers/pagination.helper';
 import { DateUtil } from '../../utils/date.util';
 import { CouponType } from '../../common/enums/coupon.enum';
 import { BookingStatus } from '../../common/enums/booking-status.enum';
@@ -31,8 +31,8 @@ export class CouponsService {
         return coupon.save();
     }
 
-    async findAll(filters: any = {}): Promise<Coupon[]> {
-        return this.couponModel.find(filters).sort({ createdAt: -1 }).exec();
+    async findAll(filters: any = {}, paginationQuery: PaginationQuery = {}) {
+        return paginate(this.couponModel, filters, paginationQuery);
     }
 
     async findOne(id: string): Promise<Coupon> {

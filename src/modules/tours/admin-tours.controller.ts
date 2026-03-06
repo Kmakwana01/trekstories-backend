@@ -84,7 +84,7 @@ export class AdminToursController {
         }
 
         const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl);
-        await this.adminLogService.logAction(adminId, 'CREATE_TOUR', 'Tours', (tour as any)._id?.toString(), { title: tour.title }, req.ip);
+        await this.adminLogService.logAction(adminId, 'CREATE_TOUR', 'Tours', (tour as any)._id?.toString(), { title: tour.title }, req.ip, req.headers['user-agent']);
         return tour;
     }
 
@@ -123,7 +123,7 @@ export class AdminToursController {
         }
 
         const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl);
-        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR', 'Tours', id, { fields: Object.keys(updateTourDto) }, req.ip);
+        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR', 'Tours', id, { fields: Object.keys(updateTourDto) }, req.ip, req.headers['user-agent']);
         return tour;
     }
 
@@ -134,7 +134,7 @@ export class AdminToursController {
         @Req() req: any,
     ) {
         await this.toursService.adminSoftDelete(id);
-        await this.adminLogService.logAction(adminId, 'DELETE_TOUR', 'Tours', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'DELETE_TOUR', 'Tours', id, {}, req.ip, req.headers['user-agent']);
         return { message: 'Tour deleted (soft delete) successfully' };
     }
 
@@ -145,7 +145,7 @@ export class AdminToursController {
         @Req() req: any,
     ) {
         const tour = await this.toursService.toggleStatus(id);
-        await this.adminLogService.logAction(adminId, 'TOGGLE_TOUR_STATUS', 'Tours', id, { isActive: tour.isActive }, req.ip);
+        await this.adminLogService.logAction(adminId, 'TOGGLE_TOUR_STATUS', 'Tours', id, { isActive: tour.isActive }, req.ip, req.headers['user-agent']);
         return tour;
     }
 
@@ -156,7 +156,7 @@ export class AdminToursController {
         @Req() req: any,
     ) {
         const tour = await this.toursService.toggleFeatured(id);
-        await this.adminLogService.logAction(adminId, 'TOGGLE_TOUR_FEATURED', 'Tours', id, { isFeatured: tour.isFeatured }, req.ip);
+        await this.adminLogService.logAction(adminId, 'TOGGLE_TOUR_FEATURED', 'Tours', id, { isFeatured: tour.isFeatured }, req.ip, req.headers['user-agent']);
         return tour;
     }
 
@@ -169,7 +169,7 @@ export class AdminToursController {
         @Req() req: any,
     ) {
         await this.toursService.removeImage(id, imageUrl);
-        await this.adminLogService.logAction(adminId, 'DELETE_TOUR_IMAGE', 'Tours', id, { imageUrl }, req.ip);
+        await this.adminLogService.logAction(adminId, 'DELETE_TOUR_IMAGE', 'Tours', id, { imageUrl }, req.ip, req.headers['user-agent']);
         return { message: 'Image removed successfully' };
     }
 }

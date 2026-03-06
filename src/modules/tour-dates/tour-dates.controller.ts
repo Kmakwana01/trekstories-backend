@@ -39,7 +39,7 @@ export class AdminTourDatesController {
         @Req() req: any,
     ) {
         const tourDate = await this.tourDatesService.adminCreateTourDate(createTourDateDto);
-        await this.adminLogService.logAction(adminId, 'CREATE_TOUR_DATE', 'TourDates', (tourDate as any)._id?.toString(), { tour: createTourDateDto.tour }, req.ip);
+        await this.adminLogService.logAction(adminId, 'CREATE_TOUR_DATE', 'TourDates', (tourDate as any)._id?.toString(), { tour: createTourDateDto.tour }, req.ip, req.headers['user-agent']);
         return tourDate;
     }
 
@@ -51,7 +51,7 @@ export class AdminTourDatesController {
         @Req() req: any,
     ) {
         const tourDate = await this.tourDatesService.adminUpdateTourDate(id, updateTourDateDto);
-        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE', 'TourDates', id, { fields: Object.keys(updateTourDateDto) }, req.ip);
+        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE', 'TourDates', id, { fields: Object.keys(updateTourDateDto) }, req.ip, req.headers['user-agent']);
         return tourDate;
     }
 
@@ -62,7 +62,7 @@ export class AdminTourDatesController {
         @Req() req: any,
     ) {
         await this.tourDatesService.adminDeleteTourDate(id);
-        await this.adminLogService.logAction(adminId, 'DELETE_TOUR_DATE', 'TourDates', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'DELETE_TOUR_DATE', 'TourDates', id, {}, req.ip, req.headers['user-agent']);
         return { message: 'Tour date deleted successfully' };
     }
 
@@ -74,7 +74,7 @@ export class AdminTourDatesController {
         @Req() req: any,
     ) {
         const tourDate = await this.tourDatesService.updateStatus(id, status);
-        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE_STATUS', 'TourDates', id, { status }, req.ip);
+        await this.adminLogService.logAction(adminId, 'UPDATE_TOUR_DATE_STATUS', 'TourDates', id, { status }, req.ip, req.headers['user-agent']);
         return tourDate;
     }
 

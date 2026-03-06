@@ -33,27 +33,36 @@ export class AdminCrmService {
     }
 
     async getUserById(id: string) {
-        const user = await this.userModel.findById(id).select('-passwordHash -otp -otpExpiry').exec();
+        const user: any = await this.userModel.findById(id).select('-passwordHash -otp -otpExpiry').lean().exec();
         if (!user) throw new NotFoundException('User not found');
 
-        const [bookingCount, totalSpent] = await Promise.all([
-            this.bookingModel.countDocuments({ user: id as any, status: BookingStatus.CONFIRMED }),
-            this.bookingModel.aggregate([
-                { $match: { user: new Types.ObjectId(id), status: BookingStatus.CONFIRMED } },
-                { $group: { _id: null, total: { $sum: '$paidAmount' } } },
-            ]),
-        ]);
+        const bookings = await this.bookingModel.find({ user: new Types.ObjectId(id) as any }).sort({ createdAt: -1 }).lean().exec();
+
+        const bookingCount = bookings.filter(b => b.status === BookingStatus.CONFIRMED).length;
+        const totalSpent = bookings
+            .filter(b => b.status === BookingStatus.CONFIRMED)
+            .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+
+        // Populate Address fallback
+        user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;
+        user.bookings = bookings;
+
+        // Populate internal notes fallback
+        if (!user.adminNotes && user.internalNotes)
+        {
+            user.adminNotes = [{ note: user.internalNotes, createdAt: user.updatedAt }];
+        }
 
         return {
             user,
             stats: {
                 bookingCount,
-                totalSpent: totalSpent[0]?.total || 0,
+                totalSpent,
             },
         };
     }
 
-    async blockUser(id: string, adminId: string, reason: string, ip: string) {
+    async blockUser(id: string, adminId: string, reason: string, ip: string, userAgent?: string) {
         const user = await this.userModel.findByIdAndUpdate(
             id,
             { isBlocked: true },
@@ -68,11 +77,12 @@ export class AdminCrmService {
             id,
             { reason },
             ip,
+            userAgent,
         );
         return user;
     }
 
-    async unblockUser(id: string, adminId: string, ip: string) {
+    async unblockUser(id: string, adminId: string, ip: string, userAgent?: string) {
         const user = await this.userModel.findByIdAndUpdate(
             id,
             { isBlocked: false },
@@ -87,6 +97,7 @@ export class AdminCrmService {
             id,
             null,
             ip,
+            userAgent,
         );
         return user;
     }

@@ -35,7 +35,7 @@ export class AdminBookingsController {
         @Req() req: any,
     ) {
         const booking = await this.bookingsService.adminUpdateStatus(id, status, internalNotes, adminId);
-        await this.adminLogService.logAction(adminId, 'UPDATE_BOOKING_STATUS', 'Bookings', id, { status, internalNotes }, req.ip);
+        await this.adminLogService.logAction(adminId, 'UPDATE_BOOKING_STATUS', 'Bookings', id, { status, internalNotes }, req.ip, req.headers['user-agent']);
         return booking;
     }
 
@@ -46,7 +46,7 @@ export class AdminBookingsController {
         @Req() req: any,
     ) {
         const booking = await this.bookingsService.adminConfirmBooking(id);
-        await this.adminLogService.logAction(adminId, 'CONFIRM_BOOKING', 'Bookings', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'CONFIRM_BOOKING', 'Bookings', id, {}, req.ip, req.headers['user-agent']);
         return booking;
     }
 
@@ -57,7 +57,7 @@ export class AdminBookingsController {
         @Req() req: any,
     ) {
         const booking = await this.bookingsService.adminCancelBooking(id);
-        await this.adminLogService.logAction(adminId, 'CANCEL_BOOKING', 'Bookings', id, {}, req.ip);
+        await this.adminLogService.logAction(adminId, 'CANCEL_BOOKING', 'Bookings', id, {}, req.ip, req.headers['user-agent']);
         return booking;
     }
 
@@ -69,7 +69,7 @@ export class AdminBookingsController {
         @Req() req: any,
     ) {
         const booking = await this.bookingsService.adminVerifyReceipt(id, approve, adminId);
-        await this.adminLogService.logAction(adminId, approve ? 'APPROVE_RECEIPT' : 'REJECT_RECEIPT', 'Bookings', id, { approve }, req.ip);
+        await this.adminLogService.logAction(adminId, approve ? 'APPROVE_RECEIPT' : 'REJECT_RECEIPT', 'Bookings', id, { approve }, req.ip, req.headers['user-agent']);
         return booking;
     }
 
@@ -81,7 +81,7 @@ export class AdminBookingsController {
         @Req() req: any,
     ) {
         const booking = await this.bookingsService.adminUpdatePaidAmount(id, amount);
-        await this.adminLogService.logAction(adminId, 'ADD_PAYMENT', 'Bookings', id, { amount }, req.ip);
+        await this.adminLogService.logAction(adminId, 'ADD_PAYMENT', 'Bookings', id, { amount }, req.ip, req.headers['user-agent']);
         return booking;
     }
 }

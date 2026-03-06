@@ -21,7 +21,10 @@ export class AdminLog {
     details: any;
 
     @Prop()
-    ip: string;
+    ipAddress: string;
+
+    @Prop()
+    userAgent: string;
 }
 
 export const AdminLogSchema = SchemaFactory.createForClass(AdminLog);
