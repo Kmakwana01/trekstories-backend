@@ -44,8 +44,8 @@ async function bootstrap() {
     const logger = new common_1.Logger('SeedAdmin');
     const app = await core_1.NestFactory.createApplicationContext(app_module_1.AppModule);
     const userModel = app.get((0, mongoose_1.getModelToken)(user_schema_1.User.name));
-    const adminEmail = 'admin@test.com';
-    const adminPass = 'adminpass';
+    const adminEmail = 'info@trekstories.in';
+    const adminPass = 'Shivansh@1212';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
     const existingAdmin = await userModel.findOne({ email: adminEmail });

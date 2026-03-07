@@ -11,8 +11,8 @@ async function bootstrap() {
     const app = await NestFactory.createApplicationContext(AppModule);
     const userModel = app.get(getModelToken(User.name));
 
-    const adminEmail = 'admin@test.com';
-    const adminPass = 'adminpass';
+    const adminEmail = 'info@trekstories.in';
+    const adminPass = 'Shivansh@1212';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
 
