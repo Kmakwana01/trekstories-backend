@@ -30,6 +30,7 @@ import { HomeModule } from './modules/home/home.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { CronsModule } from './modules/crons/crons.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { TeamMembersModule } from './modules/team-members/team-members.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { CommonModule } from './common/common.module';
@@ -69,6 +70,7 @@ import { CommonModule } from './common/common.module';
     AdminModule,
     CronsModule,
     SettingsModule,
+    TeamMembersModule,
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],
