@@ -18,7 +18,12 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://trekstories.in',
+      'https://www.trekstories.in',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
