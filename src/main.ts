@@ -23,6 +23,7 @@ async function bootstrap() {
       'http://127.0.0.1:3000',
       'https://trekstories.in',
       'https://www.trekstories.in',
+      'https://travel-frontend-m1bhuxejy-shivanshholidays27-4685s-projects.vercel.app'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
