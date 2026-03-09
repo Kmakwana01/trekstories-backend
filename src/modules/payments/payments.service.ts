@@ -25,13 +25,16 @@ export class PaymentsService {
 
     async submitPaymentProof(userId: string, dto: any) {
         this.logger.log(`Submitting payment proof for user ${userId}, booking ${dto.bookingId}`);
-        const { bookingId, transactionId, paymentMethod, receiptImage } = dto;
+        const { bookingId, transactionId, paymentMethod, receiptImage, paymentAmount } = dto;
 
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking) throw new NotFoundException('Booking not found');
 
-        // Allow receipt upload for PENDING and ON_HOLD (re-upload after rejection)
-        if (booking.status !== BookingStatus.PENDING && booking.status !== BookingStatus.ON_HOLD)
+        // Allow receipt upload for PENDING or CONFIRMED with pendingAmount > 0
+        const isPayable = booking.status === BookingStatus.PENDING ||
+            (booking.status === BookingStatus.CONFIRMED && booking.pendingAmount > 0);
+
+        if (!isPayable)
         {
             throw new BadRequestException('Booking is not in a payable state');
         }
@@ -57,7 +60,7 @@ export class PaymentsService {
             paymentMethod,
             transactionId,
             paymentReceiptImage: receiptImage,
-            amount: booking.totalAmount,
+            amount: paymentAmount ? Number(paymentAmount) : booking.totalAmount,
             status: PaymentStatus.UNDER_REVIEW,
         });
 
@@ -186,6 +189,9 @@ export class PaymentsService {
 
         const savedPayment = await payment.save();
 
+        // Reset booking to PENDING and clear receipt fields so user can re-upload
+        await this.bookingsService.adminVerifyReceipt(payment.booking.toString(), false, adminId);
+
         try
         {
             const uId = (payment.user as any)?._id?.toString() || (payment.user as any)?.toString();
@@ -248,17 +254,11 @@ export class PaymentsService {
         // Update booking
         await this.bookingsService.adminUpdatePaidAmount(booking._id.toString(), amount);
 
+        // Save internal note and OFFLINE payment type
+        await this.bookingsService.adminUpdatePaymentTypeAndNote(bookingId, PaymentType.OFFLINE, notes, adminId);
+
         const updatedBooking = await this.bookingsService.getBookingById(bookingId);
         if (updatedBooking.status === BookingStatus.PENDING)
-        {
-            if (updatedBooking.pendingAmount <= 0)
-            {
-                await this.bookingsService.adminConfirmBooking(bookingId);
-            } else
-            {
-                await this.bookingsService.adminUpdateStatus(bookingId, BookingStatus.ON_HOLD, 'Partial payment recorded');
-            }
-        } else if (updatedBooking.status === BookingStatus.ON_HOLD && updatedBooking.pendingAmount <= 0)
         {
             await this.bookingsService.adminConfirmBooking(bookingId);
         }
@@ -295,7 +295,7 @@ export class PaymentsService {
                         uId,
                         NotificationType.PAYMENT_SUCCESS,
                         'Offline Payment Received',
-                        `We have successfully received your offline payment of ${amount} for booking ${(populatedPayment.booking as any).bookingNumber}.`,
+                        `₹${amount} additional payment received. Remaining: ₹${updatedBooking.pendingAmount}`,
                         { bookingId: populatedPayment.booking, paymentId: populatedPayment._id }
                     );
 
@@ -322,5 +322,20 @@ export class PaymentsService {
 
         this.logger.log(`Offline payment recorded successfully: ${savedPayment._id}`);
         return savedPayment;
+    }
+
+    async getMyBookingPaymentHistory(bookingId: string, userId?: string) {
+        const booking = await this.bookingsService.getBookingById(bookingId, userId);
+        if (!booking) throw new NotFoundException('Booking not found');
+
+        const payments = await this.paymentModel.find({ booking: bookingId as any }).sort({ createdAt: -1 }).exec();
+
+        return {
+            totalAmount: booking.totalAmount,
+            paidAmount: booking.paidAmount,
+            pendingAmount: booking.pendingAmount,
+            paymentType: booking.paymentType,
+            payments
+        };
     }
 }

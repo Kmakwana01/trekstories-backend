@@ -16,6 +16,11 @@ export class TourDatesController {
     async getUpcomingDates(@Param('tourId') tourId: string) {
         return this.tourDatesService.getUpcomingDates(tourId);
     }
+
+    @Get(':tourId/with-seats')
+    async getTourDatesWithSeats(@Param('tourId') tourId: string) {
+        return this.tourDatesService.getTourDatesWithSeats(tourId);
+    }
 }
 
 @Controller('admin/tour-dates')

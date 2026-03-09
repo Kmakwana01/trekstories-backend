@@ -39,6 +39,15 @@ let BookingsController = class BookingsController {
     async cancelBooking(userId, id) {
         return this.bookingsService.cancelBooking(id, userId);
     }
+    async getPaymentSummary(userId, id) {
+        const booking = await this.bookingsService.getBookingById(id, userId);
+        return {
+            totalAmount: booking.totalAmount,
+            paidAmount: booking.paidAmount,
+            pendingAmount: booking.pendingAmount,
+            paymentType: booking.paymentType
+        };
+    }
 };
 exports.BookingsController = BookingsController;
 __decorate([
@@ -79,6 +88,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], BookingsController.prototype, "cancelBooking", null);
+__decorate([
+    (0, common_1.Get)(':id/payment-summary'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('_id')),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], BookingsController.prototype, "getPaymentSummary", null);
 exports.BookingsController = BookingsController = __decorate([
     (0, common_1.Controller)('bookings'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

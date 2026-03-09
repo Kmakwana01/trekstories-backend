@@ -39,6 +39,9 @@ let PaymentsController = class PaymentsController {
     async getPaymentById(id) {
         return this.paymentsService.getPaymentById(id);
     }
+    async getMyBookingPaymentHistory(userId, bookingId) {
+        return this.paymentsService.getMyBookingPaymentHistory(bookingId, userId);
+    }
 };
 exports.PaymentsController = PaymentsController;
 __decorate([
@@ -76,6 +79,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "getPaymentById", null);
+__decorate([
+    (0, common_1.Get)('history/:bookingId'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('_id')),
+    __param(1, (0, common_1.Param)('bookingId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "getMyBookingPaymentHistory", null);
 exports.PaymentsController = PaymentsController = __decorate([
     (0, common_1.Controller)('payments'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

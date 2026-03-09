@@ -34,4 +34,15 @@ export class BookingsController {
     async cancelBooking(@CurrentUser('_id') userId: string, @Param('id') id: string) {
         return this.bookingsService.cancelBooking(id, userId);
     }
+
+    @Get(':id/payment-summary')
+    async getPaymentSummary(@CurrentUser('_id') userId: string, @Param('id') id: string) {
+        const booking = await this.bookingsService.getBookingById(id, userId);
+        return {
+            totalAmount: booking.totalAmount,
+            paidAmount: booking.paidAmount,
+            pendingAmount: booking.pendingAmount,
+            paymentType: booking.paymentType
+        };
+    }
 }

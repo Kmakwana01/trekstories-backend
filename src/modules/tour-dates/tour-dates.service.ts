@@ -21,6 +21,23 @@ export class TourDatesService {
         return this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
     }
 
+    async getTourDatesWithSeats(tourId: string): Promise<any[]> {
+        const query: any = {
+            tour: tourId,
+            status: { $in: [TourDateStatus.UPCOMING, TourDateStatus.FULL] },
+            startDate: { $gt: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) }
+        };
+        const dates = await this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
+
+        return dates.map(d => {
+            const doc = d.toObject();
+            return {
+                ...doc,
+                availableSeats: doc.totalSeats - doc.bookedSeats
+            };
+        });
+    }
+
     async adminCreateTourDate(createTourDateDto: CreateTourDateDto): Promise<TourDate> {
         const { startDate, endDate } = createTourDateDto;
 

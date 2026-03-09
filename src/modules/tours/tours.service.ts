@@ -129,15 +129,20 @@ export class ToursService {
             throw new NotFoundException('Tour not found');
         }
 
-        const availableDates = await this.tourDateModel
+        const dates = await this.tourDateModel
             .find({
                 tour: (tour as any)._id,
-                status: TourDateStatus.UPCOMING,
+                status: { $in: [TourDateStatus.UPCOMING, TourDateStatus.FULL] },
                 startDate: { $gte: DateUtil.startOfDayIST(DateUtil.nowIST().toDate()) },
             })
             .sort({ startDate: 1 })
             .lean()
             .exec();
+
+        const availableDates = dates.map(d => ({
+            ...d,
+            availableSeats: d.totalSeats - d.bookedSeats
+        }));
 
         return { ...tour, availableDates };
     }

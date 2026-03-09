@@ -32,6 +32,21 @@ let TourDatesService = class TourDatesService {
         };
         return this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
     }
+    async getTourDatesWithSeats(tourId) {
+        const query = {
+            tour: tourId,
+            status: { $in: [tour_date_status_enum_1.TourDateStatus.UPCOMING, tour_date_status_enum_1.TourDateStatus.FULL] },
+            startDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) }
+        };
+        const dates = await this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
+        return dates.map(d => {
+            const doc = d.toObject();
+            return {
+                ...doc,
+                availableSeats: doc.totalSeats - doc.bookedSeats
+            };
+        });
+    }
     async adminCreateTourDate(createTourDateDto) {
         const { startDate, endDate } = createTourDateDto;
         if (date_util_1.DateUtil.parseISTToUTC(startDate) >= date_util_1.DateUtil.parseISTToUTC(endDate)) {

@@ -11,5 +11,6 @@ export declare class CreateBookingDto {
     travelers: TravelerDto[];
     couponCode?: string;
     additionalRequests?: string;
+    paymentType?: 'FULL' | 'PARTIAL';
 }
 export {};

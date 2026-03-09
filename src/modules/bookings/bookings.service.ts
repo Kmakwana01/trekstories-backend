@@ -10,7 +10,7 @@ import { generateBookingNumber } from '../../common/helpers/booking-number.helpe
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
-import { BookingStatus } from '../../common/enums/booking-status.enum';
+import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
 import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 import { NotificationType } from '../../common/enums/notification-type.enum';
 
@@ -116,6 +116,7 @@ export class BookingsService {
             taxAmount,
             taxRate: gstRate,
             totalAmount,
+            halfAmount: Math.ceil(totalAmount / 2),
             appliedCoupon,
             pickupOption,
             pricingSummary
@@ -145,31 +146,40 @@ export class BookingsService {
             couponCode: dto.couponCode
         });
 
-        // Read-only availability check — seats are NOT incremented yet.
-        // They will only be incremented when the booking is CONFIRMED (payment approved).
-        const tourDate = await this.tourDateModel.findById(dto.tourDateId).exec();
-        if (!tourDate)
+        // Atomic check and reserve seats
+        const updatedDate = await this.tourDateModel.findOneAndUpdate(
+            {
+                _id: dto.tourDateId,
+                status: TourDateStatus.UPCOMING,
+                $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, dto.travelers.length] }
+            },
+            { $inc: { bookedSeats: dto.travelers.length } },
+            { new: true }
+        ).exec();
+
+        if (!updatedDate)
         {
-            throw new ConflictException('Tour date not found');
-        }
-        const available = tourDate.totalSeats - tourDate.bookedSeats;
-        if (available < dto.travelers.length)
-        {
-            this.logger.warn(`Booking failed: Only ${available} seats available for tour date ${dto.tourDateId}`);
+            // Fetch to give a precise error
+            const check = await this.tourDateModel.findById(dto.tourDateId).exec();
+            if (!check) throw new ConflictException('Tour date not found');
+            if (check.status !== TourDateStatus.UPCOMING) throw new ConflictException(`Tour date is ${check.status} and not accepting bookings.`);
+            const available = check.totalSeats - check.bookedSeats;
             throw new ConflictException(`Not enough seats available. Only ${available} seat(s) left.`);
         }
-        if (tourDate.status === TourDateStatus.FULL || tourDate.status === TourDateStatus.CANCELLED)
+
+        if (updatedDate.bookedSeats >= updatedDate.totalSeats)
         {
-            throw new ConflictException(`Tour date is ${tourDate.status} and not accepting bookings.`);
+            await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { status: TourDateStatus.FULL });
         }
+
 
         const bNo = await generateBookingNumber(this.bookingModel);
 
         const booking = new this.bookingModel({
             bookingNumber: bNo,
             user: userId,
-            tour: tourDate.tour,
-            tourDate: tourDate._id,
+            tour: updatedDate.tour,
+            tourDate: updatedDate._id,
             pickupOption: preview.pickupOption,
             travelers: dto.travelers,
             totalTravelers: dto.travelers.length,
@@ -181,6 +191,7 @@ export class BookingsService {
             couponCode: dto.couponCode?.toUpperCase(),
             totalAmount: preview.totalAmount,
             pendingAmount: preview.totalAmount,
+            paymentType: dto.paymentType === 'PARTIAL' ? PaymentType.PARTIAL : undefined,
             status: BookingStatus.PENDING,
             additionalRequests: dto.additionalRequests,
             pricingSummary: preview.pricingSummary,
@@ -317,6 +328,15 @@ export class BookingsService {
         return this.bookingModel.findByIdAndUpdate(id, { paymentVerifiedAt: new Date() }, { new: true }).exec();
     }
 
+    async adminUpdatePaymentTypeAndNote(id: string, paymentType: string, note?: string, adminId?: string) {
+        const updateOp: any = { paymentType };
+        if (note)
+        {
+            updateOp.$push = { internalNotes: { note, createdAt: new Date(), adminId: adminId || null } };
+        }
+        return this.bookingModel.findByIdAndUpdate(id, updateOp, { new: true }).exec();
+    }
+
     async adminCancelBooking(id: string) {
         return this.cancelBooking(id);
     }
@@ -340,9 +360,9 @@ export class BookingsService {
             this.logger.log(`Receipt approved and booking confirmed: #${booking.bookingNumber}`);
         } else
         {
-            // Reject receipt — put booking on hold AND clear receipt fields so user can re-upload
+            // Reject receipt — keep booking in PENDING AND clear receipt fields so user can re-upload
             await this.bookingModel.findByIdAndUpdate(id, {
-                status: BookingStatus.ON_HOLD,
+                status: BookingStatus.PENDING,
                 receiptImage: null,
                 transactionId: null,
                 $push: { internalNotes: { note: 'Payment receipt was rejected by admin.', createdAt: new Date(), adminId: adminId || null } },
@@ -379,19 +399,13 @@ export class BookingsService {
         if (!booking) throw new NotFoundException('Booking not found');
         if (booking.status === BookingStatus.CONFIRMED) return booking;
 
-        // Atomically increment bookedSeats on confirmation (NOT at booking creation)
-        const updatedDate = await this.tourDateModel.findByIdAndUpdate(
-            booking.tourDate,
-            { $inc: { bookedSeats: booking.totalTravelers } },
-            { returnDocument: 'after' }
-        ).exec();
-
-        // Auto-mark tour date as 'full' when all seats are taken
-        if (updatedDate && updatedDate.bookedSeats >= updatedDate.totalSeats)
+        // If admin confirms manually with no payment record, assume it is an OFFLINE booking
+        if (booking.paidAmount === 0 && !booking.paymentType)
         {
-            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: TourDateStatus.FULL });
-            this.logger.log(`Tour date ${booking.tourDate} marked as FULL after confirmation of booking ${id}`);
+            booking.paymentType = PaymentType.OFFLINE;
         }
+
+        // Seats are now reserved at booking creation, so we don't increment them here anymore.
 
         booking.status = BookingStatus.CONFIRMED;
         const savedBooking = await booking.save();
@@ -446,20 +460,17 @@ export class BookingsService {
 
         if (booking.status === BookingStatus.CANCELLED) return booking;
 
-        // Only restore bookedSeats if the booking was CONFIRMED (seats were only incremented on confirmation)
-        if (booking.status === BookingStatus.CONFIRMED)
+        // Restore bookedSeats since they were reserved at creation
+        const restoredDate = await this.tourDateModel.findByIdAndUpdate(
+            booking.tourDate,
+            { $inc: { bookedSeats: -booking.totalTravelers } },
+            { returnDocument: 'after' }
+        ).exec();
+        // If it was marked full, but now has available seats, revert back to upcoming
+        if (restoredDate && restoredDate.status === TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats)
         {
-            const restoredDate = await this.tourDateModel.findByIdAndUpdate(
-                booking.tourDate,
-                { $inc: { bookedSeats: -booking.totalTravelers } },
-                { returnDocument: 'after' }
-            ).exec();
-            // If it was marked full, revert back to upcoming
-            if (restoredDate && restoredDate.status === TourDateStatus.FULL)
-            {
-                await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: TourDateStatus.UPCOMING });
-                this.logger.log(`Tour date ${booking.tourDate} reverted from FULL to upcoming after cancellation of booking ${id}`);
-            }
+            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: TourDateStatus.UPCOMING });
+            this.logger.log(`Tour date ${booking.tourDate} reverted from FULL to UPCOMING after cancellation of booking ${id}`);
         }
 
         booking.status = BookingStatus.CANCELLED;

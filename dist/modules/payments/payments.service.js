@@ -41,11 +41,13 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
     }
     async submitPaymentProof(userId, dto) {
         this.logger.log(`Submitting payment proof for user ${userId}, booking ${dto.bookingId}`);
-        const { bookingId, transactionId, paymentMethod, receiptImage } = dto;
+        const { bookingId, transactionId, paymentMethod, receiptImage, paymentAmount } = dto;
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
-        if (booking.status !== booking_status_enum_1.BookingStatus.PENDING && booking.status !== booking_status_enum_1.BookingStatus.ON_HOLD) {
+        const isPayable = booking.status === booking_status_enum_1.BookingStatus.PENDING ||
+            (booking.status === booking_status_enum_1.BookingStatus.CONFIRMED && booking.pendingAmount > 0);
+        if (!isPayable) {
             throw new common_1.BadRequestException('Booking is not in a payable state');
         }
         const pendingPayment = await this.paymentModel.findOne({
@@ -65,7 +67,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             paymentMethod,
             transactionId,
             paymentReceiptImage: receiptImage,
-            amount: booking.totalAmount,
+            amount: paymentAmount ? Number(paymentAmount) : booking.totalAmount,
             status: payment_status_enum_1.PaymentStatus.UNDER_REVIEW,
         });
         const savedPayment = await payment.save();
@@ -141,6 +143,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         payment.verifiedAt = date_util_1.DateUtil.nowUTC();
         payment.rejectionReason = reason;
         const savedPayment = await payment.save();
+        await this.bookingsService.adminVerifyReceipt(payment.booking.toString(), false, adminId);
         try {
             const uId = payment.user?._id?.toString() || payment.user?.toString();
             if (uId) {
@@ -182,16 +185,9 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         });
         await payment.save();
         await this.bookingsService.adminUpdatePaidAmount(booking._id.toString(), amount);
+        await this.bookingsService.adminUpdatePaymentTypeAndNote(bookingId, booking_status_enum_1.PaymentType.OFFLINE, notes, adminId);
         const updatedBooking = await this.bookingsService.getBookingById(bookingId);
         if (updatedBooking.status === booking_status_enum_1.BookingStatus.PENDING) {
-            if (updatedBooking.pendingAmount <= 0) {
-                await this.bookingsService.adminConfirmBooking(bookingId);
-            }
-            else {
-                await this.bookingsService.adminUpdateStatus(bookingId, booking_status_enum_1.BookingStatus.ON_HOLD, 'Partial payment recorded');
-            }
-        }
-        else if (updatedBooking.status === booking_status_enum_1.BookingStatus.ON_HOLD && updatedBooking.pendingAmount <= 0) {
             await this.bookingsService.adminConfirmBooking(bookingId);
         }
         await this.transactionsService.createTransaction({
@@ -215,7 +211,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             try {
                 const uId = populatedPayment.user?._id?.toString() || populatedPayment.user?.toString();
                 if (uId) {
-                    await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Offline Payment Received', `We have successfully received your offline payment of ${amount} for booking ${populatedPayment.booking.bookingNumber}.`, { bookingId: populatedPayment.booking, paymentId: populatedPayment._id });
+                    await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Offline Payment Received', `₹${amount} additional payment received. Remaining: ₹${updatedBooking.pendingAmount}`, { bookingId: populatedPayment.booking, paymentId: populatedPayment._id });
                     if (populatedPayment.user.email) {
                         await this.notificationsService.sendEmail(populatedPayment.user.email, 'Offline Payment Received', 'payment_approved', {
                             name: populatedPayment.user.name,
@@ -232,6 +228,19 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         }
         this.logger.log(`Offline payment recorded successfully: ${savedPayment._id}`);
         return savedPayment;
+    }
+    async getMyBookingPaymentHistory(bookingId, userId) {
+        const booking = await this.bookingsService.getBookingById(bookingId, userId);
+        if (!booking)
+            throw new common_1.NotFoundException('Booking not found');
+        const payments = await this.paymentModel.find({ booking: bookingId }).sort({ createdAt: -1 }).exec();
+        return {
+            totalAmount: booking.totalAmount,
+            paidAmount: booking.paidAmount,
+            pendingAmount: booking.pendingAmount,
+            paymentType: booking.paymentType,
+            payments
+        };
     }
 };
 exports.PaymentsService = PaymentsService;

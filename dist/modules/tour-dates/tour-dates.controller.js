@@ -30,6 +30,9 @@ let TourDatesController = class TourDatesController {
     async getUpcomingDates(tourId) {
         return this.tourDatesService.getUpcomingDates(tourId);
     }
+    async getTourDatesWithSeats(tourId) {
+        return this.tourDatesService.getTourDatesWithSeats(tourId);
+    }
 };
 exports.TourDatesController = TourDatesController;
 __decorate([
@@ -39,6 +42,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], TourDatesController.prototype, "getUpcomingDates", null);
+__decorate([
+    (0, common_1.Get)(':tourId/with-seats'),
+    __param(0, (0, common_1.Param)('tourId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], TourDatesController.prototype, "getTourDatesWithSeats", null);
 exports.TourDatesController = TourDatesController = __decorate([
     (0, common_1.Controller)('tour-dates'),
     __metadata("design:paramtypes", [tour_dates_service_1.TourDatesService])

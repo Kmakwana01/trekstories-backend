@@ -51,6 +51,7 @@ class CreateBookingDto {
     travelers;
     couponCode;
     additionalRequests;
+    paymentType;
 }
 exports.CreateBookingDto = CreateBookingDto;
 __decorate([
@@ -79,4 +80,10 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateBookingDto.prototype, "additionalRequests", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEnum)(['FULL', 'PARTIAL']),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateBookingDto.prototype, "paymentType", void 0);
 //# sourceMappingURL=create-booking.dto.js.map

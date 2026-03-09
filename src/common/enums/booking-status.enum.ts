@@ -3,7 +3,6 @@ export enum BookingStatus {
     CONFIRMED = 'CONFIRMED',
     CANCELLED = 'CANCELLED',
     COMPLETED = 'COMPLETED',
-    ON_HOLD = 'ON_HOLD',
 }
 
 export enum PaymentType {

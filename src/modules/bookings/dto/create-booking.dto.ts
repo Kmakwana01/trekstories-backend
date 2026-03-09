@@ -45,4 +45,9 @@ export class CreateBookingDto {
     @IsString()
     @IsOptional()
     additionalRequests?: string;
+
+    @IsString()
+    @IsEnum(['FULL', 'PARTIAL'])
+    @IsOptional()
+    paymentType?: 'FULL' | 'PARTIAL';
 }

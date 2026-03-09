@@ -5,6 +5,7 @@ export declare class TourDatesService {
     private tourDateModel;
     constructor(tourDateModel: Model<TourDateDocument>);
     getUpcomingDates(tourId: string): Promise<TourDate[]>;
+    getTourDatesWithSeats(tourId: string): Promise<any[]>;
     adminCreateTourDate(createTourDateDto: CreateTourDateDto): Promise<TourDate>;
     adminGetTourDates(tourId: string): Promise<TourDate[]>;
     adminUpdateTourDate(id: string, updateTourDateDto: UpdateTourDateDto): Promise<TourDate>;

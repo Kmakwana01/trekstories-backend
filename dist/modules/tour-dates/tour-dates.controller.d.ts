@@ -5,6 +5,7 @@ export declare class TourDatesController {
     private readonly tourDatesService;
     constructor(tourDatesService: TourDatesService);
     getUpcomingDates(tourId: string): Promise<import("../../database/schemas/tour-date.schema").TourDate[]>;
+    getTourDatesWithSeats(tourId: string): Promise<any[]>;
 }
 export declare class AdminTourDatesController {
     private readonly tourDatesService;

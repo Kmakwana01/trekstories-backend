@@ -49,4 +49,9 @@ export class PaymentsController {
     async getPaymentById(@Param('id') id: string) {
         return this.paymentsService.getPaymentById(id);
     }
+
+    @Get('history/:bookingId')
+    async getMyBookingPaymentHistory(@CurrentUser('_id') userId: string, @Param('bookingId') bookingId: string) {
+        return this.paymentsService.getMyBookingPaymentHistory(bookingId, userId);
+    }
 }

@@ -24,6 +24,7 @@ export declare class BookingsService {
         taxAmount: number;
         taxRate: number;
         totalAmount: number;
+        halfAmount: number;
         appliedCoupon: any;
         pickupOption: import("../../database/schemas/tour.schema").PickupPoint;
         pricingSummary: string;
@@ -76,6 +77,13 @@ export declare class BookingsService {
         id: string;
     }) | null>;
     markPaymentVerified(id: string): Promise<(import("mongoose").Document<unknown, {}, BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    } & {
+        id: string;
+    }) | null>;
+    adminUpdatePaymentTypeAndNote(id: string, paymentType: string, note?: string, adminId?: string): Promise<(import("mongoose").Document<unknown, {}, BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;

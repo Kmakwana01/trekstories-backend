@@ -25,4 +25,17 @@ export declare class PaymentsController {
     } & {
         id: string;
     }) | null>;
+    getMyBookingPaymentHistory(userId: string, bookingId: string): Promise<{
+        totalAmount: number;
+        paidAmount: number;
+        pendingAmount: number;
+        paymentType: string;
+        payments: (import("mongoose").Document<unknown, {}, import("../../database/schemas/payment.schema").PaymentDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/payment.schema").Payment & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        } & {
+            id: string;
+        })[];
+    }>;
 }

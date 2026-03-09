@@ -100,6 +100,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
             taxAmount,
             taxRate: gstRate,
             totalAmount,
+            halfAmount: Math.ceil(totalAmount / 2),
             appliedCoupon,
             pickupOption,
             pricingSummary
@@ -124,24 +125,29 @@ let BookingsService = BookingsService_1 = class BookingsService {
             travelerCount: dto.travelers.length,
             couponCode: dto.couponCode
         });
-        const tourDate = await this.tourDateModel.findById(dto.tourDateId).exec();
-        if (!tourDate) {
-            throw new common_1.ConflictException('Tour date not found');
-        }
-        const available = tourDate.totalSeats - tourDate.bookedSeats;
-        if (available < dto.travelers.length) {
-            this.logger.warn(`Booking failed: Only ${available} seats available for tour date ${dto.tourDateId}`);
+        const updatedDate = await this.tourDateModel.findOneAndUpdate({
+            _id: dto.tourDateId,
+            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, dto.travelers.length] }
+        }, { $inc: { bookedSeats: dto.travelers.length } }, { new: true }).exec();
+        if (!updatedDate) {
+            const check = await this.tourDateModel.findById(dto.tourDateId).exec();
+            if (!check)
+                throw new common_1.ConflictException('Tour date not found');
+            if (check.status !== tour_date_status_enum_1.TourDateStatus.UPCOMING)
+                throw new common_1.ConflictException(`Tour date is ${check.status} and not accepting bookings.`);
+            const available = check.totalSeats - check.bookedSeats;
             throw new common_1.ConflictException(`Not enough seats available. Only ${available} seat(s) left.`);
         }
-        if (tourDate.status === tour_date_status_enum_1.TourDateStatus.FULL || tourDate.status === tour_date_status_enum_1.TourDateStatus.CANCELLED) {
-            throw new common_1.ConflictException(`Tour date is ${tourDate.status} and not accepting bookings.`);
+        if (updatedDate.bookedSeats >= updatedDate.totalSeats) {
+            await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { status: tour_date_status_enum_1.TourDateStatus.FULL });
         }
         const bNo = await (0, booking_number_helper_1.generateBookingNumber)(this.bookingModel);
         const booking = new this.bookingModel({
             bookingNumber: bNo,
             user: userId,
-            tour: tourDate.tour,
-            tourDate: tourDate._id,
+            tour: updatedDate.tour,
+            tourDate: updatedDate._id,
             pickupOption: preview.pickupOption,
             travelers: dto.travelers,
             totalTravelers: dto.travelers.length,
@@ -153,6 +159,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
             couponCode: dto.couponCode?.toUpperCase(),
             totalAmount: preview.totalAmount,
             pendingAmount: preview.totalAmount,
+            paymentType: dto.paymentType === 'PARTIAL' ? booking_status_enum_1.PaymentType.PARTIAL : undefined,
             status: booking_status_enum_1.BookingStatus.PENDING,
             additionalRequests: dto.additionalRequests,
             pricingSummary: preview.pricingSummary,
@@ -260,6 +267,13 @@ let BookingsService = BookingsService_1 = class BookingsService {
     async markPaymentVerified(id) {
         return this.bookingModel.findByIdAndUpdate(id, { paymentVerifiedAt: new Date() }, { new: true }).exec();
     }
+    async adminUpdatePaymentTypeAndNote(id, paymentType, note, adminId) {
+        const updateOp = { paymentType };
+        if (note) {
+            updateOp.$push = { internalNotes: { note, createdAt: new Date(), adminId: adminId || null } };
+        }
+        return this.bookingModel.findByIdAndUpdate(id, updateOp, { new: true }).exec();
+    }
     async adminCancelBooking(id) {
         return this.cancelBooking(id);
     }
@@ -277,7 +291,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
         }
         else {
             await this.bookingModel.findByIdAndUpdate(id, {
-                status: booking_status_enum_1.BookingStatus.ON_HOLD,
+                status: booking_status_enum_1.BookingStatus.PENDING,
                 receiptImage: null,
                 transactionId: null,
                 $push: { internalNotes: { note: 'Payment receipt was rejected by admin.', createdAt: new Date(), adminId: adminId || null } },
@@ -302,10 +316,8 @@ let BookingsService = BookingsService_1 = class BookingsService {
             throw new common_1.NotFoundException('Booking not found');
         if (booking.status === booking_status_enum_1.BookingStatus.CONFIRMED)
             return booking;
-        const updatedDate = await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { $inc: { bookedSeats: booking.totalTravelers } }, { returnDocument: 'after' }).exec();
-        if (updatedDate && updatedDate.bookedSeats >= updatedDate.totalSeats) {
-            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.FULL });
-            this.logger.log(`Tour date ${booking.tourDate} marked as FULL after confirmation of booking ${id}`);
+        if (booking.paidAmount === 0 && !booking.paymentType) {
+            booking.paymentType = booking_status_enum_1.PaymentType.OFFLINE;
         }
         booking.status = booking_status_enum_1.BookingStatus.CONFIRMED;
         const savedBooking = await booking.save();
@@ -342,12 +354,10 @@ let BookingsService = BookingsService_1 = class BookingsService {
             throw new common_1.NotFoundException('Booking not found');
         if (booking.status === booking_status_enum_1.BookingStatus.CANCELLED)
             return booking;
-        if (booking.status === booking_status_enum_1.BookingStatus.CONFIRMED) {
-            const restoredDate = await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { $inc: { bookedSeats: -booking.totalTravelers } }, { returnDocument: 'after' }).exec();
-            if (restoredDate && restoredDate.status === tour_date_status_enum_1.TourDateStatus.FULL) {
-                await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.UPCOMING });
-                this.logger.log(`Tour date ${booking.tourDate} reverted from FULL to upcoming after cancellation of booking ${id}`);
-            }
+        const restoredDate = await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { $inc: { bookedSeats: -booking.totalTravelers } }, { returnDocument: 'after' }).exec();
+        if (restoredDate && restoredDate.status === tour_date_status_enum_1.TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats) {
+            await this.tourDateModel.findByIdAndUpdate(booking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.UPCOMING });
+            this.logger.log(`Tour date ${booking.tourDate} reverted from FULL to UPCOMING after cancellation of booking ${id}`);
         }
         booking.status = booking_status_enum_1.BookingStatus.CANCELLED;
         if (booking.couponCode) {

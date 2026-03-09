@@ -7,7 +7,6 @@ var BookingStatus;
     BookingStatus["CONFIRMED"] = "CONFIRMED";
     BookingStatus["CANCELLED"] = "CANCELLED";
     BookingStatus["COMPLETED"] = "COMPLETED";
-    BookingStatus["ON_HOLD"] = "ON_HOLD";
 })(BookingStatus || (exports.BookingStatus = BookingStatus = {}));
 var PaymentType;
 (function (PaymentType) {

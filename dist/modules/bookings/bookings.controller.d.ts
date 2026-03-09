@@ -12,6 +12,7 @@ export declare class BookingsController {
         taxAmount: number;
         taxRate: number;
         totalAmount: number;
+        halfAmount: number;
         appliedCoupon: any;
         pickupOption: import("../../database/schemas/tour.schema").PickupPoint;
         pricingSummary: string;
@@ -35,5 +36,11 @@ export declare class BookingsController {
         __v: number;
     } & {
         id: string;
+    }>;
+    getPaymentSummary(userId: string, id: string): Promise<{
+        totalAmount: number;
+        paidAmount: number;
+        pendingAmount: number;
+        paymentType: string;
     }>;
 }
