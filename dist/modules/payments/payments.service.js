@@ -233,7 +233,10 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
-        const payments = await this.paymentModel.find({ booking: bookingId }).sort({ createdAt: -1 }).exec();
+        const payments = await this.paymentModel.find({ booking: bookingId })
+            .populate('offlineCollectedBy', 'name')
+            .sort({ createdAt: -1 })
+            .exec();
         return {
             totalAmount: booking.totalAmount,
             paidAmount: booking.paidAmount,

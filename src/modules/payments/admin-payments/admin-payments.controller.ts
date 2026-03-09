@@ -55,4 +55,9 @@ export class AdminPaymentsController {
         await this.adminLogService.logAction(adminId, 'RECORD_OFFLINE_PAYMENT', 'Payments', dto.bookingId, { amount: dto.amount, method: dto.paymentMethod }, req.ip, req.headers['user-agent']);
         return payment;
     }
+
+    @Get('history/:bookingId')
+    async getBookingPaymentHistory(@Param('bookingId') bookingId: string) {
+        return this.paymentsService.getMyBookingPaymentHistory(bookingId);
+    }
 }

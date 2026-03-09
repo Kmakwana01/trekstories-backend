@@ -33,6 +33,7 @@ export class PaymentsController {
         @Body() dto: any,
         @UploadedFile() file: Express.Multer.File,
     ) {
+        console.log("Submit payment proof DTO received:", dto);
         if (!file) throw new BadRequestException('Receipt image is required');
 
         const receiptImage = await this.imgbbService.uploadImage(file);

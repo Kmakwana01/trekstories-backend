@@ -28,6 +28,7 @@ let PaymentsController = class PaymentsController {
         this.imgbbService = imgbbService;
     }
     async submitPaymentProof(userId, dto, file) {
+        console.log("Submit payment proof DTO received:", dto);
         if (!file)
             throw new common_1.BadRequestException('Receipt image is required');
         const receiptImage = await this.imgbbService.uploadImage(file);

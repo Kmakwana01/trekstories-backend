@@ -47,6 +47,9 @@ let AdminPaymentsController = class AdminPaymentsController {
         await this.adminLogService.logAction(adminId, 'RECORD_OFFLINE_PAYMENT', 'Payments', dto.bookingId, { amount: dto.amount, method: dto.paymentMethod }, req.ip, req.headers['user-agent']);
         return payment;
     }
+    async getBookingPaymentHistory(bookingId) {
+        return this.paymentsService.getMyBookingPaymentHistory(bookingId);
+    }
 };
 exports.AdminPaymentsController = AdminPaymentsController;
 __decorate([
@@ -84,6 +87,13 @@ __decorate([
     __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], AdminPaymentsController.prototype, "recordOfflinePayment", null);
+__decorate([
+    (0, common_1.Get)('history/:bookingId'),
+    __param(0, (0, common_1.Param)('bookingId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminPaymentsController.prototype, "getBookingPaymentHistory", null);
 exports.AdminPaymentsController = AdminPaymentsController = __decorate([
     (0, common_1.Controller)('admin/payments'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

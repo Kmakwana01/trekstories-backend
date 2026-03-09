@@ -89,7 +89,7 @@ export class BookingsService {
         let pricingSummary = '';
         if (pickupOption.priceAdjustment > 0)
         {
-            pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (${pickupOption.type} Pickup) = ${fmt(perPersonPrice)} per person. `;
+            pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (Extra) = ${fmt(perPersonPrice)} per person. `;
         } else
         {
             pricingSummary += `${fmt(perPersonPrice)} per person. `;
@@ -209,6 +209,15 @@ export class BookingsService {
             savedBooking = await booking.save();
         } catch (error)
         {
+            // IMPORTANT: If booking fails to save (e.g. validation error), restore the seats!
+            await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { $inc: { bookedSeats: -dto.travelers.length } });
+            // Re-fetch and check if it was FULL, then revert to UPCOMING
+            const check = await this.tourDateModel.findById(dto.tourDateId).exec();
+            if (check && check.status === TourDateStatus.FULL && check.bookedSeats < check.totalSeats)
+            {
+                await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { status: TourDateStatus.UPCOMING });
+            }
+
             if (error.code === 11000)
             {
                 this.logger.error(`Concurrency error on booking creation: duplicated booking number ${bNo}`);
@@ -294,7 +303,45 @@ export class BookingsService {
     }
 
     async adminUpdateStatus(id: string, status: string, note?: string, adminId?: string) {
-        const updateOp: any = { status };
+        const oldBooking = await this.bookingModel.findById(id).exec();
+        if (!oldBooking) throw new NotFoundException('Booking not found');
+
+        const oldStatus = oldBooking.status;
+        const newStatus = status.toUpperCase();
+
+        // 1. Seat Arithmetic for Status Changes
+        if (oldStatus !== BookingStatus.CANCELLED && newStatus === BookingStatus.CANCELLED)
+        {
+            // Restoring seats as it moves TO cancelled
+            const restoredDate = await this.tourDateModel.findByIdAndUpdate(
+                oldBooking.tourDate,
+                { $inc: { bookedSeats: -oldBooking.totalTravelers } },
+                { new: true }
+            ).exec();
+            if (restoredDate && restoredDate.status === TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats)
+            {
+                await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { status: TourDateStatus.UPCOMING });
+            }
+        } else if (oldStatus === BookingStatus.CANCELLED && newStatus !== BookingStatus.CANCELLED)
+        {
+            // Re-reserving seats as it moves FROM cancelled
+            const updatedDate = await this.tourDateModel.findOneAndUpdate(
+                {
+                    _id: oldBooking.tourDate,
+                    $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, oldBooking.totalTravelers] }
+                },
+                { $inc: { bookedSeats: oldBooking.totalTravelers } },
+                { new: true }
+            ).exec();
+
+            if (!updatedDate) throw new BadRequestException('Cannot revert cancellation: Not enough seats available on this tour date.');
+            if (updatedDate.bookedSeats >= updatedDate.totalSeats)
+            {
+                await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { status: TourDateStatus.FULL });
+            }
+        }
+
+        const updateOp: any = { status: newStatus };
         if (note)
         {
             updateOp.$push = {
@@ -304,7 +351,6 @@ export class BookingsService {
         const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after', new: true })
             .populate('user', 'name email')
             .exec();
-        if (!booking) throw new NotFoundException('Booking not found');
         return booking;
     }
 
@@ -325,7 +371,11 @@ export class BookingsService {
 
     /** Called by PaymentsService after approving a payment to mark the receipt as verified */
     async markPaymentVerified(id: string) {
-        return this.bookingModel.findByIdAndUpdate(id, { paymentVerifiedAt: new Date() }, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, {
+            paymentVerifiedAt: new Date(),
+            receiptImage: null,
+            transactionId: null
+        }, { new: true }).exec();
     }
 
     async adminUpdatePaymentTypeAndNote(id: string, paymentType: string, note?: string, adminId?: string) {

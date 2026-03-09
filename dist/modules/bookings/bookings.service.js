@@ -79,7 +79,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
         const fmt = (val) => new Intl.NumberFormat('en-IN').format(val);
         let pricingSummary = '';
         if (pickupOption.priceAdjustment > 0) {
-            pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (${pickupOption.type} Pickup) = ${fmt(perPersonPrice)} per person. `;
+            pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (Extra) = ${fmt(perPersonPrice)} per person. `;
         }
         else {
             pricingSummary += `${fmt(perPersonPrice)} per person. `;
@@ -172,6 +172,11 @@ let BookingsService = BookingsService_1 = class BookingsService {
             savedBooking = await booking.save();
         }
         catch (error) {
+            await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { $inc: { bookedSeats: -dto.travelers.length } });
+            const check = await this.tourDateModel.findById(dto.tourDateId).exec();
+            if (check && check.status === tour_date_status_enum_1.TourDateStatus.FULL && check.bookedSeats < check.totalSeats) {
+                await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, { status: tour_date_status_enum_1.TourDateStatus.UPCOMING });
+            }
             if (error.code === 11000) {
                 this.logger.error(`Concurrency error on booking creation: duplicated booking number ${bNo}`);
                 throw new common_1.ConflictException('Concurrency error during booking. Please try again.');
@@ -240,7 +245,29 @@ let BookingsService = BookingsService_1 = class BookingsService {
         return { items, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
     }
     async adminUpdateStatus(id, status, note, adminId) {
-        const updateOp = { status };
+        const oldBooking = await this.bookingModel.findById(id).exec();
+        if (!oldBooking)
+            throw new common_1.NotFoundException('Booking not found');
+        const oldStatus = oldBooking.status;
+        const newStatus = status.toUpperCase();
+        if (oldStatus !== booking_status_enum_1.BookingStatus.CANCELLED && newStatus === booking_status_enum_1.BookingStatus.CANCELLED) {
+            const restoredDate = await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { $inc: { bookedSeats: -oldBooking.totalTravelers } }, { new: true }).exec();
+            if (restoredDate && restoredDate.status === tour_date_status_enum_1.TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats) {
+                await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.UPCOMING });
+            }
+        }
+        else if (oldStatus === booking_status_enum_1.BookingStatus.CANCELLED && newStatus !== booking_status_enum_1.BookingStatus.CANCELLED) {
+            const updatedDate = await this.tourDateModel.findOneAndUpdate({
+                _id: oldBooking.tourDate,
+                $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, oldBooking.totalTravelers] }
+            }, { $inc: { bookedSeats: oldBooking.totalTravelers } }, { new: true }).exec();
+            if (!updatedDate)
+                throw new common_1.BadRequestException('Cannot revert cancellation: Not enough seats available on this tour date.');
+            if (updatedDate.bookedSeats >= updatedDate.totalSeats) {
+                await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.FULL });
+            }
+        }
+        const updateOp = { status: newStatus };
         if (note) {
             updateOp.$push = {
                 internalNotes: { note, createdAt: new Date(), adminId: adminId || null },
@@ -249,8 +276,6 @@ let BookingsService = BookingsService_1 = class BookingsService {
         const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after', new: true })
             .populate('user', 'name email')
             .exec();
-        if (!booking)
-            throw new common_1.NotFoundException('Booking not found');
         return booking;
     }
     async adminUpdatePaidAmount(id, amount) {
@@ -265,7 +290,11 @@ let BookingsService = BookingsService_1 = class BookingsService {
         return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId, paymentType }, { new: true }).exec();
     }
     async markPaymentVerified(id) {
-        return this.bookingModel.findByIdAndUpdate(id, { paymentVerifiedAt: new Date() }, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, {
+            paymentVerifiedAt: new Date(),
+            receiptImage: null,
+            transactionId: null
+        }, { new: true }).exec();
     }
     async adminUpdatePaymentTypeAndNote(id, paymentType, note, adminId) {
         const updateOp = { paymentType };

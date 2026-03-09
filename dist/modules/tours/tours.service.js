@@ -124,7 +124,7 @@ let ToursService = ToursService_1 = class ToursService {
         return this.tourDateModel
             .find({
             tour: tourId,
-            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            status: { $in: [tour_date_status_enum_1.TourDateStatus.UPCOMING, tour_date_status_enum_1.TourDateStatus.FULL] },
             startDate: { $gte: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) },
         })
             .sort({ startDate: 1 })

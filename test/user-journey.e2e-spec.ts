@@ -116,7 +116,7 @@ describe('User Journey (e2e)', () => {
                 .field('bookingId', bookingId)
                 .field('transactionId', 'TXN' + Date.now())
                 .field('amount', 5000)
-                .field('paymentMethod', 'upi');
+                .field('paymentMethod', 'UPI');
 
             expect(uploadRes.status).toBe(201);
             expect(uploadRes.body.data.status).toBe('under_review');

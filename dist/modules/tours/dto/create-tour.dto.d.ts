@@ -9,7 +9,7 @@ export declare class ItineraryDayDto {
 }
 export declare class PickupPointDto {
     fromCity: string;
-    toCity: string;
+    toCity?: string;
     type: string;
     departureTimeAndPlace?: string;
     totalDays: number;

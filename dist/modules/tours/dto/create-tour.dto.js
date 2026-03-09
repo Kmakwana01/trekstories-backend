@@ -123,7 +123,7 @@ __decorate([
 __decorate([
     (0, class_transformer_1.Expose)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: 'Destination End is required' }),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], PickupPointDto.prototype, "toCity", void 0);
 __decorate([
