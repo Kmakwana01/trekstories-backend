@@ -17,18 +17,18 @@ export class CronsService {
         private readonly reportsService: ReportsService
     ) { }
 
-    // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-    // async handleDailyStatuses() {
-    //     this.logger.log('Running daily tour date status update...');
-    //     try
-    //     {
-    //         const result = await this.tourDatesService.autoUpdateStatuses();
-    //         this.logger.log(`Tour date update result: ${result}`);
-    //     } catch (err)
-    //     {
-    //         this.logger.error('Failed to update tour date statuses', err);
-    //     }
-    // }
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async handleDailyStatuses() {
+        this.logger.log('Running daily tour date status update...');
+        try
+        {
+            const result = await this.tourDatesService.autoUpdateStatuses();
+            this.logger.log(`Tour date update result: ${result}`);
+        } catch (err)
+        {
+            this.logger.error('Failed to update tour date statuses', err);
+        }
+    }
 
     // @Cron('0 9 * * *') // Every day at 9:00 AM
     // async handleTripReminders() {

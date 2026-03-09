@@ -1,6 +1,7 @@
 export enum PickupType {
-    AC = 'AC',
-    NON_AC = 'NON_AC',
-    FLIGHT = 'FLIGHT',
-    TRAIN = 'TRAIN',
+    NON_AC_TRAIN = 'NON_AC_TRAIN',
+    THREE_TIER_AC_TRAIN = '3TIER_AC_TRAIN',
+    BOTH_SIDE_FLIGHT = 'BOTH_SIDE_FLIGHT',
+    ONE_SIDE_FLIGHT = 'ONE_SIDE_FLIGHT',
+    LAND_PACKAGE = 'LAND_PACKAGE',
 }

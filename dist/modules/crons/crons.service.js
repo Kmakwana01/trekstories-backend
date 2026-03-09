@@ -12,6 +12,7 @@ var CronsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CronsService = void 0;
 const common_1 = require("@nestjs/common");
+const schedule_1 = require("@nestjs/schedule");
 const tour_dates_service_1 = require("../tour-dates/tour-dates.service");
 const bookings_service_1 = require("../bookings/bookings.service");
 const notifications_service_1 = require("../notifications/notifications.service");
@@ -28,8 +29,24 @@ let CronsService = CronsService_1 = class CronsService {
         this.notificationsService = notificationsService;
         this.reportsService = reportsService;
     }
+    async handleDailyStatuses() {
+        this.logger.log('Running daily tour date status update...');
+        try {
+            const result = await this.tourDatesService.autoUpdateStatuses();
+            this.logger.log(`Tour date update result: ${result}`);
+        }
+        catch (err) {
+            this.logger.error('Failed to update tour date statuses', err);
+        }
+    }
 };
 exports.CronsService = CronsService;
+__decorate([
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_MIDNIGHT),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CronsService.prototype, "handleDailyStatuses", null);
 exports.CronsService = CronsService = CronsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [tour_dates_service_1.TourDatesService,

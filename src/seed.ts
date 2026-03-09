@@ -166,8 +166,8 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1535377786556-27d41e66a636?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Delhi', toCity: 'Leh', type: PickupType.FLIGHT, departureTimeAndPlace: '5:00 AM IGI T3', totalDays: 7, totalNights: 6, priceAdjustment: 12000 },
-                { fromCity: 'Leh', toCity: 'Leh', type: PickupType.AC, departureTimeAndPlace: '9:00 AM Leh Airport', totalDays: 7, totalNights: 6, priceAdjustment: 0 },
+                { fromCity: 'Delhi', toCity: 'Leh', type: PickupType.BOTH_SIDE_FLIGHT, departureTimeAndPlace: '5:00 AM IGI T3', totalDays: 7, totalNights: 6, priceAdjustment: 12000 },
+                { fromCity: 'Leh', toCity: 'Leh', type: PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '9:00 AM Leh Airport', totalDays: 7, totalNights: 6, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrival in Leh – Acclimatization', points: [{ text: 'Arrive at Kushok Bakula Rimpochee Airport', subPoints: ['Transfer to hotel in Leh', 'Complete rest – avoid exertion'] }] },
@@ -208,8 +208,8 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Mumbai', toCity: 'Goa', type: PickupType.AC, departureTimeAndPlace: '9:00 PM Borivali', totalDays: 4, totalNights: 3, priceAdjustment: 2500 },
-                { fromCity: 'Goa', toCity: 'Goa', type: PickupType.NON_AC, departureTimeAndPlace: '12:00 PM Goa Airport', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
+                { fromCity: 'Mumbai', toCity: 'Goa', type: PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '9:00 PM Borivali', totalDays: 4, totalNights: 3, priceAdjustment: 2500 },
+                { fromCity: 'Goa', toCity: 'Goa', type: PickupType.NON_AC_TRAIN, departureTimeAndPlace: '12:00 PM Goa Airport', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrival & North Goa Beaches', points: [{ text: 'Check-in, Baga & Calangute', subPoints: ['Sunset at Baga'] }] },
@@ -247,7 +247,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1613997456065-0cdf03c70e7a?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Cochin', toCity: 'Alleppey', type: PickupType.AC, departureTimeAndPlace: '10:00 AM Cochin Airport', totalDays: 3, totalNights: 2, priceAdjustment: 0 },
+                { fromCity: 'Cochin', toCity: 'Alleppey', type: PickupType.BOTH_SIDE_FLIGHT, departureTimeAndPlace: '10:00 AM Cochin Airport', totalDays: 3, totalNights: 2, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Check-in & Cruise Begins', points: [{ text: 'Board the houseboat at noon', subPoints: ['Welcome drink & lunch on board'] }] },
@@ -284,7 +284,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Delhi', toCity: 'Jaipur', type: PickupType.AC, departureTimeAndPlace: '06:00 AM Delhi ISBT', totalDays: 10, totalNights: 9, priceAdjustment: 2500 },
+                { fromCity: 'Delhi', toCity: 'Jaipur', type: PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '06:00 AM Delhi ISBT', totalDays: 10, totalNights: 9, priceAdjustment: 2500 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrive Jaipur', points: [{ text: 'Check-in & orientation walk', subPoints: ['Visit Hawa Mahal'] }] },
@@ -328,7 +328,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Chandigarh', toCity: 'Kaza', type: PickupType.NON_AC, departureTimeAndPlace: '5:00 AM Chandigarh Station', totalDays: 9, totalNights: 8, priceAdjustment: 0 },
+                { fromCity: 'Chandigarh', toCity: 'Kaza', type: PickupType.NON_AC_TRAIN, departureTimeAndPlace: '5:00 AM Chandigarh Station', totalDays: 9, totalNights: 8, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Chandigarh – Narkanda', points: [{ text: 'Drive through foothils', subPoints: ['Overnight at Narkanda'] }] },
@@ -371,7 +371,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Port Blair', toCity: 'Port Blair', type: PickupType.NON_AC, departureTimeAndPlace: '1:00 PM Port Blair Jetty', totalDays: 6, totalNights: 5, priceAdjustment: 0 },
+                { fromCity: 'Port Blair', toCity: 'Port Blair', type: PickupType.NON_AC_TRAIN, departureTimeAndPlace: '1:00 PM Port Blair Jetty', totalDays: 6, totalNights: 5, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrive Port Blair', points: [{ text: 'Cellular Jail', subPoints: ['Hotel check-in'] }] },
@@ -410,7 +410,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Bangalore', toCity: 'Madikeri', type: PickupType.AC, departureTimeAndPlace: '06:00 AM Majestic Bus Stand', totalDays: 3, totalNights: 2, priceAdjustment: 1200 },
+                { fromCity: 'Bangalore', toCity: 'Madikeri', type: PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '06:00 AM Majestic Bus Stand', totalDays: 3, totalNights: 2, priceAdjustment: 1200 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrive & Explore Madikeri', points: [{ text: 'Raja\'s Seat & Abbey Falls', subPoints: ['Madikeri Fort'] }] },
@@ -446,7 +446,7 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1590123600223-e03e74c6dc31?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Varanasi', toCity: 'Varanasi', type: PickupType.AC, departureTimeAndPlace: '12:00 PM Varanasi Airport/Station', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
+                { fromCity: 'Varanasi', toCity: 'Varanasi', type: PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '12:00 PM Varanasi Airport/Station', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
             ],
             itinerary: [
                 { dayNumber: 1, title: 'Arrive & Ganga Aarti', points: [{ text: 'Evening Dashashwamedh Aarti', subPoints: ['Orientation walk'] }] },

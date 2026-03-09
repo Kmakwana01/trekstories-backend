@@ -9,4 +9,5 @@ export declare class CronsService {
     private readonly reportsService;
     private readonly logger;
     constructor(tourDatesService: TourDatesService, bookingsService: BookingsService, notificationsService: NotificationsService, reportsService: ReportsService);
+    handleDailyStatuses(): Promise<void>;
 }

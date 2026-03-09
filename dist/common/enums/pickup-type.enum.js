@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PickupType = void 0;
 var PickupType;
 (function (PickupType) {
-    PickupType["AC"] = "AC";
-    PickupType["NON_AC"] = "NON_AC";
-    PickupType["FLIGHT"] = "FLIGHT";
-    PickupType["TRAIN"] = "TRAIN";
+    PickupType["NON_AC_TRAIN"] = "NON_AC_TRAIN";
+    PickupType["THREE_TIER_AC_TRAIN"] = "3TIER_AC_TRAIN";
+    PickupType["BOTH_SIDE_FLIGHT"] = "BOTH_SIDE_FLIGHT";
+    PickupType["ONE_SIDE_FLIGHT"] = "ONE_SIDE_FLIGHT";
+    PickupType["LAND_PACKAGE"] = "LAND_PACKAGE";
 })(PickupType || (exports.PickupType = PickupType = {}));
 //# sourceMappingURL=pickup-type.enum.js.map

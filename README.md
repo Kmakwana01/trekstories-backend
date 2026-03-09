@@ -99,3 +99,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 
 npm run build && git add . && git commit -m "Update backend code and seed data" && git push origin master
+
+cd /home/ubuntu/travel-backend
+git pull origin master
+pm2 restart all
