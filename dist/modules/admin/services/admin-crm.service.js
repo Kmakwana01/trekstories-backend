@@ -21,7 +21,6 @@ const booking_schema_1 = require("../../../database/schemas/booking.schema");
 const pagination_helper_1 = require("../../../common/helpers/pagination.helper");
 const admin_log_service_1 = require("./admin-log.service");
 const roles_enum_1 = require("../../../common/enums/roles.enum");
-const booking_status_enum_1 = require("../../../common/enums/booking-status.enum");
 let AdminCrmService = class AdminCrmService {
     userModel;
     bookingModel;
@@ -47,25 +46,28 @@ let AdminCrmService = class AdminCrmService {
         return (0, pagination_helper_1.paginate)(this.userModel, query, paginationQuery);
     }
     async getUserById(id) {
-        const user = await this.userModel.findById(id).select('-passwordHash -otp -otpExpiry').lean().exec();
+        const user = await this.userModel.findById(id)
+            .select('-passwordHash -otp -otpExpiry')
+            .populate('wishlist', 'title slug thumbnailImage')
+            .lean()
+            .exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
         const bookings = await this.bookingModel.find({ user: new mongoose_2.Types.ObjectId(id) }).sort({ createdAt: -1 }).lean().exec();
-        const bookingCount = bookings.filter(b => b.status === booking_status_enum_1.BookingStatus.CONFIRMED).length;
+        const bookingCount = bookings.length;
         const totalSpent = bookings
-            .filter(b => b.status === booking_status_enum_1.BookingStatus.CONFIRMED)
-            .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+            .filter(b => b.status?.toUpperCase() !== 'CANCELLED')
+            .reduce((sum, b) => sum + (b.totalAmount || b.paidAmount || 0), 0);
         user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;
         user.bookings = bookings;
-        if (!user.adminNotes && user.internalNotes) {
+        if (user.internalNotes && (!user.adminNotes || user.adminNotes.length === 0)) {
             user.adminNotes = [{ note: user.internalNotes, createdAt: user.updatedAt }];
         }
         return {
             user,
-            stats: {
-                bookingCount,
-                totalSpent,
-            },
+            totalBookings: bookingCount,
+            totalSpent,
+            bookings
         };
     }
     async blockUser(id, adminId, reason, ip, userAgent) {
@@ -83,7 +85,14 @@ let AdminCrmService = class AdminCrmService {
         return user;
     }
     async addUserNote(id, note) {
-        const user = await this.userModel.findByIdAndUpdate(id, { $set: { internalNotes: note } }, { returnDocument: 'after' }).exec();
+        const user = await this.userModel.findByIdAndUpdate(id, {
+            $push: {
+                adminNotes: {
+                    note,
+                    createdAt: new Date()
+                }
+            }
+        }, { returnDocument: 'after' }).exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
         return user;

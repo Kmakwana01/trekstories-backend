@@ -27,6 +27,12 @@ export declare class User {
     refreshTokenHash?: string;
     wishlist: MongooseSchema.Types.ObjectId[];
     savedTravelers: SavedTraveler[];
+    internalNotes?: string;
+    adminNotes: {
+        note: string;
+        createdAt: Date;
+        adminId?: MongooseSchema.Types.ObjectId;
+    }[];
 }
 export declare const UserSchema: MongooseSchema<User, import("mongoose").Model<User, any, any, any, (Document<unknown, any, User, any, import("mongoose").DefaultSchemaOptions> & User & {
     _id: import("mongoose").Types.ObjectId;
@@ -219,6 +225,28 @@ export declare const UserSchema: MongooseSchema<User, import("mongoose").Model<U
         id: string;
     }> | undefined;
     savedTravelers?: import("mongoose").SchemaDefinitionProperty<SavedTraveler[], User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    internalNotes?: import("mongoose").SchemaDefinitionProperty<string | undefined, User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    adminNotes?: import("mongoose").SchemaDefinitionProperty<{
+        note: string;
+        createdAt: Date;
+        adminId?: MongooseSchema.Types.ObjectId;
+    }[], User, Document<unknown, {}, User, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
         _id: import("mongoose").Types.ObjectId;

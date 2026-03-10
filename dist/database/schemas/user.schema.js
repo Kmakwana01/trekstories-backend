@@ -66,6 +66,8 @@ let User = class User {
     refreshTokenHash;
     wishlist;
     savedTravelers;
+    internalNotes;
+    adminNotes;
 };
 exports.User = User;
 __decorate([
@@ -160,6 +162,14 @@ __decorate([
     (0, mongoose_1.Prop)({ type: [SavedTravelerSchema] }),
     __metadata("design:type", Array)
 ], User.prototype, "savedTravelers", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], User.prototype, "internalNotes", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ note: String, createdAt: { type: Date, default: Date.now }, adminId: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User' } }], default: [] }),
+    __metadata("design:type", Array)
+], User.prototype, "adminNotes", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

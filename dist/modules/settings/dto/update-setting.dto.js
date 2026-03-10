@@ -17,10 +17,9 @@ class BusinessDetailsDto {
     upiId;
     gstRate;
     phoneNumber;
-    alternatePhone;
-    businessEmail;
     officeAddress;
     supportEmail;
+    newsletterEmail;
 }
 exports.BusinessDetailsDto = BusinessDetailsDto;
 __decorate([
@@ -48,18 +47,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], BusinessDetailsDto.prototype, "alternatePhone", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsEmail)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], BusinessDetailsDto.prototype, "businessEmail", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
 ], BusinessDetailsDto.prototype, "officeAddress", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
@@ -67,11 +54,15 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], BusinessDetailsDto.prototype, "supportEmail", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'The email address where newsletter subscription alerts are sent' }),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], BusinessDetailsDto.prototype, "newsletterEmail", void 0);
 class SocialMediaDto {
     facebook;
     instagram;
-    twitter;
-    youtube;
     linkedin;
     whatsapp;
 }
@@ -93,18 +84,6 @@ __decorate([
     (0, class_validator_1.IsUrl)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], SocialMediaDto.prototype, "twitter", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsUrl)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], SocialMediaDto.prototype, "youtube", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsUrl)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
 ], SocialMediaDto.prototype, "linkedin", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
@@ -114,7 +93,6 @@ __decorate([
 ], SocialMediaDto.prototype, "whatsapp", void 0);
 class PaymentDetailsDto {
     upiQrImageUrl;
-    bankAccountDetails;
 }
 exports.PaymentDetailsDto = PaymentDetailsDto;
 __decorate([
@@ -123,18 +101,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], PaymentDetailsDto.prototype, "upiQrImageUrl", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], PaymentDetailsDto.prototype, "bankAccountDetails", void 0);
 class OtherSettingsDto {
     footerDescription;
-    newsletterEmail;
     seoMetaTitle;
     seoMetaDescription;
     logoUrl;
+    whatsappNumberForNotifications;
 }
 exports.OtherSettingsDto = OtherSettingsDto;
 __decorate([
@@ -143,12 +115,6 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OtherSettingsDto.prototype, "footerDescription", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)(),
-    (0, class_validator_1.IsEmail)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], OtherSettingsDto.prototype, "newsletterEmail", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
@@ -167,6 +133,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OtherSettingsDto.prototype, "logoUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OtherSettingsDto.prototype, "whatsappNumberForNotifications", void 0);
 class PolicyContentDto {
     privacyPolicy;
     termsAndConditions;
@@ -410,6 +382,7 @@ class UpdateSettingDto {
     aboutContent;
     careerContent;
     faqs;
+    adminIpWhitelist;
 }
 exports.UpdateSettingDto = UpdateSettingDto;
 __decorate([
@@ -475,4 +448,10 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], UpdateSettingDto.prototype, "faqs", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], UpdateSettingDto.prototype, "adminIpWhitelist", void 0);
 //# sourceMappingURL=update-setting.dto.js.map

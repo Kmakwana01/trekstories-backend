@@ -57,7 +57,7 @@ export class AuthController {
         const result = await this.authService.googleLogin(req);
 
         // Redirect to frontend callback page with tokens in URL
-        const frontendUrl = this.configService.get<string>('frontend.url') || 'http://localhost:3000';
+        const frontendUrl = this.configService.get<string>('frontend.url') || 'https://www.trekstories.in';
         return res.redirect(`${frontendUrl}/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`);
     }
 

@@ -33,32 +33,35 @@ export class AdminCrmService {
     }
 
     async getUserById(id: string) {
-        const user: any = await this.userModel.findById(id).select('-passwordHash -otp -otpExpiry').lean().exec();
+        const user: any = await this.userModel.findById(id)
+            .select('-passwordHash -otp -otpExpiry')
+            .populate('wishlist', 'title slug thumbnailImage')
+            .lean()
+            .exec();
         if (!user) throw new NotFoundException('User not found');
 
         const bookings = await this.bookingModel.find({ user: new Types.ObjectId(id) as any }).sort({ createdAt: -1 }).lean().exec();
 
-        const bookingCount = bookings.filter(b => b.status === BookingStatus.CONFIRMED).length;
+        const bookingCount = bookings.length;
         const totalSpent = bookings
-            .filter(b => b.status === BookingStatus.CONFIRMED)
-            .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+            .filter(b => b.status?.toUpperCase() !== 'CANCELLED')
+            .reduce((sum, b) => sum + (b.totalAmount || b.paidAmount || 0), 0);
 
         // Populate Address fallback
         user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;
         user.bookings = bookings;
 
         // Populate internal notes fallback
-        if (!user.adminNotes && user.internalNotes)
+        if (user.internalNotes && (!user.adminNotes || user.adminNotes.length === 0))
         {
             user.adminNotes = [{ note: user.internalNotes, createdAt: user.updatedAt }];
         }
 
         return {
             user,
-            stats: {
-                bookingCount,
-                totalSpent,
-            },
+            totalBookings: bookingCount,
+            totalSpent,
+            bookings
         };
     }
 
@@ -105,9 +108,18 @@ export class AdminCrmService {
     async addUserNote(id: string, note: string) {
         const user = await this.userModel.findByIdAndUpdate(
             id,
-            { $set: { internalNotes: note } }, // Assuming we add internalNotes to user schema if needed, or use a separate field
+            {
+                $push: {
+                    adminNotes: {
+                        note,
+                        createdAt: new Date()
+                    }
+                }
+            } as any, // Schema might need update, so ignoring type temporarily for rapid push
             { returnDocument: 'after' },
         ).exec();
+
+        // Fallback backward compat if adminNotes isn't in schema fully 
         if (!user) throw new NotFoundException('User not found');
         return user;
     }

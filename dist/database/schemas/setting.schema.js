@@ -15,10 +15,9 @@ let BusinessDetails = class BusinessDetails {
     upiId;
     gstRate;
     phoneNumber;
-    alternatePhone;
-    businessEmail;
     officeAddress;
     supportEmail;
+    newsletterEmail;
 };
 exports.BusinessDetails = BusinessDetails;
 __decorate([
@@ -36,27 +35,21 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
-], BusinessDetails.prototype, "alternatePhone", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], BusinessDetails.prototype, "businessEmail", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
 ], BusinessDetails.prototype, "officeAddress", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], BusinessDetails.prototype, "supportEmail", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], BusinessDetails.prototype, "newsletterEmail", void 0);
 exports.BusinessDetails = BusinessDetails = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], BusinessDetails);
 let SocialMedia = class SocialMedia {
     facebook;
     instagram;
-    twitter;
-    youtube;
     linkedin;
     whatsapp;
 };
@@ -72,14 +65,6 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
-], SocialMedia.prototype, "twitter", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], SocialMedia.prototype, "youtube", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
 ], SocialMedia.prototype, "linkedin", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
@@ -90,36 +75,27 @@ exports.SocialMedia = SocialMedia = __decorate([
 ], SocialMedia);
 let PaymentDetails = class PaymentDetails {
     upiQrImageUrl;
-    bankAccountDetails;
 };
 exports.PaymentDetails = PaymentDetails;
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], PaymentDetails.prototype, "upiQrImageUrl", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], PaymentDetails.prototype, "bankAccountDetails", void 0);
 exports.PaymentDetails = PaymentDetails = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], PaymentDetails);
 let OtherSettings = class OtherSettings {
     footerDescription;
-    newsletterEmail;
     seoMetaTitle;
     seoMetaDescription;
     logoUrl;
+    whatsappNumberForNotifications;
 };
 exports.OtherSettings = OtherSettings;
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], OtherSettings.prototype, "footerDescription", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], OtherSettings.prototype, "newsletterEmail", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
@@ -132,6 +108,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], OtherSettings.prototype, "logoUrl", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], OtherSettings.prototype, "whatsappNumberForNotifications", void 0);
 exports.OtherSettings = OtherSettings = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], OtherSettings);
@@ -338,6 +318,7 @@ let Setting = class Setting {
     aboutContent;
     careerContent;
     faqs;
+    adminIpWhitelist;
 };
 exports.Setting = Setting;
 __decorate([
@@ -380,6 +361,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: [FaqItem], default: [] }),
     __metadata("design:type", Array)
 ], Setting.prototype, "faqs", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], Setting.prototype, "adminIpWhitelist", void 0);
 exports.Setting = Setting = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Setting);

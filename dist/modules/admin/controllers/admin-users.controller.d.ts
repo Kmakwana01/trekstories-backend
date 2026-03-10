@@ -9,10 +9,13 @@ export declare class AdminUsersController {
     getAllUsers(pagination: PaginationQuery, search: string, isVerified: string, isBlocked: string): Promise<import("../../../common/helpers/pagination.helper").PaginationResult<unknown>>;
     getUserById(id: string): Promise<{
         user: any;
-        stats: {
-            bookingCount: number;
-            totalSpent: number;
-        };
+        totalBookings: number;
+        totalSpent: number;
+        bookings: (import("../../../database/schemas/booking.schema").Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        })[];
     }>;
     blockUser(id: string, reason: string, admin: UserDocument, req: any): Promise<import("mongoose").Document<unknown, {}, UserDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../../database/schemas/user.schema").User & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;

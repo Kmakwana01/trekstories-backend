@@ -15,16 +15,13 @@ export class BusinessDetails {
     phoneNumber?: string;
 
     @Prop()
-    alternatePhone?: string;
-
-    @Prop()
-    businessEmail?: string;
-
-    @Prop()
     officeAddress?: string;
 
     @Prop()
     supportEmail?: string;
+
+    @Prop()
+    newsletterEmail?: string;
 }
 
 @Schema({ _id: false })
@@ -34,12 +31,6 @@ export class SocialMedia {
 
     @Prop()
     instagram?: string;
-
-    @Prop()
-    twitter?: string;
-
-    @Prop()
-    youtube?: string;
 
     @Prop()
     linkedin?: string;
@@ -52,9 +43,6 @@ export class SocialMedia {
 export class PaymentDetails {
     @Prop()
     upiQrImageUrl?: string;
-
-    @Prop()
-    bankAccountDetails?: string;
 }
 
 @Schema({ _id: false })
@@ -62,8 +50,6 @@ export class OtherSettings {
     @Prop()
     footerDescription?: string;
 
-    @Prop()
-    newsletterEmail?: string;
 
     @Prop()
     seoMetaTitle?: string;
@@ -73,6 +59,9 @@ export class OtherSettings {
 
     @Prop()
     logoUrl?: string;
+
+    @Prop()
+    whatsappNumberForNotifications?: string;
 }
 
 @Schema({ _id: false })
@@ -217,6 +206,9 @@ export class Setting {
 
     @Prop({ type: [FaqItem], default: [] })
     faqs: FaqItem[];
+
+    @Prop({ type: [String], default: [] })
+    adminIpWhitelist?: string[];
 }
 
 export const SettingSchema = SchemaFactory.createForClass(Setting);

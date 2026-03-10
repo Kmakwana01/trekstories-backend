@@ -99,6 +99,12 @@ export class User {
 
     @Prop({ type: [SavedTravelerSchema] })
     savedTravelers: SavedTraveler[];
+
+    @Prop()
+    internalNotes?: string;
+
+    @Prop({ type: [{ note: String, createdAt: { type: Date, default: Date.now }, adminId: { type: MongooseSchema.Types.ObjectId, ref: 'User' } }], default: [] })
+    adminNotes: { note: string; createdAt: Date; adminId?: MongooseSchema.Types.ObjectId }[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

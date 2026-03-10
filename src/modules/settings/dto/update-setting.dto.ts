@@ -23,22 +23,17 @@ export class BusinessDetailsDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    alternatePhone?: string;
-
-    @ApiPropertyOptional()
-    @IsEmail()
-    @IsOptional()
-    businessEmail?: string;
-
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
     officeAddress?: string;
 
     @ApiPropertyOptional()
     @IsEmail()
     @IsOptional()
     supportEmail?: string;
+
+    @ApiPropertyOptional({ description: 'The email address where newsletter subscription alerts are sent' })
+    @IsEmail()
+    @IsOptional()
+    newsletterEmail?: string;
 }
 
 export class SocialMediaDto {
@@ -51,16 +46,6 @@ export class SocialMediaDto {
     @IsUrl()
     @IsOptional()
     instagram?: string;
-
-    @ApiPropertyOptional()
-    @IsUrl()
-    @IsOptional()
-    twitter?: string;
-
-    @ApiPropertyOptional()
-    @IsUrl()
-    @IsOptional()
-    youtube?: string;
 
     @ApiPropertyOptional()
     @IsUrl()
@@ -78,11 +63,6 @@ export class PaymentDetailsDto {
     @IsString()
     @IsOptional()
     upiQrImageUrl?: string;
-
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    bankAccountDetails?: string;
 }
 
 export class OtherSettingsDto {
@@ -90,11 +70,6 @@ export class OtherSettingsDto {
     @IsString()
     @IsOptional()
     footerDescription?: string;
-
-    @ApiPropertyOptional()
-    @IsEmail()
-    @IsOptional()
-    newsletterEmail?: string;
 
     @ApiPropertyOptional()
     @IsString()
@@ -110,6 +85,11 @@ export class OtherSettingsDto {
     @IsString()
     @IsOptional()
     logoUrl?: string;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    whatsappNumberForNotifications?: string;
 }
 
 export class PolicyContentDto {
@@ -332,4 +312,9 @@ export class UpdateSettingDto {
     @Type(() => FaqItemDto)
     @IsOptional()
     faqs?: FaqItemDto[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString({ each: true })
+    adminIpWhitelist?: string[];
 }

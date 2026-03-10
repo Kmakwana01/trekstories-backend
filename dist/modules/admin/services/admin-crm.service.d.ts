@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../../database/schemas/user.schema';
-import { BookingDocument } from '../../../database/schemas/booking.schema';
+import { Booking, BookingDocument } from '../../../database/schemas/booking.schema';
 import { AdminLogService } from './admin-log.service';
 export declare class AdminCrmService {
     private userModel;
@@ -10,10 +10,13 @@ export declare class AdminCrmService {
     getAllUsers(filters: any, paginationQuery: any): Promise<import("../../../common/helpers/pagination.helper").PaginationResult<unknown>>;
     getUserById(id: string): Promise<{
         user: any;
-        stats: {
-            bookingCount: number;
-            totalSpent: number;
-        };
+        totalBookings: number;
+        totalSpent: number;
+        bookings: (Booking & import("mongoose").Document<Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+            _id: Types.ObjectId;
+        }> & {
+            __v: number;
+        })[];
     }>;
     blockUser(id: string, adminId: string, reason: string, ip: string, userAgent?: string): Promise<import("mongoose").Document<unknown, {}, UserDocument, {}, import("mongoose").DefaultSchemaOptions> & User & import("mongoose").Document<Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: Types.ObjectId;

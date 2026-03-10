@@ -4,29 +4,25 @@ export declare class BusinessDetails {
     upiId?: string;
     gstRate?: number;
     phoneNumber?: string;
-    alternatePhone?: string;
-    businessEmail?: string;
     officeAddress?: string;
     supportEmail?: string;
+    newsletterEmail?: string;
 }
 export declare class SocialMedia {
     facebook?: string;
     instagram?: string;
-    twitter?: string;
-    youtube?: string;
     linkedin?: string;
     whatsapp?: string;
 }
 export declare class PaymentDetails {
     upiQrImageUrl?: string;
-    bankAccountDetails?: string;
 }
 export declare class OtherSettings {
     footerDescription?: string;
-    newsletterEmail?: string;
     seoMetaTitle?: string;
     seoMetaDescription?: string;
     logoUrl?: string;
+    whatsappNumberForNotifications?: string;
 }
 export declare class PolicyContent {
     privacyPolicy?: string;
@@ -83,6 +79,7 @@ export declare class Setting {
     aboutContent: AboutContent;
     careerContent: CareerContent;
     faqs: FaqItem[];
+    adminIpWhitelist?: string[];
 }
 export declare const SettingSchema: import("mongoose").Schema<Setting, import("mongoose").Model<Setting, any, any, any, (Document<unknown, any, Setting, any, import("mongoose").DefaultSchemaOptions> & Setting & {
     _id: import("mongoose").Types.ObjectId;
@@ -185,6 +182,15 @@ export declare const SettingSchema: import("mongoose").Schema<Setting, import("m
         id: string;
     }> | undefined;
     faqs?: import("mongoose").SchemaDefinitionProperty<FaqItem[], Setting, Document<unknown, {}, Setting, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Setting & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    adminIpWhitelist?: import("mongoose").SchemaDefinitionProperty<string[] | undefined, Setting, Document<unknown, {}, Setting, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Setting & {
         _id: import("mongoose").Types.ObjectId;
