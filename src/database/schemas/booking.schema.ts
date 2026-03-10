@@ -143,6 +143,9 @@ export class Booking {
     })
     refundStatus: string;
 
+    @Prop()
+    refundAdminNote: string;
+
     @Prop({ default: 0 })
     refundAmount: number;
 

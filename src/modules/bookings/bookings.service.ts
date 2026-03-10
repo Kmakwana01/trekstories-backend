@@ -10,7 +10,7 @@ import { generateBookingNumber } from '../../common/helpers/booking-number.helpe
 import { CouponsService } from '../coupons/coupons.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
-import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
+import { BookingStatus, PaymentType, RefundStatus } from '../../common/enums/booking-status.enum';
 import { TourDateStatus } from '../../common/enums/tour-date-status.enum';
 import { NotificationType } from '../../common/enums/notification-type.enum';
 
@@ -529,6 +529,14 @@ export class BookingsService {
         if (booking.couponCode)
         {
             await this.couponsService.releaseCoupon(booking.couponCode);
+        }
+
+        // Auto-request refund if payment exists
+        if (booking.paidAmount > 0)
+        {
+            booking.refundStatus = RefundStatus.REQUESTED;
+            booking.refundReason = 'Auto-requested on booking cancellation';
+            booking.refundRequestedAt = new Date();
         }
 
         const savedBooking = await booking.save();

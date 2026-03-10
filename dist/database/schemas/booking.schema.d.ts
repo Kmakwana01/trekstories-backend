@@ -39,6 +39,7 @@ export declare class Booking {
     internalNotes: InternalNote[];
     pricingSummary: string;
     refundStatus: string;
+    refundAdminNote: string;
     refundAmount: number;
     refundReason: string;
     refundRequestedAt: Date;
@@ -280,6 +281,15 @@ export declare const BookingSchema: MongooseSchema<Booking, import("mongoose").M
         id: string;
     }> | undefined;
     refundStatus?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundAdminNote?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
         _id: import("mongoose").Types.ObjectId;

@@ -79,6 +79,7 @@ const team_members_module_1 = require("./modules/team-members/team-members.modul
 const cache_manager_1 = require("@nestjs/cache-manager");
 const redisStore = __importStar(require("cache-manager-ioredis"));
 const common_module_1 = require("./common/common.module");
+const refunds_module_1 = require("./modules/refunds/refunds.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
@@ -165,6 +166,7 @@ exports.AppModule = AppModule = __decorate([
                     },
                 }),
             }),
+            refunds_module_1.RefundsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

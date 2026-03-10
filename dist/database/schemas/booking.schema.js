@@ -98,6 +98,7 @@ let Booking = class Booking {
     internalNotes;
     pricingSummary;
     refundStatus;
+    refundAdminNote;
     refundAmount;
     refundReason;
     refundRequestedAt;
@@ -227,6 +228,10 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Booking.prototype, "refundStatus", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Booking.prototype, "refundAdminNote", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: 0 }),
     __metadata("design:type", Number)

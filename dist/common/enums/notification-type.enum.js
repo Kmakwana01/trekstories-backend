@@ -12,5 +12,9 @@ var NotificationType;
     NotificationType["TRIP_REMINDER"] = "trip_reminder";
     NotificationType["OFFER"] = "offer";
     NotificationType["GENERAL"] = "general";
+    NotificationType["REFUND_REQUESTED"] = "refund_requested";
+    NotificationType["REFUND_APPROVED"] = "refund_approved";
+    NotificationType["REFUND_REJECTED"] = "refund_rejected";
+    NotificationType["REFUND_PROCESSED"] = "refund_processed";
 })(NotificationType || (exports.NotificationType = NotificationType = {}));
 //# sourceMappingURL=notification-type.enum.js.map

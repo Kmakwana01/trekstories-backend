@@ -392,6 +392,11 @@ let BookingsService = BookingsService_1 = class BookingsService {
         if (booking.couponCode) {
             await this.couponsService.releaseCoupon(booking.couponCode);
         }
+        if (booking.paidAmount > 0) {
+            booking.refundStatus = booking_status_enum_1.RefundStatus.REQUESTED;
+            booking.refundReason = 'Auto-requested on booking cancellation';
+            booking.refundRequestedAt = new Date();
+        }
         const savedBooking = await booking.save();
         this.logger.log(`Booking cancelled successfully: #${savedBooking.bookingNumber}`);
         try {

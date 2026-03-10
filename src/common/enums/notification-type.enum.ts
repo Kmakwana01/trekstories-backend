@@ -9,4 +9,8 @@ export enum NotificationType {
     TRIP_REMINDER = 'trip_reminder',
     OFFER = 'offer',
     GENERAL = 'general',
+    REFUND_REQUESTED = 'refund_requested',
+    REFUND_APPROVED = 'refund_approved',
+    REFUND_REJECTED = 'refund_rejected',
+    REFUND_PROCESSED = 'refund_processed',
 }

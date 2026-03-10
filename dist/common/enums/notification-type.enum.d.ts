@@ -7,5 +7,9 @@ export declare enum NotificationType {
     PAYMENT_UNDER_REVIEW = "payment_under_review",
     TRIP_REMINDER = "trip_reminder",
     OFFER = "offer",
-    GENERAL = "general"
+    GENERAL = "general",
+    REFUND_REQUESTED = "refund_requested",
+    REFUND_APPROVED = "refund_approved",
+    REFUND_REJECTED = "refund_rejected",
+    REFUND_PROCESSED = "refund_processed"
 }

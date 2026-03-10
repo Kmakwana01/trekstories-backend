@@ -34,6 +34,7 @@ import { TeamMembersModule } from './modules/team-members/team-members.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { CommonModule } from './common/common.module';
+import { RefundsModule } from './modules/refunds/refunds.module';
 
 @Module({
   imports: [
@@ -114,6 +115,7 @@ import { CommonModule } from './common/common.module';
         },
       }),
     }),
+    RefundsModule,
   ],
   controllers: [AppController],
   providers: [
