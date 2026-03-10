@@ -32,6 +32,10 @@ let SettingsController = class SettingsController {
     async getSettings() {
         return this.settingsService.getSettings();
     }
+    async getPolicies() {
+        const settings = await this.settingsService.getSettings();
+        return settings.policies || {};
+    }
     async updateSettings(updateDto) {
         return this.settingsService.updateSettings(updateDto);
     }
@@ -48,6 +52,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "getSettings", null);
+__decorate([
+    (0, common_1.Get)('policies'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get privacy and booking policy content' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Returns policy text content' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "getPolicies", null);
 __decorate([
     (0, common_1.Put)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

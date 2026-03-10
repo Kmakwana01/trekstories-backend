@@ -22,6 +22,14 @@ export class SettingsController {
         return this.settingsService.getSettings();
     }
 
+    @Get('policies')
+    @ApiOperation({ summary: 'Get privacy and booking policy content' })
+    @ApiResponse({ status: 200, description: 'Returns policy text content' })
+    async getPolicies() {
+        const settings = await this.settingsService.getSettings();
+        return settings.policies || {};
+    }
+
     @Put()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN)

@@ -75,6 +75,117 @@ export class OtherSettings {
     logoUrl?: string;
 }
 
+@Schema({ _id: false })
+export class PolicyContent {
+    @Prop()
+    privacyPolicy?: string;
+
+    @Prop()
+    termsAndConditions?: string;
+
+    @Prop()
+    refundPolicy?: string;
+
+    @Prop()
+    cancellationPolicy?: string;
+
+    @Prop()
+    bookingInstructions?: string;
+}
+
+@Schema({ _id: false })
+export class HeroContent {
+    @Prop()
+    heroTitle?: string;
+
+    @Prop()
+    heroSubtitle?: string;
+
+    @Prop()
+    heroCta?: string;
+
+    @Prop()
+    heroCtaUrl?: string;
+
+    @Prop()
+    heroBannerImage?: string;
+
+    @Prop({ type: [String], default: [] })
+    heroHighlights?: string[];
+}
+
+@Schema({ _id: false })
+export class WhyChooseUsItem {
+    @Prop()
+    title?: string;
+
+    @Prop()
+    description?: string;
+
+    @Prop()
+    icon?: string;
+}
+
+@Schema({ _id: false })
+export class AboutContent {
+    @Prop()
+    heroTitle?: string;
+
+    @Prop()
+    heroSubtitle?: string;
+
+    @Prop()
+    missionStatement?: string;
+
+    @Prop({ type: [WhyChooseUsItem], default: [] })
+    whyChooseUs?: WhyChooseUsItem[];
+}
+
+@Schema({ _id: false })
+export class JobListing {
+    @Prop()
+    title?: string;
+
+    @Prop()
+    location?: string;
+
+    @Prop()
+    type?: string;
+
+    @Prop()
+    description?: string;
+
+    @Prop()
+    applyUrl?: string;
+}
+
+@Schema({ _id: false })
+export class CareerContent {
+    @Prop()
+    heroTitle?: string;
+
+    @Prop()
+    heroSubtitle?: string;
+
+    @Prop()
+    cultureDescription?: string;
+
+    @Prop({ type: [String], default: [] })
+    benefits?: string[];
+
+    @Prop({ type: [JobListing], default: [] })
+    jobs?: JobListing[];
+}
+
+@Schema({ _id: false })
+export class FaqItem {
+    @Prop()
+    question?: string;
+
+    @Prop()
+    answer?: string;
+}
+
 @Schema({ timestamps: true })
 export class Setting {
     @Prop({ default: true, unique: true, index: true })
@@ -91,6 +202,21 @@ export class Setting {
 
     @Prop({ type: OtherSettings, default: () => ({}) })
     otherSettings: OtherSettings;
+
+    @Prop({ type: PolicyContent, default: () => ({}) })
+    policies: PolicyContent;
+
+    @Prop({ type: HeroContent, default: () => ({}) })
+    heroContent: HeroContent;
+
+    @Prop({ type: AboutContent, default: () => ({}) })
+    aboutContent: AboutContent;
+
+    @Prop({ type: CareerContent, default: () => ({}) })
+    careerContent: CareerContent;
+
+    @Prop({ type: [FaqItem], default: [] })
+    faqs: FaqItem[];
 }
 
 export const SettingSchema = SchemaFactory.createForClass(Setting);
