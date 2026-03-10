@@ -25,7 +25,7 @@ const pagination_helper_1 = require("../../common/helpers/pagination.helper");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const admin_log_service_1 = require("../admin/services/admin-log.service");
-const imgbb_service_1 = require("../../common/services/imgbb.service");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 const form_data_parser_interceptor_1 = require("../../common/interceptors/form-data-parser.interceptor");
 const tourMulterOptions = {
     storage: (0, multer_1.memoryStorage)(),
@@ -39,11 +39,11 @@ const tourMulterOptions = {
 let AdminToursController = class AdminToursController {
     toursService;
     adminLogService;
-    imgbbService;
-    constructor(toursService, adminLogService, imgbbService) {
+    imageUploadService;
+    constructor(toursService, adminLogService, imageUploadService) {
         this.toursService = toursService;
         this.adminLogService = adminLogService;
-        this.imgbbService = imgbbService;
+        this.imageUploadService = imageUploadService;
     }
     async getTours(pagination) {
         return this.toursService.adminGetTours(pagination);
@@ -55,11 +55,11 @@ let AdminToursController = class AdminToursController {
         console.log(createTourDto);
         let imageUrls = [];
         if (files?.images) {
-            imageUrls = await this.imgbbService.uploadImages(files.images);
+            imageUrls = await this.imageUploadService.uploadImages(files.images);
         }
         let thumbnailUrl;
         if (files?.thumbnailImage?.[0]) {
-            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+            thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
         const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl);
         await this.adminLogService.logAction(adminId, 'CREATE_TOUR', 'Tours', tour._id?.toString(), { title: tour.title }, req.ip, req.headers['user-agent']);
@@ -72,11 +72,11 @@ let AdminToursController = class AdminToursController {
         console.log(updateTourDto);
         let imageUrls = [];
         if (files?.images) {
-            imageUrls = await this.imgbbService.uploadImages(files.images);
+            imageUrls = await this.imageUploadService.uploadImages(files.images);
         }
         let thumbnailUrl;
         if (files?.thumbnailImage?.[0]) {
-            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+            thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
         const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl);
         await this.adminLogService.logAction(adminId, 'UPDATE_TOUR', 'Tours', id, { fields: Object.keys(updateTourDto) }, req.ip, req.headers['user-agent']);
@@ -190,6 +190,6 @@ exports.AdminToursController = AdminToursController = __decorate([
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [tours_service_1.ToursService,
         admin_log_service_1.AdminLogService,
-        imgbb_service_1.ImgbbService])
+        image_upload_service_1.ImageUploadService])
 ], AdminToursController);
 //# sourceMappingURL=admin-tours.controller.js.map

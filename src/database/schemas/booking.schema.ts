@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { PickupPoint, PickupPointSchema } from './tour.schema';
-import { BookingStatus, PaymentType } from '../../common/enums/booking-status.enum';
+import { BookingStatus, PaymentType, RefundStatus } from '../../common/enums/booking-status.enum';
 import { Gender } from '../../common/enums/gender.enum';
 
 @Schema({ _id: false })
@@ -133,6 +133,27 @@ export class Booking {
 
     @Prop()
     pricingSummary: string;
+
+    @Prop({
+        type: String,
+        enum: Object.values(RefundStatus),
+        default: RefundStatus.NONE,
+        uppercase: true,
+        trim: true
+    })
+    refundStatus: string;
+
+    @Prop({ default: 0 })
+    refundAmount: number;
+
+    @Prop()
+    refundReason: string;
+
+    @Prop()
+    refundRequestedAt: Date;
+
+    @Prop()
+    refundProcessedAt: Date;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

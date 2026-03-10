@@ -28,7 +28,15 @@ export default () => ({
     upload: {
         dest: process.env.UPLOAD_DEST || './uploads',
     },
-    imgbb: {
-        apiKey: process.env.IMGBB_API_KEY,
+    image: {
+        provider: process.env.IMAGE_PROVIDER || 'imgbb', // default to imgbb to prevent breaking change
+        cloudinary: {
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+            apiKey: process.env.CLOUDINARY_API_KEY,
+            apiSecret: process.env.CLOUDINARY_API_SECRET,
+        },
+        imgbb: {
+            apiKey: process.env.IMGBB_API_KEY,
+        },
     },
 });

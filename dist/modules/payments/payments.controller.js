@@ -19,19 +19,19 @@ const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
-const imgbb_service_1 = require("../../common/services/imgbb.service");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 let PaymentsController = class PaymentsController {
     paymentsService;
-    imgbbService;
-    constructor(paymentsService, imgbbService) {
+    imageUploadService;
+    constructor(paymentsService, imageUploadService) {
         this.paymentsService = paymentsService;
-        this.imgbbService = imgbbService;
+        this.imageUploadService = imageUploadService;
     }
     async submitPaymentProof(userId, dto, file) {
         console.log("Submit payment proof DTO received:", dto);
         if (!file)
             throw new common_1.BadRequestException('Receipt image is required');
-        const receiptImage = await this.imgbbService.uploadImage(file);
+        const receiptImage = await this.imageUploadService.uploadImage(file);
         return this.paymentsService.submitPaymentProof(userId, { ...dto, receiptImage });
     }
     async getMyPayments(userId) {
@@ -92,6 +92,6 @@ exports.PaymentsController = PaymentsController = __decorate([
     (0, common_1.Controller)('payments'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [payments_service_1.PaymentsService,
-        imgbb_service_1.ImgbbService])
+        image_upload_service_1.ImageUploadService])
 ], PaymentsController);
 //# sourceMappingURL=payments.controller.js.map

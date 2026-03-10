@@ -28,8 +28,16 @@ declare const _default: () => {
     upload: {
         dest: string;
     };
-    imgbb: {
-        apiKey: string | undefined;
+    image: {
+        provider: string;
+        cloudinary: {
+            cloudName: string | undefined;
+            apiKey: string | undefined;
+            apiSecret: string | undefined;
+        };
+        imgbb: {
+            apiKey: string | undefined;
+        };
     };
 };
 export default _default;

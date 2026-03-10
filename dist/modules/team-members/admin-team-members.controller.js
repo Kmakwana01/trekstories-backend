@@ -26,7 +26,7 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const roles_enum_1 = require("../../common/enums/roles.enum");
 const admin_log_service_1 = require("../admin/services/admin-log.service");
-const imgbb_service_1 = require("../../common/services/imgbb.service");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 const teamMemberMulter = {
     storage: (0, multer_1.memoryStorage)(),
     fileFilter: (_req, file, cb) => {
@@ -40,16 +40,16 @@ const teamMemberMulter = {
 let AdminTeamMembersController = class AdminTeamMembersController {
     teamMembersService;
     adminLogService;
-    imgbbService;
-    constructor(teamMembersService, adminLogService, imgbbService) {
+    imageUploadService;
+    constructor(teamMembersService, adminLogService, imageUploadService) {
         this.teamMembersService = teamMembersService;
         this.adminLogService = adminLogService;
-        this.imgbbService = imgbbService;
+        this.imageUploadService = imageUploadService;
     }
     async create(createDto, file, user, req) {
         let imageUrl;
         if (file) {
-            imageUrl = await this.imgbbService.uploadImage(file);
+            imageUrl = await this.imageUploadService.uploadImage(file);
         }
         const member = await this.teamMembersService.create(createDto, imageUrl);
         await this.adminLogService.logAction(user._id.toString(), 'CREATE_TEAM_MEMBER', 'TeamMembers', member._id?.toString(), { name: createDto.name, designation: createDto.designation }, req.ip, req.headers['user-agent']);
@@ -64,7 +64,7 @@ let AdminTeamMembersController = class AdminTeamMembersController {
     async update(id, updateDto, file, user, req) {
         let imageUrl;
         if (file) {
-            imageUrl = await this.imgbbService.uploadImage(file);
+            imageUrl = await this.imageUploadService.uploadImage(file);
         }
         const member = await this.teamMembersService.update(id, updateDto, imageUrl);
         await this.adminLogService.logAction(user._id.toString(), 'UPDATE_TEAM_MEMBER', 'TeamMembers', id, { fields: Object.keys(updateDto) }, req.ip, req.headers['user-agent']);
@@ -143,6 +143,6 @@ exports.AdminTeamMembersController = AdminTeamMembersController = __decorate([
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [team_members_service_1.TeamMembersService,
         admin_log_service_1.AdminLogService,
-        imgbb_service_1.ImgbbService])
+        image_upload_service_1.ImageUploadService])
 ], AdminTeamMembersController);
 //# sourceMappingURL=admin-team-members.controller.js.map

@@ -4,14 +4,14 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
     constructor(
         private readonly paymentsService: PaymentsService,
-        private readonly imgbbService: ImgbbService,
+        private readonly imageUploadService: ImageUploadService,
     ) { }
 
     @Post('submit-proof')
@@ -36,7 +36,7 @@ export class PaymentsController {
         console.log("Submit payment proof DTO received:", dto);
         if (!file) throw new BadRequestException('Receipt image is required');
 
-        const receiptImage = await this.imgbbService.uploadImage(file);
+        const receiptImage = await this.imageUploadService.uploadImage(file);
 
         return this.paymentsService.submitPaymentProof(userId, { ...dto, receiptImage });
     }

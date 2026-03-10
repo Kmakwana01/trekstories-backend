@@ -26,7 +26,7 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const roles_enum_1 = require("../../common/enums/roles.enum");
 const admin_log_service_1 = require("../admin/services/admin-log.service");
-const imgbb_service_1 = require("../../common/services/imgbb.service");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 const blogMulter = {
     storage: (0, multer_1.memoryStorage)(),
     fileFilter: (req, file, cb) => {
@@ -39,16 +39,16 @@ const blogMulter = {
 let AdminBlogsController = class AdminBlogsController {
     blogsService;
     adminLogService;
-    imgbbService;
-    constructor(blogsService, adminLogService, imgbbService) {
+    imageUploadService;
+    constructor(blogsService, adminLogService, imageUploadService) {
         this.blogsService = blogsService;
         this.adminLogService = adminLogService;
-        this.imgbbService = imgbbService;
+        this.imageUploadService = imageUploadService;
     }
     async create(createBlogDto, file, user, req) {
         let featuredImageUrl;
         if (file) {
-            featuredImageUrl = await this.imgbbService.uploadImage(file);
+            featuredImageUrl = await this.imageUploadService.uploadImage(file);
         }
         const blog = await this.blogsService.create(createBlogDto, user._id.toString(), featuredImageUrl);
         await this.adminLogService.logAction(user._id.toString(), 'CREATE_BLOG', 'Blogs', blog._id?.toString(), { title: createBlogDto.title }, req.ip, req.headers['user-agent']);
@@ -63,7 +63,7 @@ let AdminBlogsController = class AdminBlogsController {
     async update(id, updateBlogDto, file, user, req) {
         let featuredImageUrl;
         if (file) {
-            featuredImageUrl = await this.imgbbService.uploadImage(file);
+            featuredImageUrl = await this.imageUploadService.uploadImage(file);
         }
         const blog = await this.blogsService.update(id, updateBlogDto, featuredImageUrl);
         await this.adminLogService.logAction(user._id.toString(), 'UPDATE_BLOG', 'Blogs', id, { fields: Object.keys(updateBlogDto) }, req.ip, req.headers['user-agent']);
@@ -156,6 +156,6 @@ exports.AdminBlogsController = AdminBlogsController = __decorate([
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [blogs_service_1.BlogsService,
         admin_log_service_1.AdminLogService,
-        imgbb_service_1.ImgbbService])
+        image_upload_service_1.ImageUploadService])
 ], AdminBlogsController);
 //# sourceMappingURL=admin-blogs.controller.js.map

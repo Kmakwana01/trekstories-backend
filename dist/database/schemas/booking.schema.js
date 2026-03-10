@@ -97,6 +97,11 @@ let Booking = class Booking {
     paymentVerifiedAt;
     internalNotes;
     pricingSummary;
+    refundStatus;
+    refundAmount;
+    refundReason;
+    refundRequestedAt;
+    refundProcessedAt;
 };
 exports.Booking = Booking;
 __decorate([
@@ -212,6 +217,32 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Booking.prototype, "pricingSummary", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({
+        type: String,
+        enum: Object.values(booking_status_enum_1.RefundStatus),
+        default: booking_status_enum_1.RefundStatus.NONE,
+        uppercase: true,
+        trim: true
+    }),
+    __metadata("design:type", String)
+], Booking.prototype, "refundStatus", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], Booking.prototype, "refundAmount", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Booking.prototype, "refundReason", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], Booking.prototype, "refundRequestedAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], Booking.prototype, "refundProcessedAt", void 0);
 exports.Booking = Booking = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Booking);

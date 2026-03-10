@@ -26,20 +26,20 @@ const update_profile_dto_1 = require("./dto/update-profile.dto");
 const change_password_dto_1 = require("./dto/change-password.dto");
 const saved_traveler_dto_1 = require("./dto/saved-traveler.dto");
 const pagination_helper_1 = require("../../common/helpers/pagination.helper");
-const imgbb_service_1 = require("../../common/services/imgbb.service");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 let UsersController = class UsersController {
     usersService;
-    imgbbService;
-    constructor(usersService, imgbbService) {
+    imageUploadService;
+    constructor(usersService, imageUploadService) {
         this.usersService = usersService;
-        this.imgbbService = imgbbService;
+        this.imageUploadService = imageUploadService;
     }
     async getProfile(user) {
         return this.usersService.getProfile(user._id);
     }
     async updateProfile(user, updateProfileDto, file) {
         if (file) {
-            updateProfileDto.avatar = await this.imgbbService.uploadImage(file);
+            updateProfileDto.avatar = await this.imageUploadService.uploadImage(file);
         }
         delete updateProfileDto.avatarFile;
         const updateData = { ...updateProfileDto };
@@ -141,6 +141,6 @@ exports.UsersController = UsersController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.CUSTOMER, roles_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        imgbb_service_1.ImgbbService])
+        image_upload_service_1.ImageUploadService])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

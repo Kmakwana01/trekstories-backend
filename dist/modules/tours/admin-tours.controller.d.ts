@@ -2,12 +2,12 @@ import { ToursService } from './tours.service';
 import { CreateTourDto, UpdateTourDto } from './dto/create-tour.dto';
 import { PaginationQuery } from '../../common/helpers/pagination.helper';
 import { AdminLogService } from '../admin/services/admin-log.service';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 export declare class AdminToursController {
     private readonly toursService;
     private readonly adminLogService;
-    private readonly imgbbService;
-    constructor(toursService: ToursService, adminLogService: AdminLogService, imgbbService: ImgbbService);
+    private readonly imageUploadService;
+    constructor(toursService: ToursService, adminLogService: AdminLogService, imageUploadService: ImageUploadService);
     getTours(pagination: PaginationQuery): Promise<import("../../common/helpers/pagination.helper").PaginationResult<unknown>>;
     createTour(createTourDto: CreateTourDto, files: {
         images?: Express.Multer.File[];

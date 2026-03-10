@@ -9,3 +9,10 @@ export declare enum PaymentType {
     OFFLINE = "OFFLINE",
     PARTIAL = "PARTIAL"
 }
+export declare enum RefundStatus {
+    NONE = "NONE",
+    REQUESTED = "REQUESTED",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED",
+    PROCESSED = "PROCESSED"
+}

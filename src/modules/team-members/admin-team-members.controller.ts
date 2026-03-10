@@ -15,7 +15,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { AdminLogService } from '../admin/services/admin-log.service';
 import type { UserDocument } from '../../database/schemas/user.schema';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 
 const teamMemberMulter = {
     storage: memoryStorage(),
@@ -36,7 +36,7 @@ export class AdminTeamMembersController {
     constructor(
         private readonly teamMembersService: TeamMembersService,
         private readonly adminLogService: AdminLogService,
-        private readonly imgbbService: ImgbbService,
+        private readonly imageUploadService: ImageUploadService,
     ) { }
 
     @Post()
@@ -50,7 +50,7 @@ export class AdminTeamMembersController {
         let imageUrl: string | undefined;
         if (file)
         {
-            imageUrl = await this.imgbbService.uploadImage(file);
+            imageUrl = await this.imageUploadService.uploadImage(file);
         }
         const member = await this.teamMembersService.create(createDto, imageUrl);
         await this.adminLogService.logAction(
@@ -87,7 +87,7 @@ export class AdminTeamMembersController {
         let imageUrl: string | undefined;
         if (file)
         {
-            imageUrl = await this.imgbbService.uploadImage(file);
+            imageUrl = await this.imageUploadService.uploadImage(file);
         }
         const member = await this.teamMembersService.update(id, updateDto, imageUrl);
         await this.adminLogService.logAction(

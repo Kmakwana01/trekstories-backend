@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaymentType = exports.BookingStatus = void 0;
+exports.RefundStatus = exports.PaymentType = exports.BookingStatus = void 0;
 var BookingStatus;
 (function (BookingStatus) {
     BookingStatus["PENDING"] = "PENDING";
@@ -14,4 +14,12 @@ var PaymentType;
     PaymentType["OFFLINE"] = "OFFLINE";
     PaymentType["PARTIAL"] = "PARTIAL";
 })(PaymentType || (exports.PaymentType = PaymentType = {}));
+var RefundStatus;
+(function (RefundStatus) {
+    RefundStatus["NONE"] = "NONE";
+    RefundStatus["REQUESTED"] = "REQUESTED";
+    RefundStatus["APPROVED"] = "APPROVED";
+    RefundStatus["REJECTED"] = "REJECTED";
+    RefundStatus["PROCESSED"] = "PROCESSED";
+})(RefundStatus || (exports.RefundStatus = RefundStatus = {}));
 //# sourceMappingURL=booking-status.enum.js.map

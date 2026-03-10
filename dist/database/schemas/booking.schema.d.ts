@@ -38,6 +38,11 @@ export declare class Booking {
     paymentVerifiedAt: Date;
     internalNotes: InternalNote[];
     pricingSummary: string;
+    refundStatus: string;
+    refundAmount: number;
+    refundReason: string;
+    refundRequestedAt: Date;
+    refundProcessedAt: Date;
 }
 export declare const BookingSchema: MongooseSchema<Booking, import("mongoose").Model<Booking, any, any, any, (Document<unknown, any, Booking, any, import("mongoose").DefaultSchemaOptions> & Booking & {
     _id: import("mongoose").Types.ObjectId;
@@ -266,6 +271,51 @@ export declare const BookingSchema: MongooseSchema<Booking, import("mongoose").M
         id: string;
     }> | undefined;
     pricingSummary?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundStatus?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundAmount?: import("mongoose").SchemaDefinitionProperty<number, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundReason?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundRequestedAt?: import("mongoose").SchemaDefinitionProperty<Date, Booking, Document<unknown, {}, Booking, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    refundProcessedAt?: import("mongoose").SchemaDefinitionProperty<Date, Booking, Document<unknown, {}, Booking, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
         _id: import("mongoose").Types.ObjectId;

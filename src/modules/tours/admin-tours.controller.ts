@@ -24,7 +24,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { extname } from 'path';
 import { AdminLogService } from '../admin/services/admin-log.service';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 import { FormDataParserInterceptor } from '../../common/interceptors/form-data-parser.interceptor';
 
 const tourMulterOptions = {
@@ -45,7 +45,7 @@ export class AdminToursController {
     constructor(
         private readonly toursService: ToursService,
         private readonly adminLogService: AdminLogService,
-        private readonly imgbbService: ImgbbService,
+        private readonly imageUploadService: ImageUploadService,
     ) { }
 
     @Get()
@@ -74,13 +74,13 @@ export class AdminToursController {
         let imageUrls: string[] = [];
         if (files?.images)
         {
-            imageUrls = await this.imgbbService.uploadImages(files.images);
+            imageUrls = await this.imageUploadService.uploadImages(files.images);
         }
 
         let thumbnailUrl: string | undefined;
         if (files?.thumbnailImage?.[0])
         {
-            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+            thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
 
         const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl);
@@ -113,13 +113,13 @@ export class AdminToursController {
         let imageUrls: string[] = [];
         if (files?.images)
         {
-            imageUrls = await this.imgbbService.uploadImages(files.images);
+            imageUrls = await this.imageUploadService.uploadImages(files.images);
         }
 
         let thumbnailUrl: string | undefined;
         if (files?.thumbnailImage?.[0])
         {
-            thumbnailUrl = await this.imgbbService.uploadImage(files.thumbnailImage[0]);
+            thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
 
         const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl);

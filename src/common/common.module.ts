@@ -1,9 +1,9 @@
 import { Module, Global } from '@nestjs/common';
-import { ImgbbService } from './services/imgbb.service';
+import { ImageUploadService } from './services/image-upload.service';
 
 @Global()
 @Module({
-    providers: [ImgbbService],
-    exports: [ImgbbService],
+    providers: [ImageUploadService],
+    exports: [ImageUploadService],
 })
 export class CommonModule { }

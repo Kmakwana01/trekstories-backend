@@ -16,7 +16,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { AdminLogService } from '../admin/services/admin-log.service';
 import type { UserDocument } from '../../database/schemas/user.schema';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 
 const blogMulter = {
     storage: memoryStorage(),
@@ -36,7 +36,7 @@ export class AdminBlogsController {
     constructor(
         private readonly blogsService: BlogsService,
         private readonly adminLogService: AdminLogService,
-        private readonly imgbbService: ImgbbService,
+        private readonly imageUploadService: ImageUploadService,
     ) { }
 
     @Post()
@@ -50,7 +50,7 @@ export class AdminBlogsController {
         let featuredImageUrl: string | undefined;
         if (file)
         {
-            featuredImageUrl = await this.imgbbService.uploadImage(file);
+            featuredImageUrl = await this.imageUploadService.uploadImage(file);
         }
         const blog = await this.blogsService.create(createBlogDto, (user as any)._id.toString(), featuredImageUrl);
         await this.adminLogService.logAction((user as any)._id.toString(), 'CREATE_BLOG', 'Blogs', (blog as any)._id?.toString(), { title: createBlogDto.title }, req.ip, req.headers['user-agent']);
@@ -79,7 +79,7 @@ export class AdminBlogsController {
         let featuredImageUrl: string | undefined;
         if (file)
         {
-            featuredImageUrl = await this.imgbbService.uploadImage(file);
+            featuredImageUrl = await this.imageUploadService.uploadImage(file);
         }
         const blog = await this.blogsService.update(id, updateBlogDto, featuredImageUrl);
         await this.adminLogService.logAction((user as any)._id.toString(), 'UPDATE_BLOG', 'Blogs', id, { fields: Object.keys(updateBlogDto) }, req.ip, req.headers['user-agent']);

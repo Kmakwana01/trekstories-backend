@@ -23,7 +23,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SavedTravelerDto } from './dto/saved-traveler.dto';
 import { PaginationQuery } from '../../common/helpers/pagination.helper';
-import { ImgbbService } from '../../common/services/imgbb.service';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -31,7 +31,7 @@ import { ImgbbService } from '../../common/services/imgbb.service';
 export class UsersController {
     constructor(
         private usersService: UsersService,
-        private imgbbService: ImgbbService,
+        private imageUploadService: ImageUploadService,
     ) { }
 
     @Get('profile')
@@ -57,7 +57,7 @@ export class UsersController {
     ) {
         if (file)
         {
-            updateProfileDto.avatar = await this.imgbbService.uploadImage(file);
+            updateProfileDto.avatar = await this.imageUploadService.uploadImage(file);
         }
         delete updateProfileDto.avatarFile;
         // Convert to plain object to ensure all set properties are included
