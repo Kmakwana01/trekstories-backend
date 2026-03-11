@@ -22,6 +22,8 @@ let Transaction = class Transaction {
     paymentMethod;
     transactionId;
     status;
+    receiptImage;
+    rejectionReason;
     description;
     processedBy;
     processedAt;
@@ -72,6 +74,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Transaction.prototype, "status", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Transaction.prototype, "receiptImage", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Transaction.prototype, "rejectionReason", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)

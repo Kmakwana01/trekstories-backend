@@ -10,6 +10,7 @@ exports.NotificationsModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const bull_1 = require("@nestjs/bull");
+const settings_module_1 = require("../settings/settings.module");
 const notifications_service_1 = require("./notifications.service");
 const notifications_controller_1 = require("./notifications.controller");
 const admin_notifications_controller_1 = require("./admin-notifications.controller");
@@ -24,6 +25,7 @@ exports.NotificationsModule = NotificationsModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: notification_schema_1.Notification.name, schema: notification_schema_1.NotificationSchema }]),
             bull_1.BullModule.registerQueue({ name: 'email' }, { name: 'whatsapp' }),
+            settings_module_1.SettingsModule,
         ],
         providers: [notifications_service_1.NotificationsService, email_processor_1.EmailProcessor, whatsapp_processor_1.WhatsAppProcessor],
         controllers: [notifications_controller_1.NotificationsController, admin_notifications_controller_1.AdminNotificationsController],

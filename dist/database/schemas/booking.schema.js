@@ -92,8 +92,6 @@ let Booking = class Booking {
     paymentType;
     status;
     additionalRequests;
-    transactionId;
-    receiptImage;
     paymentVerifiedAt;
     internalNotes;
     pricingSummary;
@@ -198,14 +196,6 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Booking.prototype, "additionalRequests", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Booking.prototype, "transactionId", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], Booking.prototype, "receiptImage", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Date)

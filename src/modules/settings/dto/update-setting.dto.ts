@@ -90,6 +90,21 @@ export class OtherSettingsDto {
     @IsString()
     @IsOptional()
     whatsappNumberForNotifications?: string;
+
+    @ApiPropertyOptional()
+    @IsBoolean()
+    @IsOptional()
+    whatsappEnabled?: boolean;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    whatsappPhoneNumberId?: string;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    whatsappAccessToken?: string;
 }
 
 export class PolicyContentDto {

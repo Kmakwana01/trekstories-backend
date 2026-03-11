@@ -6,7 +6,6 @@ import { User, UserDocument } from './database/schemas/user.schema';
 import { Tour, TourDocument } from './database/schemas/tour.schema';
 import { TourDate, TourDateDocument } from './database/schemas/tour-date.schema';
 import { Booking, BookingDocument } from './database/schemas/booking.schema';
-import { Payment, PaymentDocument } from './database/schemas/payment.schema';
 import { Transaction, TransactionDocument } from './database/schemas/transaction.schema';
 import { Review, ReviewDocument } from './database/schemas/review.schema';
 import { Coupon, CouponDocument } from './database/schemas/coupon.schema';
@@ -36,7 +35,6 @@ async function bootstrap() {
     const tourModel = app.get<Model<TourDocument>>(getModelToken(Tour.name));
     const tourDateModel = app.get<Model<TourDateDocument>>(getModelToken(TourDate.name));
     const bookingModel = app.get<Model<BookingDocument>>(getModelToken(Booking.name));
-    const paymentModel = app.get<Model<PaymentDocument>>(getModelToken(Payment.name));
     const transactionModel = app.get<Model<TransactionDocument>>(getModelToken(Transaction.name));
     const reviewModel = app.get<Model<ReviewDocument>>(getModelToken(Review.name));
     const couponModel = app.get<Model<CouponDocument>>(getModelToken(Coupon.name));
@@ -50,7 +48,6 @@ async function bootstrap() {
         tourModel.deleteMany({}),
         tourDateModel.deleteMany({}),
         bookingModel.deleteMany({}),
-        paymentModel.deleteMany({}),
         transactionModel.deleteMany({}),
         reviewModel.deleteMany({}),
         couponModel.deleteMany({}),
@@ -569,29 +566,14 @@ async function bootstrap() {
         paymentVerifiedAt: new Date(),
     } as any);
 
-    const p1: any = await paymentModel.create({
-        booking: b1._id,
-        user: c1._id,
-        amount: b1.totalAmount,
-        currency: 'INR',
-        method: PaymentMethod.ONLINE,
-        paymentMethod: 'Credit Card',
-        transactionId: 'TXN-001',
-        status: PaymentStatus.SUCCESS,
-        paidAt: new Date(),
-        verifiedAt: new Date(),
-        verifiedBy: admin._id,
-    } as any);
-
     await transactionModel.create({
         user: c1._id,
         booking: b1._id,
-        payment: p1._id,
-        amount: p1.amount,
-        type: TransactionType.PAYMENT,
+        amount: b1.totalAmount,
+        type: TransactionType.ONLINE_RECEIPT,
         status: TransactionStatus.SUCCESS,
-        transactionId: p1.transactionId,
-        paymentMethod: p1.paymentMethod,
+        transactionId: 'TXN-001',
+        paymentMethod: 'Credit Card',
         processedAt: new Date(),
         description: 'Seeded online payment'
     } as any);
@@ -623,29 +605,14 @@ async function bootstrap() {
         paymentVerifiedAt: new Date(),
     } as any);
 
-    const p2: any = await paymentModel.create({
-        booking: b2._id,
-        user: c2._id,
-        amount: b2.totalAmount,
-        currency: 'INR',
-        method: PaymentMethod.ONLINE,
-        paymentMethod: 'UPI',
-        transactionId: 'TXN-002',
-        status: PaymentStatus.SUCCESS,
-        paidAt: new Date(),
-        verifiedAt: new Date(),
-        verifiedBy: admin._id,
-    } as any);
-
     await transactionModel.create({
         user: c2._id,
         booking: b2._id,
-        payment: p2._id,
-        amount: p2.amount,
-        type: TransactionType.PAYMENT,
+        amount: b2.totalAmount,
+        type: TransactionType.ONLINE_RECEIPT,
         status: TransactionStatus.SUCCESS,
-        transactionId: p2.transactionId,
-        paymentMethod: p2.paymentMethod,
+        transactionId: 'TXN-002',
+        paymentMethod: 'UPI',
         processedAt: new Date(),
         description: 'Seeded online payment'
     } as any);
@@ -735,7 +702,7 @@ async function bootstrap() {
     logger.log('8 Tours (7 Active, 1 Draft) created.');
     logger.log('48 Tour Dates generated.');
     logger.log('2 Coupons generated.');
-    logger.log('2 Bookings & Payments generated.');
+    logger.log('2 Bookings & Transactions generated.');
     logger.log('4 Blog Posts generated.');
     logger.log('================================================================');
     logger.log('Admin Email: admin@test.com');

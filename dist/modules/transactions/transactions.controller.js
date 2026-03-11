@@ -16,15 +16,25 @@ exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
 const transactions_service_1 = require("./transactions.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
-const roles_guard_1 = require("../../common/guards/roles.guard");
-const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
-const roles_enum_1 = require("../../common/enums/roles.enum");
-const pagination_helper_1 = require("../../common/helpers/pagination.helper");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
+const receiptMulter = {
+    storage: (0, multer_1.memoryStorage)(),
+    fileFilter: (req, file, cb) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|webp|pdf)$/i)) {
+            return cb(new Error('Only image and pdf files are allowed'), false);
+        }
+        cb(null, true);
+    },
+};
 let TransactionsController = class TransactionsController {
     transactionsService;
-    constructor(transactionsService) {
+    imageUploadService;
+    constructor(transactionsService, imageUploadService) {
         this.transactionsService = transactionsService;
+        this.imageUploadService = imageUploadService;
     }
     async getMyTransactions(userId) {
         return this.transactionsService.getUserTransactions(userId);
@@ -36,25 +46,21 @@ let TransactionsController = class TransactionsController {
         }
         return transaction;
     }
-    async exportTransactions(res, filters) {
-        const buffer = await this.transactionsService.exportToCSV(filters);
-        res.set({
-            'Content-Type': 'text/csv',
-            'Content-Disposition': 'attachment; filename=transactions.csv',
-            'Content-Length': buffer.length,
-        });
-        res.end(buffer);
-    }
-    async getAllTransactions(query) {
-        const { page, limit, sort, order, search, ...filters } = query;
-        return this.transactionsService.getAllTransactions(filters, query);
-    }
-    async getAdminTransactionById(id) {
-        const transaction = await this.transactionsService.getTransactionById(id);
-        if (!transaction) {
-            throw new common_1.NotFoundException('Transaction not found');
+    async submitPaymentProof(userId, file, dto) {
+        if (!file) {
+            throw new common_1.BadRequestException('Receipt image is required');
         }
-        return transaction;
+        if (!dto.bookingId || !dto.transactionId) {
+            throw new common_1.BadRequestException('Booking ID and Transaction ID are required');
+        }
+        const receiptImageUrl = await this.imageUploadService.uploadImage(file);
+        return this.transactionsService.submitPaymentProof(userId, {
+            bookingId: dto.bookingId,
+            transactionId: dto.transactionId,
+            paymentMethod: dto.paymentMethod,
+            paymentAmount: dto.paymentAmount ? Number(dto.paymentAmount) : undefined,
+            receiptImage: receiptImageUrl
+        });
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -74,36 +80,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "getTransactionById", null);
 __decorate([
-    (0, common_1.Get)('admin/transactions/export'),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
-    __param(0, (0, common_1.Res)()),
-    __param(1, (0, common_1.Query)()),
+    (0, common_1.Post)('transactions/submit-proof'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('receiptImage', receiptMulter)),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('_id')),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
-], TransactionsController.prototype, "exportTransactions", null);
-__decorate([
-    (0, common_1.Get)('admin/transactions'),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_helper_1.PaginationQuery]),
-    __metadata("design:returntype", Promise)
-], TransactionsController.prototype, "getAllTransactions", null);
-__decorate([
-    (0, common_1.Get)('admin/transactions/:id'),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], TransactionsController.prototype, "getAdminTransactionById", null);
+], TransactionsController.prototype, "submitPaymentProof", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [transactions_service_1.TransactionsService])
+    __metadata("design:paramtypes", [transactions_service_1.TransactionsService,
+        image_upload_service_1.ImageUploadService])
 ], TransactionsController);
 //# sourceMappingURL=transactions.controller.js.map

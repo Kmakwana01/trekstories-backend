@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const booking_schema_1 = require("../../../database/schemas/booking.schema");
-const payment_schema_1 = require("../../../database/schemas/payment.schema");
 const transaction_schema_1 = require("../../../database/schemas/transaction.schema");
 const csv_writer_1 = require("csv-writer");
 const PDFDocument = require('pdfkit');
@@ -25,17 +24,15 @@ const date_util_1 = require("../../../utils/date.util");
 const transaction_enum_1 = require("../../../common/enums/transaction.enum");
 let ReportsService = class ReportsService {
     bookingModel;
-    paymentModel;
     transactionModel;
-    constructor(bookingModel, paymentModel, transactionModel) {
+    constructor(bookingModel, transactionModel) {
         this.bookingModel = bookingModel;
-        this.paymentModel = paymentModel;
         this.transactionModel = transactionModel;
     }
     async generateRevenueCSV(startDate, endDate) {
         const transactions = await this.transactionModel
             .find({
-            type: transaction_enum_1.TransactionType.PAYMENT,
+            type: transaction_enum_1.TransactionType.ONLINE_RECEIPT,
             status: transaction_enum_1.TransactionStatus.SUCCESS,
             createdAt: { $gte: startDate, $lte: endDate },
         })
@@ -92,7 +89,7 @@ let ReportsService = class ReportsService {
     async generateRevenuePDF(startDate, endDate) {
         const transactions = await this.transactionModel
             .find({
-            type: transaction_enum_1.TransactionType.PAYMENT,
+            type: transaction_enum_1.TransactionType.ONLINE_RECEIPT,
             status: transaction_enum_1.TransactionStatus.SUCCESS,
             createdAt: { $gte: startDate, $lte: endDate },
         })
@@ -127,10 +124,8 @@ exports.ReportsService = ReportsService;
 exports.ReportsService = ReportsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(booking_schema_1.Booking.name)),
-    __param(1, (0, mongoose_1.InjectModel)(payment_schema_1.Payment.name)),
-    __param(2, (0, mongoose_1.InjectModel)(transaction_schema_1.Transaction.name)),
+    __param(1, (0, mongoose_1.InjectModel)(transaction_schema_1.Transaction.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model,
         mongoose_2.Model])
 ], ReportsService);
 //# sourceMappingURL=reports.service.js.map

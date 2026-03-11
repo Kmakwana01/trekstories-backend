@@ -10,6 +10,7 @@ import { CouponsModule } from '../coupons/coupons.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AdminModule } from '../admin/admin.module';
 import { SettingsModule } from '../settings/settings.module';
+import { TransactionsModule } from '../transactions/transactions.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { SettingsModule } from '../settings/settings.module';
         NotificationsModule,
         AdminModule,
         SettingsModule,
+        forwardRef(() => TransactionsModule),
     ],
     providers: [BookingsService],
     controllers: [BookingsController, AdminBookingsController],

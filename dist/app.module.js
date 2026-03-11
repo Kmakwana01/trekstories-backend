@@ -47,6 +47,7 @@ const path_1 = require("path");
 const common_1 = require("@nestjs/common");
 const schedule_1 = require("@nestjs/schedule");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
+const admin_ip_middleware_1 = require("./common/middleware/admin-ip.middleware");
 const serve_static_1 = require("@nestjs/serve-static");
 const config_1 = require("@nestjs/config");
 const throttler_1 = require("@nestjs/throttler");
@@ -66,7 +67,6 @@ const tour_dates_module_1 = require("./modules/tour-dates/tour-dates.module");
 const wishlist_module_1 = require("./modules/wishlist/wishlist.module");
 const bookings_module_1 = require("./modules/bookings/bookings.module");
 const transactions_module_1 = require("./modules/transactions/transactions.module");
-const payments_module_1 = require("./modules/payments/payments.module");
 const blogs_module_1 = require("./modules/blogs/blogs.module");
 const reviews_module_1 = require("./modules/reviews/reviews.module");
 const coupons_module_1 = require("./modules/coupons/coupons.module");
@@ -83,6 +83,7 @@ const refunds_module_1 = require("./modules/refunds/refunds.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
+        consumer.apply(admin_ip_middleware_1.AdminIpMiddleware).forRoutes('api/admin/(.*)');
     }
 };
 exports.AppModule = AppModule;
@@ -113,7 +114,6 @@ exports.AppModule = AppModule = __decorate([
             wishlist_module_1.WishlistModule,
             bookings_module_1.BookingsModule,
             transactions_module_1.TransactionsModule,
-            payments_module_1.PaymentsModule,
             blogs_module_1.BlogsModule,
             reviews_module_1.ReviewsModule,
             coupons_module_1.CouponsModule,

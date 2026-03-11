@@ -62,6 +62,15 @@ export class OtherSettings {
 
     @Prop()
     whatsappNumberForNotifications?: string;
+
+    @Prop({ default: false })
+    whatsappEnabled?: boolean;
+
+    @Prop()
+    whatsappPhoneNumberId?: string;
+
+    @Prop()
+    whatsappAccessToken?: string;
 }
 
 @Schema({ _id: false })

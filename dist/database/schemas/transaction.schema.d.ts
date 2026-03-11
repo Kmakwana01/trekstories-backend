@@ -9,6 +9,8 @@ export declare class Transaction {
     paymentMethod: string;
     transactionId: string;
     status: string;
+    receiptImage: string;
+    rejectionReason: string;
     description: string;
     processedBy: MongooseSchema.Types.ObjectId;
     processedAt: Date;
@@ -97,6 +99,24 @@ export declare const TransactionSchema: MongooseSchema<Transaction, import("mong
         id: string;
     }> | undefined;
     status?: import("mongoose").SchemaDefinitionProperty<string, Transaction, Document<unknown, {}, Transaction, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Transaction & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    receiptImage?: import("mongoose").SchemaDefinitionProperty<string, Transaction, Document<unknown, {}, Transaction, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Transaction & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    rejectionReason?: import("mongoose").SchemaDefinitionProperty<string, Transaction, Document<unknown, {}, Transaction, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Transaction & {
         _id: import("mongoose").Types.ObjectId;

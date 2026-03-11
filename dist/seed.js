@@ -43,7 +43,6 @@ const user_schema_1 = require("./database/schemas/user.schema");
 const tour_schema_1 = require("./database/schemas/tour.schema");
 const tour_date_schema_1 = require("./database/schemas/tour-date.schema");
 const booking_schema_1 = require("./database/schemas/booking.schema");
-const payment_schema_1 = require("./database/schemas/payment.schema");
 const transaction_schema_1 = require("./database/schemas/transaction.schema");
 const review_schema_1 = require("./database/schemas/review.schema");
 const coupon_schema_1 = require("./database/schemas/coupon.schema");
@@ -54,7 +53,6 @@ const tour_category_enum_1 = require("./common/enums/tour-category.enum");
 const pickup_type_enum_1 = require("./common/enums/pickup-type.enum");
 const tour_date_status_enum_1 = require("./common/enums/tour-date-status.enum");
 const booking_status_enum_1 = require("./common/enums/booking-status.enum");
-const payment_status_enum_1 = require("./common/enums/payment-status.enum");
 const transaction_enum_1 = require("./common/enums/transaction.enum");
 const review_status_enum_1 = require("./common/enums/review-status.enum");
 const coupon_enum_1 = require("./common/enums/coupon.enum");
@@ -69,7 +67,6 @@ async function bootstrap() {
     const tourModel = app.get((0, mongoose_1.getModelToken)(tour_schema_1.Tour.name));
     const tourDateModel = app.get((0, mongoose_1.getModelToken)(tour_date_schema_1.TourDate.name));
     const bookingModel = app.get((0, mongoose_1.getModelToken)(booking_schema_1.Booking.name));
-    const paymentModel = app.get((0, mongoose_1.getModelToken)(payment_schema_1.Payment.name));
     const transactionModel = app.get((0, mongoose_1.getModelToken)(transaction_schema_1.Transaction.name));
     const reviewModel = app.get((0, mongoose_1.getModelToken)(review_schema_1.Review.name));
     const couponModel = app.get((0, mongoose_1.getModelToken)(coupon_schema_1.Coupon.name));
@@ -80,7 +77,6 @@ async function bootstrap() {
         tourModel.deleteMany({}),
         tourDateModel.deleteMany({}),
         bookingModel.deleteMany({}),
-        paymentModel.deleteMany({}),
         transactionModel.deleteMany({}),
         reviewModel.deleteMany({}),
         couponModel.deleteMany({}),
@@ -577,28 +573,14 @@ async function bootstrap() {
         pricingSummary: 'Seeded pricing',
         paymentVerifiedAt: new Date(),
     });
-    const p1 = await paymentModel.create({
-        booking: b1._id,
-        user: c1._id,
-        amount: b1.totalAmount,
-        currency: 'INR',
-        method: payment_status_enum_1.PaymentMethod.ONLINE,
-        paymentMethod: 'Credit Card',
-        transactionId: 'TXN-001',
-        status: payment_status_enum_1.PaymentStatus.SUCCESS,
-        paidAt: new Date(),
-        verifiedAt: new Date(),
-        verifiedBy: admin._id,
-    });
     await transactionModel.create({
         user: c1._id,
         booking: b1._id,
-        payment: p1._id,
-        amount: p1.amount,
-        type: transaction_enum_1.TransactionType.PAYMENT,
+        amount: b1.totalAmount,
+        type: transaction_enum_1.TransactionType.ONLINE_RECEIPT,
         status: transaction_enum_1.TransactionStatus.SUCCESS,
-        transactionId: p1.transactionId,
-        paymentMethod: p1.paymentMethod,
+        transactionId: 'TXN-001',
+        paymentMethod: 'Credit Card',
         processedAt: new Date(),
         description: 'Seeded online payment'
     });
@@ -627,28 +609,14 @@ async function bootstrap() {
         pricingSummary: 'Seeded completed',
         paymentVerifiedAt: new Date(),
     });
-    const p2 = await paymentModel.create({
-        booking: b2._id,
-        user: c2._id,
-        amount: b2.totalAmount,
-        currency: 'INR',
-        method: payment_status_enum_1.PaymentMethod.ONLINE,
-        paymentMethod: 'UPI',
-        transactionId: 'TXN-002',
-        status: payment_status_enum_1.PaymentStatus.SUCCESS,
-        paidAt: new Date(),
-        verifiedAt: new Date(),
-        verifiedBy: admin._id,
-    });
     await transactionModel.create({
         user: c2._id,
         booking: b2._id,
-        payment: p2._id,
-        amount: p2.amount,
-        type: transaction_enum_1.TransactionType.PAYMENT,
+        amount: b2.totalAmount,
+        type: transaction_enum_1.TransactionType.ONLINE_RECEIPT,
         status: transaction_enum_1.TransactionStatus.SUCCESS,
-        transactionId: p2.transactionId,
-        paymentMethod: p2.paymentMethod,
+        transactionId: 'TXN-002',
+        paymentMethod: 'UPI',
         processedAt: new Date(),
         description: 'Seeded online payment'
     });
@@ -724,7 +692,7 @@ async function bootstrap() {
     logger.log('8 Tours (7 Active, 1 Draft) created.');
     logger.log('48 Tour Dates generated.');
     logger.log('2 Coupons generated.');
-    logger.log('2 Bookings & Payments generated.');
+    logger.log('2 Bookings & Transactions generated.');
     logger.log('4 Blog Posts generated.');
     logger.log('================================================================');
     logger.log('Admin Email: admin@test.com');

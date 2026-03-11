@@ -90,6 +90,9 @@ let OtherSettings = class OtherSettings {
     seoMetaDescription;
     logoUrl;
     whatsappNumberForNotifications;
+    whatsappEnabled;
+    whatsappPhoneNumberId;
+    whatsappAccessToken;
 };
 exports.OtherSettings = OtherSettings;
 __decorate([
@@ -112,6 +115,18 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], OtherSettings.prototype, "whatsappNumberForNotifications", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], OtherSettings.prototype, "whatsappEnabled", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], OtherSettings.prototype, "whatsappPhoneNumberId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], OtherSettings.prototype, "whatsappAccessToken", void 0);
 exports.OtherSettings = OtherSettings = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], OtherSettings);

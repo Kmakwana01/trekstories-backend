@@ -286,8 +286,8 @@ let BookingsService = BookingsService_1 = class BookingsService {
         booking.pendingAmount = Math.max(0, booking.totalAmount - booking.paidAmount);
         return booking.save();
     }
-    async syncBookingReceiptInfo(id, receiptImage, transactionId, paymentType) {
-        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId, paymentType }, { new: true }).exec();
+    async syncBookingReceiptInfo(id, receiptImage, transactionId) {
+        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { new: true }).exec();
     }
     async markPaymentVerified(id) {
         return this.bookingModel.findByIdAndUpdate(id, {

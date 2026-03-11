@@ -11,7 +11,10 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const transactions_service_1 = require("./transactions.service");
 const transactions_controller_1 = require("./transactions.controller");
+const admin_transactions_controller_1 = require("./admin-transactions.controller");
 const transaction_schema_1 = require("../../database/schemas/transaction.schema");
+const bookings_module_1 = require("../bookings/bookings.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
@@ -19,9 +22,11 @@ exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: transaction_schema_1.Transaction.name, schema: transaction_schema_1.TransactionSchema }]),
+            (0, common_1.forwardRef)(() => bookings_module_1.BookingsModule),
+            notifications_module_1.NotificationsModule,
         ],
         providers: [transactions_service_1.TransactionsService],
-        controllers: [transactions_controller_1.TransactionsController],
+        controllers: [transactions_controller_1.TransactionsController, admin_transactions_controller_1.AdminTransactionsController],
         exports: [transactions_service_1.TransactionsService],
     })
 ], TransactionsModule);

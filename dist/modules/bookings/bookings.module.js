@@ -19,6 +19,7 @@ const coupons_module_1 = require("../coupons/coupons.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 const admin_module_1 = require("../admin/admin.module");
 const settings_module_1 = require("../settings/settings.module");
+const transactions_module_1 = require("../transactions/transactions.module");
 let BookingsModule = class BookingsModule {
 };
 exports.BookingsModule = BookingsModule;
@@ -34,6 +35,7 @@ exports.BookingsModule = BookingsModule = __decorate([
             notifications_module_1.NotificationsModule,
             admin_module_1.AdminModule,
             settings_module_1.SettingsModule,
+            (0, common_1.forwardRef)(() => transactions_module_1.TransactionsModule),
         ],
         providers: [bookings_service_1.BookingsService],
         controllers: [bookings_controller_1.BookingsController, admin_bookings_controller_1.AdminBookingsController],

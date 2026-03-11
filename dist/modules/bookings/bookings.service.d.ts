@@ -69,7 +69,7 @@ export declare class BookingsService {
     } & {
         id: string;
     }>;
-    syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string, paymentType: string): Promise<(import("mongoose").Document<unknown, {}, BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+    syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string): Promise<(import("mongoose").Document<unknown, {}, BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;

@@ -107,6 +107,9 @@ class OtherSettingsDto {
     seoMetaDescription;
     logoUrl;
     whatsappNumberForNotifications;
+    whatsappEnabled;
+    whatsappPhoneNumberId;
+    whatsappAccessToken;
 }
 exports.OtherSettingsDto = OtherSettingsDto;
 __decorate([
@@ -139,6 +142,24 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OtherSettingsDto.prototype, "whatsappNumberForNotifications", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], OtherSettingsDto.prototype, "whatsappEnabled", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OtherSettingsDto.prototype, "whatsappPhoneNumberId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OtherSettingsDto.prototype, "whatsappAccessToken", void 0);
 class PolicyContentDto {
     privacyPolicy;
     termsAndConditions;

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking, BookingDocument } from '../../../database/schemas/booking.schema';
-import { Payment, PaymentDocument } from '../../../database/schemas/payment.schema';
 import { Transaction, TransactionDocument } from '../../../database/schemas/transaction.schema';
 import { createObjectCsvStringifier } from 'csv-writer';
 const PDFDocument = require('pdfkit');
@@ -16,14 +15,13 @@ import { TransactionType, TransactionStatus } from '../../../common/enums/transa
 export class ReportsService {
     constructor(
         @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
-        @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
         @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
     ) { }
 
     async generateRevenueCSV(startDate: Date, endDate: Date): Promise<string> {
         const transactions = await this.transactionModel
             .find({
-                type: TransactionType.PAYMENT,
+                type: TransactionType.ONLINE_RECEIPT,
                 status: TransactionStatus.SUCCESS,
                 createdAt: { $gte: startDate, $lte: endDate },
             })
@@ -89,7 +87,7 @@ export class ReportsService {
     async generateRevenuePDF(startDate: Date, endDate: Date): Promise<Buffer> {
         const transactions = await this.transactionModel
             .find({
-                type: TransactionType.PAYMENT,
+                type: TransactionType.ONLINE_RECEIPT,
                 status: TransactionStatus.SUCCESS,
                 createdAt: { $gte: startDate, $lte: endDate },
             })

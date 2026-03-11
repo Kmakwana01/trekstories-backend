@@ -17,12 +17,15 @@ const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const bookings_service_1 = require("./bookings.service");
+const transactions_service_1 = require("../transactions/transactions.service");
 const preview_booking_dto_1 = require("./dto/preview-booking.dto");
 const create_booking_dto_1 = require("./dto/create-booking.dto");
 let BookingsController = class BookingsController {
     bookingsService;
-    constructor(bookingsService) {
+    transactionsService;
+    constructor(bookingsService, transactionsService) {
         this.bookingsService = bookingsService;
+        this.transactionsService = transactionsService;
     }
     async preview(dto) {
         return this.bookingsService.previewBooking(dto);
@@ -34,7 +37,12 @@ let BookingsController = class BookingsController {
         return this.bookingsService.getMyBookings(userId);
     }
     async getBookingById(userId, id) {
-        return this.bookingsService.getBookingById(id, userId);
+        const booking = await this.bookingsService.getBookingById(id, userId);
+        const paymentSummary = await this.transactionsService.getMyBookingPaymentHistory(id, userId);
+        return {
+            ...booking.toObject?.() || booking,
+            paymentSummary
+        };
     }
     async cancelBooking(userId, id) {
         return this.bookingsService.cancelBooking(id, userId);
@@ -99,6 +107,7 @@ __decorate([
 exports.BookingsController = BookingsController = __decorate([
     (0, common_1.Controller)('bookings'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [bookings_service_1.BookingsService])
+    __metadata("design:paramtypes", [bookings_service_1.BookingsService,
+        transactions_service_1.TransactionsService])
 ], BookingsController);
 //# sourceMappingURL=bookings.controller.js.map

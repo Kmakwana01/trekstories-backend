@@ -43,6 +43,12 @@ export class Transaction {
     status: string;
 
     @Prop()
+    receiptImage: string;
+
+    @Prop()
+    rejectionReason: string;
+
+    @Prop()
     description: string;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })

@@ -33,8 +33,6 @@ export declare class Booking {
     paymentType: string;
     status: string;
     additionalRequests: string;
-    transactionId: string;
-    receiptImage: string;
     paymentVerifiedAt: Date;
     internalNotes: InternalNote[];
     pricingSummary: string;
@@ -227,24 +225,6 @@ export declare const BookingSchema: MongooseSchema<Booking, import("mongoose").M
         id: string;
     }> | undefined;
     additionalRequests?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
-        id: string;
-    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
-    }, "id"> & {
-        id: string;
-    }> | undefined;
-    transactionId?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
-        id: string;
-    }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
-    }, "id"> & {
-        id: string;
-    }> | undefined;
-    receiptImage?: import("mongoose").SchemaDefinitionProperty<string, Booking, Document<unknown, {}, Booking, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Booking & {
         _id: import("mongoose").Types.ObjectId;

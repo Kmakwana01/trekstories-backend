@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bull';
+import { SettingsModule } from '../settings/settings.module';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { AdminNotificationsController } from './admin-notifications.controller';
@@ -15,6 +16,7 @@ import { WhatsAppProcessor } from './processors/whatsapp.processor';
             { name: 'email' },
             { name: 'whatsapp' },
         ),
+        SettingsModule,
     ],
     providers: [NotificationsService, EmailProcessor, WhatsAppProcessor],
     controllers: [NotificationsController, AdminNotificationsController],

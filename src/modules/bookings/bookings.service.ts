@@ -364,9 +364,9 @@ export class BookingsService {
         return booking.save();
     }
 
-    /** Called by PaymentsService after receipt upload to sync fields onto the Booking document */
-    async syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string, paymentType: string) {
-        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId, paymentType }, { new: true }).exec();
+    /** Called by TransactionsService after receipt upload to sync fields onto the Booking document */
+    async syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string) {
+        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { new: true }).exec();
     }
 
     /** Called by PaymentsService after approving a payment to mark the receipt as verified */

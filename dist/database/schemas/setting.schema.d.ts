@@ -23,6 +23,9 @@ export declare class OtherSettings {
     seoMetaDescription?: string;
     logoUrl?: string;
     whatsappNumberForNotifications?: string;
+    whatsappEnabled?: boolean;
+    whatsappPhoneNumberId?: string;
+    whatsappAccessToken?: string;
 }
 export declare class PolicyContent {
     privacyPolicy?: string;

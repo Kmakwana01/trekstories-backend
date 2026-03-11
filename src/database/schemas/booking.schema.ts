@@ -120,12 +120,6 @@ export class Booking {
     additionalRequests: string;
 
     @Prop()
-    transactionId: string;
-
-    @Prop()
-    receiptImage: string;
-
-    @Prop()
     paymentVerifiedAt: Date;
 
     @Prop({ type: [InternalNoteSchema], default: [] })

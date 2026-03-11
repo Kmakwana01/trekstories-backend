@@ -14,7 +14,6 @@ const user_schema_1 = require("./schemas/user.schema");
 const tour_schema_1 = require("./schemas/tour.schema");
 const tour_date_schema_1 = require("./schemas/tour-date.schema");
 const booking_schema_1 = require("./schemas/booking.schema");
-const payment_schema_1 = require("./schemas/payment.schema");
 const transaction_schema_1 = require("./schemas/transaction.schema");
 const blog_schema_1 = require("./schemas/blog.schema");
 const review_schema_1 = require("./schemas/review.schema");
@@ -40,7 +39,6 @@ exports.DatabaseModule = DatabaseModule = __decorate([
                 { name: 'Tour', schema: tour_schema_1.TourSchema },
                 { name: 'TourDate', schema: tour_date_schema_1.TourDateSchema },
                 { name: 'Booking', schema: booking_schema_1.BookingSchema },
-                { name: 'Payment', schema: payment_schema_1.PaymentSchema },
                 { name: 'Transaction', schema: transaction_schema_1.TransactionSchema },
                 { name: 'Blog', schema: blog_schema_1.BlogSchema },
                 { name: 'Review', schema: review_schema_1.ReviewSchema },

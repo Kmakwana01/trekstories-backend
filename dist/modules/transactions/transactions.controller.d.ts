@@ -1,9 +1,9 @@
-import type { Response } from 'express';
 import { TransactionsService } from './transactions.service';
-import { PaginationQuery } from '../../common/helpers/pagination.helper';
+import { ImageUploadService } from '../../common/services/image-upload.service';
 export declare class TransactionsController {
     private readonly transactionsService;
-    constructor(transactionsService: TransactionsService);
+    private readonly imageUploadService;
+    constructor(transactionsService: TransactionsService, imageUploadService: ImageUploadService);
     getMyTransactions(userId: string): Promise<(import("mongoose").Document<unknown, {}, import("../../database/schemas/transaction.schema").TransactionDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/transaction.schema").Transaction & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
@@ -18,9 +18,12 @@ export declare class TransactionsController {
     } & {
         id: string;
     }>;
-    exportTransactions(res: Response, filters: any): Promise<void>;
-    getAllTransactions(query: PaginationQuery): Promise<import("../../common/helpers/pagination.helper").PaginationResult<unknown>>;
-    getAdminTransactionById(id: string): Promise<import("mongoose").Document<unknown, {}, import("../../database/schemas/transaction.schema").TransactionDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/transaction.schema").Transaction & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+    submitPaymentProof(userId: string, file: Express.Multer.File, dto: {
+        bookingId: string;
+        transactionId: string;
+        paymentMethod: string;
+        paymentAmount?: string | number;
+    }): Promise<import("mongoose").Document<unknown, {}, import("../../database/schemas/transaction.schema").TransactionDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/transaction.schema").Transaction & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;

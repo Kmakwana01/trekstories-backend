@@ -2,13 +2,17 @@ import { Controller, Get, Post, Body, Param, UseGuards, Patch, Delete } from '@n
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { BookingsService } from './bookings.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { PreviewBookingDto } from './dto/preview-booking.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 
 @Controller('bookings')
 @UseGuards(JwtAuthGuard)
 export class BookingsController {
-    constructor(private readonly bookingsService: BookingsService) { }
+    constructor(
+        private readonly bookingsService: BookingsService,
+        private readonly transactionsService: TransactionsService,
+    ) { }
 
     @Post('preview')
     async preview(@Body() dto: PreviewBookingDto) {
@@ -27,7 +31,13 @@ export class BookingsController {
 
     @Get(':id')
     async getBookingById(@CurrentUser('_id') userId: string, @Param('id') id: string) {
-        return this.bookingsService.getBookingById(id, userId);
+        const booking = await this.bookingsService.getBookingById(id, userId);
+        const paymentSummary = await this.transactionsService.getMyBookingPaymentHistory(id, userId);
+
+        return {
+            ...booking.toObject?.() || booking,
+            paymentSummary
+        };
     }
 
     @Delete(':id/cancel')

@@ -5,6 +5,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/roles.enum';
 import { BookingsService } from './bookings.service';
 import { AdminLogService } from '../admin/services/admin-log.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('admin/bookings')
@@ -14,7 +15,13 @@ export class AdminBookingsController {
     constructor(
         private readonly bookingsService: BookingsService,
         private readonly adminLogService: AdminLogService,
+        private readonly transactionsService: TransactionsService,
     ) { }
+
+    @Get(':id/payment-history')
+    async getPaymentHistory(@Param('id') id: string) {
+        return this.transactionsService.getMyBookingPaymentHistory(id);
+    }
 
     @Get()
     async getAllBookings(@Query() filters: any) {
@@ -23,7 +30,13 @@ export class AdminBookingsController {
 
     @Get(':id')
     async getBookingById(@Param('id') id: string) {
-        return this.bookingsService.getBookingById(id);
+        const booking = await this.bookingsService.getBookingById(id);
+        const paymentHistory = await this.transactionsService.getMyBookingPaymentHistory(id);
+        
+        return {
+            ...booking,
+            paymentSummary: paymentHistory
+        };
     }
 
     @Patch(':id/status')

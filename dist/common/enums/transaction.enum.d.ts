@@ -1,8 +1,8 @@
 export declare enum TransactionType {
-    PAYMENT = "PAYMENT",
+    ONLINE_RECEIPT = "ONLINE_RECEIPT",
+    OFFLINE_PAYMENT = "OFFLINE_PAYMENT",
     REFUND = "REFUND",
-    MANUAL_CREDIT = "MANUAL_CREDIT",
-    MANUAL_DEBIT = "MANUAL_DEBIT"
+    MANUAL_ADJUSTMENT = "MANUAL_ADJUSTMENT"
 }
 export declare enum TransactionStatus {
     PENDING = "PENDING",

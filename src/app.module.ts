@@ -2,6 +2,7 @@ import { join } from 'path';
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { AdminIpMiddleware } from './common/middleware/admin-ip.middleware';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -21,7 +22,7 @@ import { TourDatesModule } from './modules/tour-dates/tour-dates.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
-import { PaymentsModule } from './modules/payments/payments.module';
+
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
@@ -62,7 +63,7 @@ import { RefundsModule } from './modules/refunds/refunds.module';
     WishlistModule,
     BookingsModule,
     TransactionsModule,
-    PaymentsModule,
+
     BlogsModule,
     ReviewsModule,
     CouponsModule,
@@ -129,5 +130,6 @@ import { RefundsModule } from './modules/refunds/refunds.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(AdminIpMiddleware).forRoutes('api/admin/(.*)');
   }
 }

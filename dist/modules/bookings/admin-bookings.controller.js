@@ -20,19 +20,30 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_enum_1 = require("../../common/enums/roles.enum");
 const bookings_service_1 = require("./bookings.service");
 const admin_log_service_1 = require("../admin/services/admin-log.service");
+const transactions_service_1 = require("../transactions/transactions.service");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 let AdminBookingsController = class AdminBookingsController {
     bookingsService;
     adminLogService;
-    constructor(bookingsService, adminLogService) {
+    transactionsService;
+    constructor(bookingsService, adminLogService, transactionsService) {
         this.bookingsService = bookingsService;
         this.adminLogService = adminLogService;
+        this.transactionsService = transactionsService;
+    }
+    async getPaymentHistory(id) {
+        return this.transactionsService.getMyBookingPaymentHistory(id);
     }
     async getAllBookings(filters) {
         return this.bookingsService.adminGetAllBookings(filters);
     }
     async getBookingById(id) {
-        return this.bookingsService.getBookingById(id);
+        const booking = await this.bookingsService.getBookingById(id);
+        const paymentHistory = await this.transactionsService.getMyBookingPaymentHistory(id);
+        return {
+            ...booking,
+            paymentSummary: paymentHistory
+        };
     }
     async updateStatus(id, status, internalNotes, adminId, req) {
         const booking = await this.bookingsService.adminUpdateStatus(id, status, internalNotes, adminId);
@@ -61,6 +72,13 @@ let AdminBookingsController = class AdminBookingsController {
     }
 };
 exports.AdminBookingsController = AdminBookingsController;
+__decorate([
+    (0, common_1.Get)(':id/payment-history'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminBookingsController.prototype, "getPaymentHistory", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
@@ -129,6 +147,7 @@ exports.AdminBookingsController = AdminBookingsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
     __metadata("design:paramtypes", [bookings_service_1.BookingsService,
-        admin_log_service_1.AdminLogService])
+        admin_log_service_1.AdminLogService,
+        transactions_service_1.TransactionsService])
 ], AdminBookingsController);
 //# sourceMappingURL=admin-bookings.controller.js.map
