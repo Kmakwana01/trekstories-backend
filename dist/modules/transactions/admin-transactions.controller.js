@@ -21,6 +21,21 @@ const roles_enum_1 = require("../../common/enums/roles.enum");
 const transactions_service_1 = require("./transactions.service");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const pagination_helper_1 = require("../../common/helpers/pagination.helper");
+const class_validator_1 = require("class-validator");
+class AdminTransactionFilterDto extends pagination_helper_1.PaginationQuery {
+    type;
+    status;
+}
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AdminTransactionFilterDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AdminTransactionFilterDto.prototype, "status", void 0);
 let AdminTransactionsController = class AdminTransactionsController {
     transactionsService;
     constructor(transactionsService) {
@@ -29,7 +44,7 @@ let AdminTransactionsController = class AdminTransactionsController {
     async getPendingReceipts(query) {
         return this.transactionsService.getAllTransactions({
             type: 'ONLINE_RECEIPT',
-            status: 'PENDING'
+            status: 'PENDING',
         }, query);
     }
     async exportTransactions(res, filters) {
@@ -82,7 +97,7 @@ __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_helper_1.PaginationQuery]),
+    __metadata("design:paramtypes", [AdminTransactionFilterDto]),
     __metadata("design:returntype", Promise)
 ], AdminTransactionsController.prototype, "getAllTransactions", null);
 __decorate([

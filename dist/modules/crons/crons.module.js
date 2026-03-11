@@ -18,13 +18,8 @@ let CronsModule = class CronsModule {
 exports.CronsModule = CronsModule;
 exports.CronsModule = CronsModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            tour_dates_module_1.TourDatesModule,
-            bookings_module_1.BookingsModule,
-            notifications_module_1.NotificationsModule,
-            admin_module_1.AdminModule
-        ],
-        providers: [crons_service_1.CronsService]
+        imports: [tour_dates_module_1.TourDatesModule, bookings_module_1.BookingsModule, notifications_module_1.NotificationsModule, admin_module_1.AdminModule],
+        providers: [crons_service_1.CronsService],
     })
 ], CronsModule);
 //# sourceMappingURL=crons.module.js.map

@@ -20,7 +20,7 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/api')
       .expect(200)
-      .expect(res => {
+      .expect((res) => {
         expect(res.body.success).toBe(true);
       });
   });

@@ -7,12 +7,12 @@ import { Blog, BlogSchema } from '../../database/schemas/blog.schema';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
-        AdminModule,
-    ],
-    controllers: [BlogsController, AdminBlogsController],
-    providers: [BlogsService],
-    exports: [BlogsService],
+  imports: [
+    MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
+    AdminModule,
+  ],
+  controllers: [BlogsController, AdminBlogsController],
+  providers: [BlogsService],
+  exports: [BlogsService],
 })
-export class BlogsModule { }
+export class BlogsModule {}

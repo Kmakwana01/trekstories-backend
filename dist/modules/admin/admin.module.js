@@ -34,8 +34,18 @@ exports.AdminModule = AdminModule = __decorate([
                 { name: review_schema_1.Review.name, schema: review_schema_1.ReviewSchema },
             ]),
         ],
-        providers: [admin_log_service_1.AdminLogService, admin_dashboard_service_1.AdminDashboardService, admin_crm_service_1.AdminCrmService, reports_service_1.ReportsService],
-        controllers: [admin_dashboard_controller_1.AdminDashboardController, admin_users_controller_1.AdminUsersController, admin_reports_controller_1.AdminReportsController, admin_logs_controller_1.AdminLogsController],
+        providers: [
+            admin_log_service_1.AdminLogService,
+            admin_dashboard_service_1.AdminDashboardService,
+            admin_crm_service_1.AdminCrmService,
+            reports_service_1.ReportsService,
+        ],
+        controllers: [
+            admin_dashboard_controller_1.AdminDashboardController,
+            admin_users_controller_1.AdminUsersController,
+            admin_reports_controller_1.AdminReportsController,
+            admin_logs_controller_1.AdminLogsController,
+        ],
         exports: [admin_log_service_1.AdminLogService, reports_service_1.ReportsService],
     })
 ], AdminModule);

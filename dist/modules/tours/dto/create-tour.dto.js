@@ -30,7 +30,8 @@ const ParseJson = (type) => (0, class_transformer_1.Transform)(({ value }) => {
             return value;
         }
     }
-    if (type && (Array.isArray(value) || (typeof value === 'object' && value !== null))) {
+    if (type &&
+        (Array.isArray(value) || (typeof value === 'object' && value !== null))) {
         return (0, class_transformer_1.plainToInstance)(type, value, {
             enableImplicitConversion: true,
             excludeExtraneousValues: false,

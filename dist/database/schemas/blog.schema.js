@@ -49,7 +49,7 @@ __decorate([
         required: true,
         enum: Object.values(blog_category_enum_1.BlogCategory),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Blog.prototype, "category", void 0);
@@ -81,5 +81,10 @@ exports.Blog = Blog = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Blog);
 exports.BlogSchema = mongoose_1.SchemaFactory.createForClass(Blog);
-exports.BlogSchema.index({ title: 'text', content: 'text', category: 'text', tags: 'text' });
+exports.BlogSchema.index({
+    title: 'text',
+    content: 'text',
+    category: 'text',
+    tags: 'text',
+});
 //# sourceMappingURL=blog.schema.js.map

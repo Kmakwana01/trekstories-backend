@@ -12,5 +12,6 @@ export declare class CreateBookingDto {
     couponCode?: string;
     additionalRequests?: string;
     paymentType?: 'FULL' | 'PARTIAL';
+    partialAmount?: number;
 }
 export {};

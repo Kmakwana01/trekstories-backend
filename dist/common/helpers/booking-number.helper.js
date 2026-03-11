@@ -6,7 +6,7 @@ async function generateBookingNumber(model, field = 'bookingNumber') {
     const dateStr = date_util_1.DateUtil.nowIST().format('YYYYMMDD');
     const prefix = `TRV-${dateStr}-`;
     const lastBooking = await model
-        .findOne({ [field]: { $regex: key => `^${prefix}` } })
+        .findOne({ [field]: { $regex: (key) => `^${prefix}` } })
         .sort({ [field]: -1 })
         .exec();
     const lastBookingCorrect = await model

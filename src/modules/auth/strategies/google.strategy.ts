@@ -5,29 +5,29 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-    constructor(configService: ConfigService) {
-        super({
-            clientID: configService.get<string>('google.clientId'),
-            clientSecret: configService.get<string>('google.clientSecret'),
-            callbackURL: configService.get<string>('google.callbackUrl'),
-            scope: ['email', 'profile'],
-        } as any);
-    }
+  constructor(configService: ConfigService) {
+    super({
+      clientID: configService.get<string>('google.clientId'),
+      clientSecret: configService.get<string>('google.clientSecret'),
+      callbackURL: configService.get<string>('google.callbackUrl'),
+      scope: ['email', 'profile'],
+    } as any);
+  }
 
-    async validate(
-        accessToken: string,
-        refreshToken: string,
-        profile: any,
-        done: VerifyCallback,
-    ): Promise<any> {
-        const { name, emails, photos } = profile;
-        const user = {
-            email: emails[0].value,
-            firstName: name.givenName,
-            lastName: name.familyName,
-            picture: photos[0].value,
-            accessToken,
-        };
-        done(null, user);
-    }
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: any,
+    done: VerifyCallback,
+  ): Promise<any> {
+    const { name, emails, photos } = profile;
+    const user = {
+      email: emails[0].value,
+      firstName: name.givenName,
+      lastName: name.familyName,
+      picture: photos[0].value,
+      accessToken,
+    };
+    done(null, user);
+  }
 }

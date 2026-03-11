@@ -6,7 +6,6 @@ export declare class BusinessDetails {
     phoneNumber?: string;
     officeAddress?: string;
     supportEmail?: string;
-    newsletterEmail?: string;
 }
 export declare class SocialMedia {
     facebook?: string;
@@ -79,6 +78,7 @@ export declare class Setting {
     otherSettings: OtherSettings;
     policies: PolicyContent;
     heroContent: HeroContent;
+    heroSliders: HeroContent[];
     aboutContent: AboutContent;
     careerContent: CareerContent;
     faqs: FaqItem[];
@@ -158,6 +158,15 @@ export declare const SettingSchema: import("mongoose").Schema<Setting, import("m
         id: string;
     }> | undefined;
     heroContent?: import("mongoose").SchemaDefinitionProperty<HeroContent, Setting, Document<unknown, {}, Setting, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Setting & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    heroSliders?: import("mongoose").SchemaDefinitionProperty<HeroContent[], Setting, Document<unknown, {}, Setting, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Setting & {
         _id: import("mongoose").Types.ObjectId;

@@ -13,6 +13,7 @@ const transactions_service_1 = require("./transactions.service");
 const transactions_controller_1 = require("./transactions.controller");
 const admin_transactions_controller_1 = require("./admin-transactions.controller");
 const transaction_schema_1 = require("../../database/schemas/transaction.schema");
+const user_schema_1 = require("../../database/schemas/user.schema");
 const bookings_module_1 = require("../bookings/bookings.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 let TransactionsModule = class TransactionsModule {
@@ -21,7 +22,10 @@ exports.TransactionsModule = TransactionsModule;
 exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: transaction_schema_1.Transaction.name, schema: transaction_schema_1.TransactionSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: transaction_schema_1.Transaction.name, schema: transaction_schema_1.TransactionSchema },
+                { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
+            ]),
             (0, common_1.forwardRef)(() => bookings_module_1.BookingsModule),
             notifications_module_1.NotificationsModule,
         ],

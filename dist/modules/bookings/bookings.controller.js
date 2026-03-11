@@ -40,8 +40,8 @@ let BookingsController = class BookingsController {
         const booking = await this.bookingsService.getBookingById(id, userId);
         const paymentSummary = await this.transactionsService.getMyBookingPaymentHistory(id, userId);
         return {
-            ...booking.toObject?.() || booking,
-            paymentSummary
+            ...(booking.toObject?.() || booking),
+            paymentSummary,
         };
     }
     async cancelBooking(userId, id) {
@@ -53,7 +53,7 @@ let BookingsController = class BookingsController {
             totalAmount: booking.totalAmount,
             paidAmount: booking.paidAmount,
             pendingAmount: booking.pendingAmount,
-            paymentType: booking.paymentType
+            paymentType: booking.paymentType,
         };
     }
 };

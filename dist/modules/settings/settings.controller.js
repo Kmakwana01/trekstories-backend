@@ -15,10 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SettingsController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
-const multer_1 = require("multer");
-const path_1 = require("path");
 const settings_service_1 = require("./settings.service");
 const update_setting_dto_1 = require("./dto/update-setting.dto");
+const image_upload_service_1 = require("../../common/services/image-upload.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
@@ -26,8 +25,10 @@ const roles_enum_1 = require("../../common/enums/roles.enum");
 const swagger_1 = require("@nestjs/swagger");
 let SettingsController = class SettingsController {
     settingsService;
-    constructor(settingsService) {
+    imageUploadService;
+    constructor(settingsService, imageUploadService) {
         this.settingsService = settingsService;
+        this.imageUploadService = imageUploadService;
     }
     async getSettings() {
         return this.settingsService.getSettings();
@@ -40,7 +41,12 @@ let SettingsController = class SettingsController {
         return this.settingsService.updateSettings(updateDto);
     }
     async uploadQr(file) {
-        return { url: `/uploads/settings/${file.filename}` };
+        const url = await this.imageUploadService.uploadImage(file);
+        return { url };
+    }
+    async uploadHero(file) {
+        const url = await this.imageUploadService.uploadImage(file);
+        return { url };
     }
 };
 exports.SettingsController = SettingsController;
@@ -78,23 +84,28 @@ __decorate([
     (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Upload UPI QR code image' }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
-        storage: (0, multer_1.diskStorage)({
-            destination: './uploads/settings',
-            filename: (req, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                cb(null, `${uniqueSuffix}${(0, path_1.extname)(file.originalname)}`);
-            },
-        }),
-    })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "uploadQr", null);
+__decorate([
+    (0, common_1.Post)('upload-hero'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload Hero Slider banner image' }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "uploadHero", null);
 exports.SettingsController = SettingsController = __decorate([
     (0, swagger_1.ApiTags)('Settings'),
     (0, common_1.Controller)('settings'),
-    __metadata("design:paramtypes", [settings_service_1.SettingsService])
+    __metadata("design:paramtypes", [settings_service_1.SettingsService,
+        image_upload_service_1.ImageUploadService])
 ], SettingsController);
 //# sourceMappingURL=settings.controller.js.map

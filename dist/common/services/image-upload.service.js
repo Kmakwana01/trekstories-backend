@@ -67,7 +67,9 @@ let ImageUploadService = ImageUploadService_1 = class ImageUploadService {
     imagekitUploadUrl = 'https://upload.imagekit.io/api/v1/files/upload';
     constructor(configService) {
         this.configService = configService;
-        this.provider = this.configService.get('image.provider', 'cloudinary').toLowerCase();
+        this.provider = this.configService
+            .get('image.provider', 'cloudinary')
+            .toLowerCase();
         this.cloudinaryCloudName = this.configService.get('image.cloudinary.cloudName');
         this.cloudinaryApiKey = this.configService.get('image.cloudinary.apiKey');
         this.cloudinaryApiSecret = this.configService.get('image.cloudinary.apiSecret');
@@ -75,11 +77,18 @@ let ImageUploadService = ImageUploadService_1 = class ImageUploadService {
         this.imagekitPublicKey = this.configService.get('image.imagekit.publicKey');
         this.imagekitPrivateKey = this.configService.get('image.imagekit.privateKey');
         this.imagekitUrlEndpoint = this.configService.get('image.imagekit.urlEndpoint');
-        if (this.provider === 'cloudinary' && (!this.cloudinaryCloudName || !this.cloudinaryApiKey || !this.cloudinaryApiSecret)) {
+        if (this.provider === 'cloudinary' &&
+            (!this.cloudinaryCloudName ||
+                !this.cloudinaryApiKey ||
+                !this.cloudinaryApiSecret)) {
             this.logger.warn('Cloudinary configuration is incomplete. Falling back to ImageKit if possible, then ImgBB.');
-            this.provider = (this.imagekitPublicKey && this.imagekitPrivateKey) ? 'imagekit' : 'imgbb';
+            this.provider =
+                this.imagekitPublicKey && this.imagekitPrivateKey
+                    ? 'imagekit'
+                    : 'imgbb';
         }
-        if (this.provider === 'imagekit' && (!this.imagekitPublicKey || !this.imagekitPrivateKey)) {
+        if (this.provider === 'imagekit' &&
+            (!this.imagekitPublicKey || !this.imagekitPrivateKey)) {
             this.logger.warn('ImageKit configuration is incomplete. Falling back to ImgBB.');
             this.provider = 'imgbb';
         }
@@ -101,14 +110,17 @@ let ImageUploadService = ImageUploadService_1 = class ImageUploadService {
     async uploadImages(files) {
         if (!files || files.length === 0)
             return [];
-        const uploadPromises = files.map(file => this.uploadImage(file));
+        const uploadPromises = files.map((file) => this.uploadImage(file));
         return Promise.all(uploadPromises);
     }
     async uploadToCloudinary(file) {
         try {
             const timestamp = Math.floor(Date.now() / 1000).toString();
             const stringToSign = `timestamp=${timestamp}${this.cloudinaryApiSecret}`;
-            const signature = crypto.createHash('sha1').update(stringToSign).digest('hex');
+            const signature = crypto
+                .createHash('sha1')
+                .update(stringToSign)
+                .digest('hex');
             const formData = new form_data_1.default();
             formData.append('file', file.buffer, { filename: file.originalname });
             formData.append('api_key', this.cloudinaryApiKey);
@@ -167,7 +179,7 @@ let ImageUploadService = ImageUploadService_1 = class ImageUploadService {
             const response = await axios_1.default.post(this.imagekitUploadUrl, formData, {
                 headers: {
                     ...formData.getHeaders(),
-                    'Authorization': `Basic ${authHeader}`,
+                    Authorization: `Basic ${authHeader}`,
                 },
             });
             if (response.data && response.data.url) {

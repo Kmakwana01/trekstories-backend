@@ -10,20 +10,20 @@ import { PaginationQuery } from '../../../common/helpers/pagination.helper';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminLogsController {
-    constructor(private adminLogService: AdminLogService) { }
+  constructor(private adminLogService: AdminLogService) {}
 
-    @Get()
-    async getAdminLogs(
-        @Query() pagination: PaginationQuery,
-        @Query('admin') admin: string,
-        @Query('module') module: string,
-        @Query('action') action: string,
-        @Query('dateFrom') dateFrom: string,
-        @Query('dateTo') dateTo: string,
-    ) {
-        return this.adminLogService.getAdminLogs(
-            { admin, module, action, dateFrom, dateTo },
-            pagination,
-        );
-    }
+  @Get()
+  async getAdminLogs(
+    @Query() pagination: PaginationQuery,
+    @Query('admin') admin: string,
+    @Query('module') module: string,
+    @Query('action') action: string,
+    @Query('dateFrom') dateFrom: string,
+    @Query('dateTo') dateTo: string,
+  ) {
+    return this.adminLogService.getAdminLogs(
+      { admin, module, action, dateFrom, dateTo },
+      pagination,
+    );
+  }
 }

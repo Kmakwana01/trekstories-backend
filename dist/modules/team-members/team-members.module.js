@@ -20,7 +20,9 @@ exports.TeamMembersModule = TeamMembersModule;
 exports.TeamMembersModule = TeamMembersModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: team_member_schema_1.TeamMember.name, schema: team_member_schema_1.TeamMemberSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: team_member_schema_1.TeamMember.name, schema: team_member_schema_1.TeamMemberSchema },
+            ]),
             admin_module_1.AdminModule,
         ],
         controllers: [team_members_controller_1.TeamMembersController, admin_team_members_controller_1.AdminTeamMembersController],

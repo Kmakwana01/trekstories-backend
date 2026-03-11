@@ -22,7 +22,7 @@ exports.CouponsModule = CouponsModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([
                 { name: coupon_schema_1.Coupon.name, schema: coupon_schema_1.CouponSchema },
-                { name: booking_schema_1.Booking.name, schema: booking_schema_1.BookingSchema }
+                { name: booking_schema_1.Booking.name, schema: booking_schema_1.BookingSchema },
             ]),
             admin_module_1.AdminModule,
         ],

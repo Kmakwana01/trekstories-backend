@@ -210,11 +210,14 @@ let AuthService = AuthService_1 = class AuthService {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync({ sub: userId, email, role }, {
                 secret: this.configService.get('jwt.secret'),
-                expiresIn: (this.configService.get('jwt.expiresIn') || '15m'),
+                expiresIn: (this.configService.get('jwt.expiresIn') ||
+                    '15m'),
             }),
             this.jwtService.signAsync({ sub: userId, email, role }, {
-                secret: this.configService.get('jwt.refreshSecret') || this.configService.get('jwt.secret'),
-                expiresIn: (this.configService.get('jwt.refreshExpiresIn') || '7d'),
+                secret: this.configService.get('jwt.refreshSecret') ||
+                    this.configService.get('jwt.secret'),
+                expiresIn: (this.configService.get('jwt.refreshExpiresIn') ||
+                    '7d'),
             }),
         ]);
         return { accessToken, refreshToken };

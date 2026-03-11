@@ -96,7 +96,7 @@ async function bootstrap() {
         contactAddress: 'Mumbai, India',
         country: 'India',
         dateOfBirth: new Date('1990-01-01'),
-        lastLogin: new Date()
+        lastLogin: new Date(),
     });
     const customers = await userModel.insertMany([
         {
@@ -109,7 +109,7 @@ async function bootstrap() {
             gender: gender_enum_1.Gender.MALE,
             country: 'USA',
             dateOfBirth: new Date('1985-06-15'),
-            lastLogin: new Date()
+            lastLogin: new Date(),
         },
         {
             name: 'Priya Sharma',
@@ -121,7 +121,7 @@ async function bootstrap() {
             gender: gender_enum_1.Gender.FEMALE,
             country: 'India',
             dateOfBirth: new Date('1992-09-21'),
-            lastLogin: new Date()
+            lastLogin: new Date(),
         },
         {
             name: 'Michael Chen',
@@ -133,7 +133,7 @@ async function bootstrap() {
             gender: gender_enum_1.Gender.MALE,
             country: 'Canada',
             dateOfBirth: new Date('1988-11-03'),
-            lastLogin: new Date()
+            lastLogin: new Date(),
         },
         {
             name: 'Anita Patel',
@@ -145,7 +145,7 @@ async function bootstrap() {
             gender: gender_enum_1.Gender.FEMALE,
             country: 'UK',
             dateOfBirth: new Date('1995-02-14'),
-            lastLogin: new Date()
+            lastLogin: new Date(),
         },
         {
             name: 'Carlos Mendez',
@@ -157,8 +157,8 @@ async function bootstrap() {
             gender: gender_enum_1.Gender.MALE,
             country: 'Spain',
             dateOfBirth: new Date('1982-12-05'),
-            lastLogin: new Date()
-        }
+            lastLogin: new Date(),
+        },
     ]);
     logger.log(`Seeded ${customers.length + 1} users.`);
     const toursData = [
@@ -173,11 +173,29 @@ async function bootstrap() {
             duration: '7 Days / 6 Nights',
             minAge: 12,
             maxAge: 65,
-            highlights: ['Pangong Tso Lake at sunrise', 'Nubra Valley camel safari', 'Khardung La Pass (5,359 m)', 'Thiksey & Hemis Monastery'],
-            inclusions: ['Hotel + Camp Accommodation', 'Internal Transfers by Innova', 'All Permits', 'Breakfast & Dinner'],
-            exclusions: ['Airfare to/from Leh', 'Lunch', 'Travel Insurance', 'Personal expenses'],
+            highlights: [
+                'Pangong Tso Lake at sunrise',
+                'Nubra Valley camel safari',
+                'Khardung La Pass (5,359 m)',
+                'Thiksey & Hemis Monastery',
+            ],
+            inclusions: [
+                'Hotel + Camp Accommodation',
+                'Internal Transfers by Innova',
+                'All Permits',
+                'Breakfast & Dinner',
+            ],
+            exclusions: [
+                'Airfare to/from Leh',
+                'Lunch',
+                'Travel Insurance',
+                'Personal expenses',
+            ],
             faqs: [
-                { question: 'Is oxygen cylinder provided?', answer: 'Yes, oxygen cylinders are carried in the backup vehicle.' },
+                {
+                    question: 'Is oxygen cylinder provided?',
+                    answer: 'Yes, oxygen cylinders are carried in the backup vehicle.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1581791534721-e599df4417f7?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -186,24 +204,95 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1535377786556-27d41e66a636?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Delhi', toCity: 'Leh', type: pickup_type_enum_1.PickupType.BOTH_SIDE_FLIGHT, departureTimeAndPlace: '5:00 AM IGI T3', totalDays: 7, totalNights: 6, priceAdjustment: 12000 },
-                { fromCity: 'Leh', toCity: 'Leh', type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '9:00 AM Leh Airport', totalDays: 7, totalNights: 6, priceAdjustment: 0 },
+                {
+                    fromCity: 'Delhi',
+                    toCity: 'Leh',
+                    type: pickup_type_enum_1.PickupType.BOTH_SIDE_FLIGHT,
+                    departureTimeAndPlace: '5:00 AM IGI T3',
+                    totalDays: 7,
+                    totalNights: 6,
+                    priceAdjustment: 12000,
+                },
+                {
+                    fromCity: 'Leh',
+                    toCity: 'Leh',
+                    type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN,
+                    departureTimeAndPlace: '9:00 AM Leh Airport',
+                    totalDays: 7,
+                    totalNights: 6,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrival in Leh – Acclimatization', points: [{ text: 'Arrive at Kushok Bakula Rimpochee Airport', subPoints: ['Transfer to hotel in Leh', 'Complete rest – avoid exertion'] }] },
-                { dayNumber: 2, title: 'Leh Local Sightseeing', points: [{ text: 'Visit city landmarks', subPoints: ['Shanti Stupa', 'Leh Palace'] }] },
-                { dayNumber: 3, title: 'Leh – Nubra Valley via Khardung La', points: [{ text: 'Cross Khardung La', subPoints: ['Arrive Hunder Village'] }] },
-                { dayNumber: 4, title: 'Nubra Valley Exploration', points: [{ text: 'Diskit Monastery & Murals', subPoints: ['Visit Panamik hot springs'] }] },
-                { dayNumber: 5, title: 'Nubra – Pangong Lake', points: [{ text: 'Drive to Pangong Tso', subPoints: ['Sunset at the lake'] }] },
-                { dayNumber: 6, title: 'Pangong – Leh', points: [{ text: 'Morning by the lake', subPoints: ['Return to Leh via Chang La Pass'] }] },
-                { dayNumber: 7, title: 'Departure', points: [{ text: 'Transfer to airport', subPoints: ['Tour ends'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrival in Leh – Acclimatization',
+                    points: [
+                        {
+                            text: 'Arrive at Kushok Bakula Rimpochee Airport',
+                            subPoints: [
+                                'Transfer to hotel in Leh',
+                                'Complete rest – avoid exertion',
+                            ],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Leh Local Sightseeing',
+                    points: [
+                        {
+                            text: 'Visit city landmarks',
+                            subPoints: ['Shanti Stupa', 'Leh Palace'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Leh – Nubra Valley via Khardung La',
+                    points: [
+                        { text: 'Cross Khardung La', subPoints: ['Arrive Hunder Village'] },
+                    ],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Nubra Valley Exploration',
+                    points: [
+                        {
+                            text: 'Diskit Monastery & Murals',
+                            subPoints: ['Visit Panamik hot springs'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 5,
+                    title: 'Nubra – Pangong Lake',
+                    points: [
+                        { text: 'Drive to Pangong Tso', subPoints: ['Sunset at the lake'] },
+                    ],
+                },
+                {
+                    dayNumber: 6,
+                    title: 'Pangong – Leh',
+                    points: [
+                        {
+                            text: 'Morning by the lake',
+                            subPoints: ['Return to Leh via Chang La Pass'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 7,
+                    title: 'Departure',
+                    points: [{ text: 'Transfer to airport', subPoints: ['Tour ends'] }],
+                },
             ],
             isFeatured: true,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Goa Coastal Bliss',
@@ -216,11 +305,29 @@ async function bootstrap() {
             duration: '4 Days / 3 Nights',
             minAge: 5,
             maxAge: 70,
-            highlights: ['Baga & Calangute Beach', 'Aguada Fort & Chapora Fort', 'Dudhsagar Waterfalls day trip', 'Spice Plantation tour'],
-            inclusions: ['3-Star Hotel', 'Pickup & Drop', 'Daily Breakfast', 'Sightseeing by AC cab'],
-            exclusions: ['Airfare', 'Lunches & Dinners', 'Water sports (paid separately)', 'Entry fees'],
+            highlights: [
+                'Baga & Calangute Beach',
+                'Aguada Fort & Chapora Fort',
+                'Dudhsagar Waterfalls day trip',
+                'Spice Plantation tour',
+            ],
+            inclusions: [
+                '3-Star Hotel',
+                'Pickup & Drop',
+                'Daily Breakfast',
+                'Sightseeing by AC cab',
+            ],
+            exclusions: [
+                'Airfare',
+                'Lunches & Dinners',
+                'Water sports (paid separately)',
+                'Entry fees',
+            ],
             faqs: [
-                { question: 'Are water sports included?', answer: 'No, they are optional and paid separately.' },
+                {
+                    question: 'Are water sports included?',
+                    answer: 'No, they are optional and paid separately.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1512783558244-97e3a6a9be27?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -228,21 +335,67 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Mumbai', toCity: 'Goa', type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '9:00 PM Borivali', totalDays: 4, totalNights: 3, priceAdjustment: 2500 },
-                { fromCity: 'Goa', toCity: 'Goa', type: pickup_type_enum_1.PickupType.NON_AC_TRAIN, departureTimeAndPlace: '12:00 PM Goa Airport', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
+                {
+                    fromCity: 'Mumbai',
+                    toCity: 'Goa',
+                    type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN,
+                    departureTimeAndPlace: '9:00 PM Borivali',
+                    totalDays: 4,
+                    totalNights: 3,
+                    priceAdjustment: 2500,
+                },
+                {
+                    fromCity: 'Goa',
+                    toCity: 'Goa',
+                    type: pickup_type_enum_1.PickupType.NON_AC_TRAIN,
+                    departureTimeAndPlace: '12:00 PM Goa Airport',
+                    totalDays: 4,
+                    totalNights: 3,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrival & North Goa Beaches', points: [{ text: 'Check-in, Baga & Calangute', subPoints: ['Sunset at Baga'] }] },
-                { dayNumber: 2, title: 'Fort Trail', points: [{ text: 'Aguada & Chapora Forts', subPoints: ['Anjuna market'] }] },
-                { dayNumber: 3, title: 'Dudhsagar & Spice Plantation', points: [{ text: 'Day excursion to Dudhsagar', subPoints: ['Jeep safari'] }] },
-                { dayNumber: 4, title: 'Departure', points: [{ text: 'Morning at leisure, check-out', subPoints: ['Drop to station'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrival & North Goa Beaches',
+                    points: [
+                        {
+                            text: 'Check-in, Baga & Calangute',
+                            subPoints: ['Sunset at Baga'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Fort Trail',
+                    points: [
+                        { text: 'Aguada & Chapora Forts', subPoints: ['Anjuna market'] },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Dudhsagar & Spice Plantation',
+                    points: [
+                        { text: 'Day excursion to Dudhsagar', subPoints: ['Jeep safari'] },
+                    ],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Departure',
+                    points: [
+                        {
+                            text: 'Morning at leisure, check-out',
+                            subPoints: ['Drop to station'],
+                        },
+                    ],
+                },
             ],
             isFeatured: true,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Kerala Backwaters Serenity',
@@ -255,11 +408,24 @@ async function bootstrap() {
             duration: '3 Days / 2 Nights',
             minAge: 0,
             maxAge: 85,
-            highlights: ['Houseboat Overnight Stay', 'Vembanad Lake', 'Traditional Kerala Cuisine', 'Ayurvedic Massage'],
-            inclusions: ['Premium Houseboat', 'All Meals on Board', 'Village Canoe Tour', 'Cochin Airport Transfers'],
+            highlights: [
+                'Houseboat Overnight Stay',
+                'Vembanad Lake',
+                'Traditional Kerala Cuisine',
+                'Ayurvedic Massage',
+            ],
+            inclusions: [
+                'Premium Houseboat',
+                'All Meals on Board',
+                'Village Canoe Tour',
+                'Cochin Airport Transfers',
+            ],
             exclusions: ['Airfare', 'Alcohol', 'Tips', 'Personal shopping'],
             faqs: [
-                { question: 'Is the houseboat AC?', answer: 'Yes, AC operates in the bedrooms from 9 PM to 6 AM.' },
+                {
+                    question: 'Is the houseboat AC?',
+                    answer: 'Yes, AC operates in the bedrooms from 9 PM to 6 AM.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -267,19 +433,51 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1613997456065-0cdf03c70e7a?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Cochin', toCity: 'Alleppey', type: pickup_type_enum_1.PickupType.BOTH_SIDE_FLIGHT, departureTimeAndPlace: '10:00 AM Cochin Airport', totalDays: 3, totalNights: 2, priceAdjustment: 0 },
+                {
+                    fromCity: 'Cochin',
+                    toCity: 'Alleppey',
+                    type: pickup_type_enum_1.PickupType.BOTH_SIDE_FLIGHT,
+                    departureTimeAndPlace: '10:00 AM Cochin Airport',
+                    totalDays: 3,
+                    totalNights: 2,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Check-in & Cruise Begins', points: [{ text: 'Board the houseboat at noon', subPoints: ['Welcome drink & lunch on board'] }] },
-                { dayNumber: 2, title: 'Village Life & Massage', points: [{ text: 'Early morning canoe ride', subPoints: ['Ayurvedic massage session'] }] },
-                { dayNumber: 3, title: 'Disembark & Departure', points: [{ text: 'Morning tea cruise', subPoints: ['Check-out by 09:00'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Check-in & Cruise Begins',
+                    points: [
+                        {
+                            text: 'Board the houseboat at noon',
+                            subPoints: ['Welcome drink & lunch on board'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Village Life & Massage',
+                    points: [
+                        {
+                            text: 'Early morning canoe ride',
+                            subPoints: ['Ayurvedic massage session'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Disembark & Departure',
+                    points: [
+                        { text: 'Morning tea cruise', subPoints: ['Check-out by 09:00'] },
+                    ],
+                },
             ],
             isFeatured: false,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Royal Rajasthan Heritage Circuit',
@@ -292,11 +490,29 @@ async function bootstrap() {
             duration: '10 Days / 9 Nights',
             minAge: 8,
             maxAge: 75,
-            highlights: ['Amber Fort, Jaipur', 'Mehrangarh Fort, Jodhpur', 'Lake Pichola, Udaipur', 'Camel Safari, Jaisalmer'],
-            inclusions: ['4-Star Heritage Hotels', 'AC Tempo Traveller', 'All Breakfasts', 'Guided Fort Tours'],
-            exclusions: ['Airfare', 'Lunches & Dinners', 'Entry fees at monuments', 'Personal expenses'],
+            highlights: [
+                'Amber Fort, Jaipur',
+                'Mehrangarh Fort, Jodhpur',
+                'Lake Pichola, Udaipur',
+                'Camel Safari, Jaisalmer',
+            ],
+            inclusions: [
+                '4-Star Heritage Hotels',
+                'AC Tempo Traveller',
+                'All Breakfasts',
+                'Guided Fort Tours',
+            ],
+            exclusions: [
+                'Airfare',
+                'Lunches & Dinners',
+                'Entry fees at monuments',
+                'Personal expenses',
+            ],
             faqs: [
-                { question: 'Is the camel safari safe for kids?', answer: 'Yes, guides will safely lead the camels.' },
+                {
+                    question: 'Is the camel safari safe for kids?',
+                    answer: 'Yes, guides will safely lead the camels.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1557754897-ca12c5049d83?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -304,26 +520,92 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1587474260584-136574528ed5?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Delhi', toCity: 'Jaipur', type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '06:00 AM Delhi ISBT', totalDays: 10, totalNights: 9, priceAdjustment: 2500 },
+                {
+                    fromCity: 'Delhi',
+                    toCity: 'Jaipur',
+                    type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN,
+                    departureTimeAndPlace: '06:00 AM Delhi ISBT',
+                    totalDays: 10,
+                    totalNights: 9,
+                    priceAdjustment: 2500,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrive Jaipur', points: [{ text: 'Check-in & orientation walk', subPoints: ['Visit Hawa Mahal'] }] },
-                { dayNumber: 2, title: 'Jaipur Sightseeing', points: [{ text: 'Amber Fort & City Palace', subPoints: ['Elephant ride'] }] },
-                { dayNumber: 3, title: 'Jaipur – Jodhpur', points: [{ text: 'Drive to Jodhpur', subPoints: ['Check-in to heritage haveli'] }] },
-                { dayNumber: 4, title: 'Jodhpur Blue City', points: [{ text: 'Mehrangarh Fort', subPoints: ['Old city tour'] }] },
-                { dayNumber: 5, title: 'Jodhpur – Jaisalmer', points: [{ text: 'Drive to Jaisalmer', subPoints: ['Golden Fort'] }] },
-                { dayNumber: 6, title: 'Jaisalmer Desert', points: [{ text: 'Sam Sand Dunes', subPoints: ['Camel safari'] }] },
-                { dayNumber: 7, title: 'Jaisalmer – Udaipur', points: [{ text: 'Long drive day', subPoints: ['Ranakpur'] }] },
-                { dayNumber: 8, title: 'Udaipur City of Lakes', points: [{ text: 'City Palace', subPoints: ['Lake Pichola boat ride'] }] },
-                { dayNumber: 9, title: 'Udaipur Leisure', points: [{ text: 'Local shopping', subPoints: ['Saheliyon ki Bari'] }] },
-                { dayNumber: 10, title: 'Departure', points: [{ text: 'Drop to Udaipur Airport', subPoints: ['Tour concludes'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrive Jaipur',
+                    points: [
+                        {
+                            text: 'Check-in & orientation walk',
+                            subPoints: ['Visit Hawa Mahal'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Jaipur Sightseeing',
+                    points: [
+                        { text: 'Amber Fort & City Palace', subPoints: ['Elephant ride'] },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Jaipur – Jodhpur',
+                    points: [
+                        {
+                            text: 'Drive to Jodhpur',
+                            subPoints: ['Check-in to heritage haveli'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Jodhpur Blue City',
+                    points: [{ text: 'Mehrangarh Fort', subPoints: ['Old city tour'] }],
+                },
+                {
+                    dayNumber: 5,
+                    title: 'Jodhpur – Jaisalmer',
+                    points: [{ text: 'Drive to Jaisalmer', subPoints: ['Golden Fort'] }],
+                },
+                {
+                    dayNumber: 6,
+                    title: 'Jaisalmer Desert',
+                    points: [{ text: 'Sam Sand Dunes', subPoints: ['Camel safari'] }],
+                },
+                {
+                    dayNumber: 7,
+                    title: 'Jaisalmer – Udaipur',
+                    points: [{ text: 'Long drive day', subPoints: ['Ranakpur'] }],
+                },
+                {
+                    dayNumber: 8,
+                    title: 'Udaipur City of Lakes',
+                    points: [
+                        { text: 'City Palace', subPoints: ['Lake Pichola boat ride'] },
+                    ],
+                },
+                {
+                    dayNumber: 9,
+                    title: 'Udaipur Leisure',
+                    points: [
+                        { text: 'Local shopping', subPoints: ['Saheliyon ki Bari'] },
+                    ],
+                },
+                {
+                    dayNumber: 10,
+                    title: 'Departure',
+                    points: [
+                        { text: 'Drop to Udaipur Airport', subPoints: ['Tour concludes'] },
+                    ],
+                },
             ],
             isFeatured: true,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Spiti Valley Unexplored',
@@ -336,11 +618,29 @@ async function bootstrap() {
             duration: '9 Days / 8 Nights',
             minAge: 14,
             maxAge: 60,
-            highlights: ['Key Monastery', 'Chandratal Lake', 'Kibber Village (highest motorable)', 'Fossil Trail at Langza'],
-            inclusions: ['Guesthouses & Camps', 'All Meals', '4WD SUV Transfers', 'Expert Mountain Guide'],
-            exclusions: ['Airfare to Chandigarh', 'Travel & Medical Insurance', 'Personal gear', 'Tips'],
+            highlights: [
+                'Key Monastery',
+                'Chandratal Lake',
+                'Kibber Village (highest motorable)',
+                'Fossil Trail at Langza',
+            ],
+            inclusions: [
+                'Guesthouses & Camps',
+                'All Meals',
+                '4WD SUV Transfers',
+                'Expert Mountain Guide',
+            ],
+            exclusions: [
+                'Airfare to Chandigarh',
+                'Travel & Medical Insurance',
+                'Personal gear',
+                'Tips',
+            ],
             faqs: [
-                { question: 'Is oxygen needed?', answer: 'We carry emergency oxygen, but gradual acclimatization is key.' },
+                {
+                    question: 'Is oxygen needed?',
+                    answer: 'We carry emergency oxygen, but gradual acclimatization is key.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -348,25 +648,85 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Chandigarh', toCity: 'Kaza', type: pickup_type_enum_1.PickupType.NON_AC_TRAIN, departureTimeAndPlace: '5:00 AM Chandigarh Station', totalDays: 9, totalNights: 8, priceAdjustment: 0 },
+                {
+                    fromCity: 'Chandigarh',
+                    toCity: 'Kaza',
+                    type: pickup_type_enum_1.PickupType.NON_AC_TRAIN,
+                    departureTimeAndPlace: '5:00 AM Chandigarh Station',
+                    totalDays: 9,
+                    totalNights: 8,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Chandigarh – Narkanda', points: [{ text: 'Drive through foothils', subPoints: ['Overnight at Narkanda'] }] },
-                { dayNumber: 2, title: 'Narkanda – Sangla', points: [{ text: 'Kinnaur Valley', subPoints: ['Kamru Fort'] }] },
-                { dayNumber: 3, title: 'Sangla – Chitkul – Kaza', points: [{ text: 'Chitkul village', subPoints: ['Arrive Kaza'] }] },
-                { dayNumber: 4, title: 'Key & Kibber', points: [{ text: 'Key Monastery', subPoints: ['Chicham Bridge'] }] },
-                { dayNumber: 5, title: 'Langza & Komic', points: [{ text: 'Fossil village', subPoints: ['Highest inhabited village'] }] },
-                { dayNumber: 6, title: 'Pin Valley National Park', points: [{ text: 'Snow leopard habitat', subPoints: ['Mudh village'] }] },
-                { dayNumber: 7, title: 'Kaza – Chandratal Lake', points: [{ text: 'Moon Lake', subPoints: ['Camp by the lake'] }] },
-                { dayNumber: 8, title: 'Chandratal – Manali', points: [{ text: 'Cross Rohtang Pass', subPoints: ['Arrive Manali'] }] },
-                { dayNumber: 9, title: 'Departure from Manali', points: [{ text: 'Morning leisure', subPoints: ['Drop to bus stand'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Chandigarh – Narkanda',
+                    points: [
+                        {
+                            text: 'Drive through foothils',
+                            subPoints: ['Overnight at Narkanda'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Narkanda – Sangla',
+                    points: [{ text: 'Kinnaur Valley', subPoints: ['Kamru Fort'] }],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Sangla – Chitkul – Kaza',
+                    points: [{ text: 'Chitkul village', subPoints: ['Arrive Kaza'] }],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Key & Kibber',
+                    points: [{ text: 'Key Monastery', subPoints: ['Chicham Bridge'] }],
+                },
+                {
+                    dayNumber: 5,
+                    title: 'Langza & Komic',
+                    points: [
+                        {
+                            text: 'Fossil village',
+                            subPoints: ['Highest inhabited village'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 6,
+                    title: 'Pin Valley National Park',
+                    points: [
+                        { text: 'Snow leopard habitat', subPoints: ['Mudh village'] },
+                    ],
+                },
+                {
+                    dayNumber: 7,
+                    title: 'Kaza – Chandratal Lake',
+                    points: [{ text: 'Moon Lake', subPoints: ['Camp by the lake'] }],
+                },
+                {
+                    dayNumber: 8,
+                    title: 'Chandratal – Manali',
+                    points: [
+                        { text: 'Cross Rohtang Pass', subPoints: ['Arrive Manali'] },
+                    ],
+                },
+                {
+                    dayNumber: 9,
+                    title: 'Departure from Manali',
+                    points: [
+                        { text: 'Morning leisure', subPoints: ['Drop to bus stand'] },
+                    ],
+                },
             ],
             isFeatured: false,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Andaman Island Escape',
@@ -379,11 +739,29 @@ async function bootstrap() {
             duration: '6 Days / 5 Nights',
             minAge: 5,
             maxAge: 70,
-            highlights: ['Radhanagar Beach', 'Scuba Diving at Neil Island', 'Cellular Jail', 'Bioluminescent Beach'],
-            inclusions: ['Beach Resorts & Guesthouses', 'Ferry Tickets', 'Breakfasts', 'Snorkelling Gear'],
-            exclusions: ['Airfare to Port Blair', 'Scuba Diving fees', 'Lunches & Dinners', 'Entry fees'],
+            highlights: [
+                'Radhanagar Beach',
+                'Scuba Diving at Neil Island',
+                'Cellular Jail',
+                'Bioluminescent Beach',
+            ],
+            inclusions: [
+                'Beach Resorts & Guesthouses',
+                'Ferry Tickets',
+                'Breakfasts',
+                'Snorkelling Gear',
+            ],
+            exclusions: [
+                'Airfare to Port Blair',
+                'Scuba Diving fees',
+                'Lunches & Dinners',
+                'Entry fees',
+            ],
             faqs: [
-                { question: 'Do I need to know swimming for scuba?', answer: 'No, non-swimmers can do DSD (Discover Scuba Diving).' },
+                {
+                    question: 'Do I need to know swimming for scuba?',
+                    answer: 'No, non-swimmers can do DSD (Discover Scuba Diving).',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop',
             images: [
@@ -391,26 +769,74 @@ async function bootstrap() {
                 'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Port Blair', toCity: 'Port Blair', type: pickup_type_enum_1.PickupType.NON_AC_TRAIN, departureTimeAndPlace: '1:00 PM Port Blair Jetty', totalDays: 6, totalNights: 5, priceAdjustment: 0 },
+                {
+                    fromCity: 'Port Blair',
+                    toCity: 'Port Blair',
+                    type: pickup_type_enum_1.PickupType.NON_AC_TRAIN,
+                    departureTimeAndPlace: '1:00 PM Port Blair Jetty',
+                    totalDays: 6,
+                    totalNights: 5,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrive Port Blair', points: [{ text: 'Cellular Jail', subPoints: ['Hotel check-in'] }] },
-                { dayNumber: 2, title: 'Port Blair Local', points: [{ text: 'Ross Island', subPoints: ['North Bay snorkelling'] }] },
-                { dayNumber: 3, title: 'Havelock Island', points: [{ text: 'Ferry to Havelock', subPoints: ['Radhanagar Beach sunset'] }] },
-                { dayNumber: 4, title: 'Havelock Adventure', points: [{ text: 'Scuba diving (optional)', subPoints: ['Bioluminescent beach'] }] },
-                { dayNumber: 5, title: 'Neil Island', points: [{ text: 'Ferry to Neil Island', subPoints: ['Natural Bridge'] }] },
-                { dayNumber: 6, title: 'Departure', points: [{ text: 'Return to Port Blair', subPoints: ['Drop to airport'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrive Port Blair',
+                    points: [{ text: 'Cellular Jail', subPoints: ['Hotel check-in'] }],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Port Blair Local',
+                    points: [
+                        { text: 'Ross Island', subPoints: ['North Bay snorkelling'] },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Havelock Island',
+                    points: [
+                        {
+                            text: 'Ferry to Havelock',
+                            subPoints: ['Radhanagar Beach sunset'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Havelock Adventure',
+                    points: [
+                        {
+                            text: 'Scuba diving (optional)',
+                            subPoints: ['Bioluminescent beach'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 5,
+                    title: 'Neil Island',
+                    points: [
+                        { text: 'Ferry to Neil Island', subPoints: ['Natural Bridge'] },
+                    ],
+                },
+                {
+                    dayNumber: 6,
+                    title: 'Departure',
+                    points: [
+                        { text: 'Return to Port Blair', subPoints: ['Drop to airport'] },
+                    ],
+                },
             ],
             isFeatured: true,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Coorg Coffee & Mist',
-            description: 'Nestled in the Western Ghats, Coorg (Kodagu) is Karnataka\'s most scenic hill station. Wake up to fog-kissed coffee estates, trek to Abbey Falls, and taste authentic Kodava cuisine.',
+            description: "Nestled in the Western Ghats, Coorg (Kodagu) is Karnataka's most scenic hill station. Wake up to fog-kissed coffee estates, trek to Abbey Falls, and taste authentic Kodava cuisine.",
             basePrice: 12000,
             category: tour_category_enum_1.TourCategory.NATURE,
             location: 'Madikeri, Coorg',
@@ -419,34 +845,84 @@ async function bootstrap() {
             duration: '3 Days / 2 Nights',
             minAge: 2,
             maxAge: 85,
-            highlights: ['Abbey Falls', 'Raja\'s Seat sunset', 'Coffee Estate Walk', 'Dubare Elephant Camp'],
-            inclusions: ['Homestay on Coffee Estate', 'Breakfast & Dinner', 'Sightseeing by cab', 'Coffee tasting session'],
-            exclusions: ['Travel to Madikeri', 'Lunches', 'Elephant ride fees', 'Personal purchases'],
+            highlights: [
+                'Abbey Falls',
+                "Raja's Seat sunset",
+                'Coffee Estate Walk',
+                'Dubare Elephant Camp',
+            ],
+            inclusions: [
+                'Homestay on Coffee Estate',
+                'Breakfast & Dinner',
+                'Sightseeing by cab',
+                'Coffee tasting session',
+            ],
+            exclusions: [
+                'Travel to Madikeri',
+                'Lunches',
+                'Elephant ride fees',
+                'Personal purchases',
+            ],
             faqs: [
-                { question: 'Is the homestay inside an estate?', answer: 'Yes, nestled deep within a functioning coffee plantation.' },
+                {
+                    question: 'Is the homestay inside an estate?',
+                    answer: 'Yes, nestled deep within a functioning coffee plantation.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?q=80&w=1600&auto=format&fit=crop',
             images: [
                 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Bangalore', toCity: 'Madikeri', type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '06:00 AM Majestic Bus Stand', totalDays: 3, totalNights: 2, priceAdjustment: 1200 },
+                {
+                    fromCity: 'Bangalore',
+                    toCity: 'Madikeri',
+                    type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN,
+                    departureTimeAndPlace: '06:00 AM Majestic Bus Stand',
+                    totalDays: 3,
+                    totalNights: 2,
+                    priceAdjustment: 1200,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrive & Explore Madikeri', points: [{ text: 'Raja\'s Seat & Abbey Falls', subPoints: ['Madikeri Fort'] }] },
-                { dayNumber: 2, title: 'Coffee Estate & Dubare', points: [{ text: 'Morning estate walk', subPoints: ['Dubare Elephant Camp'] }] },
-                { dayNumber: 3, title: 'Iruppu Falls & Departure', points: [{ text: 'Visit Iruppu Falls', subPoints: ['Return to Bangalore by evening'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrive & Explore Madikeri',
+                    points: [
+                        { text: "Raja's Seat & Abbey Falls", subPoints: ['Madikeri Fort'] },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Coffee Estate & Dubare',
+                    points: [
+                        {
+                            text: 'Morning estate walk',
+                            subPoints: ['Dubare Elephant Camp'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Iruppu Falls & Departure',
+                    points: [
+                        {
+                            text: 'Visit Iruppu Falls',
+                            subPoints: ['Return to Bangalore by evening'],
+                        },
+                    ],
+                },
             ],
             isFeatured: false,
             isActive: true,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
         {
             title: 'Varanasi – The Eternal City',
-            description: 'One of the world\'s oldest living cities, Varanasi offers a profound spiritual journey. Witness the Ganga Aarti, sail on the sacred Ganges at dawn, and experience the timeless ghats of Kashi.',
+            description: "One of the world's oldest living cities, Varanasi offers a profound spiritual journey. Witness the Ganga Aarti, sail on the sacred Ganges at dawn, and experience the timeless ghats of Kashi.",
             basePrice: 18000,
             category: tour_category_enum_1.TourCategory.SPIRITUAL,
             location: 'Varanasi, Uttar Pradesh',
@@ -455,31 +931,90 @@ async function bootstrap() {
             duration: '4 Days / 3 Nights',
             minAge: 5,
             maxAge: 90,
-            highlights: ['Ganga Aarti at Dashashwamedh Ghat', 'Dawn boat ride', 'Sarnath Buddhist Circuit', 'Old City Lane Walk'],
-            inclusions: ['Heritage Hotel near Ghats', 'Boat Rides', 'Guided Walks', 'Breakfasts'],
-            exclusions: ['Airfare/Train', 'Lunch & Dinner', 'Puja materials', 'Personal expenses'],
+            highlights: [
+                'Ganga Aarti at Dashashwamedh Ghat',
+                'Dawn boat ride',
+                'Sarnath Buddhist Circuit',
+                'Old City Lane Walk',
+            ],
+            inclusions: [
+                'Heritage Hotel near Ghats',
+                'Boat Rides',
+                'Guided Walks',
+                'Breakfasts',
+            ],
+            exclusions: [
+                'Airfare/Train',
+                'Lunch & Dinner',
+                'Puja materials',
+                'Personal expenses',
+            ],
             faqs: [
-                { question: 'Is hotel near the ghats?', answer: 'Yes, just a 5-minute walk to Dashashwamedh Ghat.' },
+                {
+                    question: 'Is hotel near the ghats?',
+                    answer: 'Yes, just a 5-minute walk to Dashashwamedh Ghat.',
+                },
             ],
             thumbnailImage: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=1600&auto=format&fit=crop',
             images: [
                 'https://images.unsplash.com/photo-1590123600223-e03e74c6dc31?q=80&w=1600&auto=format&fit=crop',
             ],
             departureOptions: [
-                { fromCity: 'Varanasi', toCity: 'Varanasi', type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN, departureTimeAndPlace: '12:00 PM Varanasi Airport/Station', totalDays: 4, totalNights: 3, priceAdjustment: 0 },
+                {
+                    fromCity: 'Varanasi',
+                    toCity: 'Varanasi',
+                    type: pickup_type_enum_1.PickupType.THREE_TIER_AC_TRAIN,
+                    departureTimeAndPlace: '12:00 PM Varanasi Airport/Station',
+                    totalDays: 4,
+                    totalNights: 3,
+                    priceAdjustment: 0,
+                },
             ],
             itinerary: [
-                { dayNumber: 1, title: 'Arrive & Ganga Aarti', points: [{ text: 'Evening Dashashwamedh Aarti', subPoints: ['Orientation walk'] }] },
-                { dayNumber: 2, title: 'Dawn Boat Ride & Ghats', points: [{ text: '5:00 AM sunrise boat ride', subPoints: ['Sarnath excursion afternoon'] }] },
-                { dayNumber: 3, title: 'Old City Walk & Bazaar', points: [{ text: 'Vishwanath Gali', subPoints: ['Banaras chaat lunch'] }] },
-                { dayNumber: 4, title: 'Morning Yoga & Departure', points: [{ text: 'Ghat-side yoga session', subPoints: ['Transfer to airport'] }] },
+                {
+                    dayNumber: 1,
+                    title: 'Arrive & Ganga Aarti',
+                    points: [
+                        {
+                            text: 'Evening Dashashwamedh Aarti',
+                            subPoints: ['Orientation walk'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 2,
+                    title: 'Dawn Boat Ride & Ghats',
+                    points: [
+                        {
+                            text: '5:00 AM sunrise boat ride',
+                            subPoints: ['Sarnath excursion afternoon'],
+                        },
+                    ],
+                },
+                {
+                    dayNumber: 3,
+                    title: 'Old City Walk & Bazaar',
+                    points: [
+                        { text: 'Vishwanath Gali', subPoints: ['Banaras chaat lunch'] },
+                    ],
+                },
+                {
+                    dayNumber: 4,
+                    title: 'Morning Yoga & Departure',
+                    points: [
+                        {
+                            text: 'Ghat-side yoga session',
+                            subPoints: ['Transfer to airport'],
+                        },
+                    ],
+                },
             ],
             isFeatured: false,
             isActive: false,
             isDeleted: false,
             deletedAt: undefined,
             reviewCount: 0,
-            averageRating: 0
+            averageRating: 0,
         },
     ];
     const seededTours = [];
@@ -490,14 +1025,48 @@ async function bootstrap() {
     }
     logger.log(`Seeded ${seededTours.length} tours.`);
     const datePatterns = [
-        { startOffset: -40, status: tour_date_status_enum_1.TourDateStatus.COMPLETED, totalSeats: 20, bookedSeats: 20 },
-        { startOffset: -10, status: tour_date_status_enum_1.TourDateStatus.CANCELLED, totalSeats: 18, bookedSeats: 0 },
-        { startOffset: 15, status: tour_date_status_enum_1.TourDateStatus.UPCOMING, totalSeats: 20, bookedSeats: 14 },
-        { startOffset: 30, status: tour_date_status_enum_1.TourDateStatus.UPCOMING, totalSeats: 25, bookedSeats: 3 },
-        { startOffset: 60, status: tour_date_status_enum_1.TourDateStatus.UPCOMING, totalSeats: 25, bookedSeats: 0 },
-        { startOffset: 120, status: tour_date_status_enum_1.TourDateStatus.UPCOMING, totalSeats: 30, bookedSeats: 0 },
+        {
+            startOffset: -40,
+            status: tour_date_status_enum_1.TourDateStatus.COMPLETED,
+            totalSeats: 20,
+            bookedSeats: 20,
+        },
+        {
+            startOffset: -10,
+            status: tour_date_status_enum_1.TourDateStatus.CANCELLED,
+            totalSeats: 18,
+            bookedSeats: 0,
+        },
+        {
+            startOffset: 15,
+            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            totalSeats: 20,
+            bookedSeats: 14,
+        },
+        {
+            startOffset: 30,
+            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            totalSeats: 25,
+            bookedSeats: 3,
+        },
+        {
+            startOffset: 60,
+            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            totalSeats: 25,
+            bookedSeats: 0,
+        },
+        {
+            startOffset: 120,
+            status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
+            totalSeats: 30,
+            bookedSeats: 0,
+        },
     ];
-    const daysFromNow = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
+    const daysFromNow = (n) => {
+        const d = new Date();
+        d.setDate(d.getDate() + n);
+        return d;
+    };
     const addDays = (date, n) => new Date(date.getTime() + n * 86_400_000);
     const seededTourDates = [];
     for (const tour of seededTours) {
@@ -511,7 +1080,11 @@ async function bootstrap() {
                 totalSeats: p.totalSeats,
                 bookedSeats: p.bookedSeats,
                 status: p.status,
-                priceOverride: p.startOffset < 0 ? undefined : p.startOffset <= 20 ? tour.basePrice * 0.9 : undefined,
+                priceOverride: p.startOffset < 0
+                    ? undefined
+                    : p.startOffset <= 20
+                        ? tour.basePrice * 0.9
+                        : undefined,
             });
             seededTourDates.push(tdate);
         }
@@ -540,14 +1113,15 @@ async function bootstrap() {
             isActive: true,
             maxUsage: 500,
             usedCount: 22,
-        }
+        },
     ]);
     logger.log('Seeded coupons.');
     const c1 = customers[0];
     const c2 = customers[1];
     const c3 = customers[2];
     const tour1 = seededTours[0];
-    const date1 = seededTourDates.find(d => d.tour.toString() === tour1._id.toString() && d.status === tour_date_status_enum_1.TourDateStatus.UPCOMING);
+    const date1 = seededTourDates.find((d) => d.tour.toString() === tour1._id.toString() &&
+        d.status === tour_date_status_enum_1.TourDateStatus.UPCOMING);
     const b1 = await bookingModel.create({
         bookingNumber: 'BK-100001',
         user: c1._id,
@@ -555,8 +1129,20 @@ async function bootstrap() {
         tourDate: date1?._id,
         pickupOption: tour1.departureOptions[0],
         travelers: [
-            { fullName: 'John Doe', age: 39, gender: gender_enum_1.Gender.MALE, phone: c1.phone, idNumber: 'AD100' },
-            { fullName: 'Jane Doe', age: 36, gender: gender_enum_1.Gender.FEMALE, phone: c1.phone, idNumber: 'AD101' },
+            {
+                fullName: 'John Doe',
+                age: 39,
+                gender: gender_enum_1.Gender.MALE,
+                phone: c1.phone,
+                idNumber: 'AD100',
+            },
+            {
+                fullName: 'Jane Doe',
+                age: 36,
+                gender: gender_enum_1.Gender.FEMALE,
+                phone: c1.phone,
+                idNumber: 'AD101',
+            },
         ],
         totalTravelers: 2,
         baseAmount: 90000,
@@ -582,10 +1168,11 @@ async function bootstrap() {
         transactionId: 'TXN-001',
         paymentMethod: 'Credit Card',
         processedAt: new Date(),
-        description: 'Seeded online payment'
+        description: 'Seeded online payment',
     });
     const tour2 = seededTours[2];
-    const date2 = seededTourDates.find(d => d.tour.toString() === tour2._id.toString() && d.status === tour_date_status_enum_1.TourDateStatus.COMPLETED);
+    const date2 = seededTourDates.find((d) => d.tour.toString() === tour2._id.toString() &&
+        d.status === tour_date_status_enum_1.TourDateStatus.COMPLETED);
     const b2 = await bookingModel.create({
         bookingNumber: 'BK-200002',
         user: c2._id,
@@ -593,7 +1180,13 @@ async function bootstrap() {
         tourDate: date2?._id,
         pickupOption: tour2.departureOptions[0],
         travelers: [
-            { fullName: 'Priya Sharma', age: 32, gender: gender_enum_1.Gender.FEMALE, phone: c2.phone, idNumber: 'PR221' },
+            {
+                fullName: 'Priya Sharma',
+                age: 32,
+                gender: gender_enum_1.Gender.FEMALE,
+                phone: c2.phone,
+                idNumber: 'PR221',
+            },
         ],
         totalTravelers: 1,
         baseAmount: 22000,
@@ -618,7 +1211,7 @@ async function bootstrap() {
         transactionId: 'TXN-002',
         paymentMethod: 'UPI',
         processedAt: new Date(),
-        description: 'Seeded online payment'
+        description: 'Seeded online payment',
     });
     logger.log('Seeded bookings, payments, and transactions.');
     await reviewModel.insertMany([
@@ -637,7 +1230,7 @@ async function bootstrap() {
             rating: 4,
             comment: 'I havent gone yet, but the booking process was extremely smooth.',
             status: review_status_enum_1.ReviewStatus.PENDING,
-        }
+        },
     ]);
     tour2.reviewCount = 1;
     tour2.averageRating = 5;
@@ -701,7 +1294,7 @@ async function bootstrap() {
     await app.close();
     process.exit(0);
 }
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
     console.error('Seeding failed:', err);
     process.exit(1);
 });

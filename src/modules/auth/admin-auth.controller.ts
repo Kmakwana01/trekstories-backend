@@ -9,17 +9,17 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('admin/auth')
 export class AdminAuthController {
-    constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
-    @Post('login')
-    async login(@Body() loginDto: LoginDto) {
-        return this.authService.adminLogin(loginDto);
-    }
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.adminLogin(loginDto);
+  }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
-    @Get('me')
-    async getMe(@CurrentUser() user) {
-        return this.authService.getMe(user._id);
-    }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('me')
+  async getMe(@CurrentUser() user) {
+    return this.authService.getMe(user._id);
+  }
 }

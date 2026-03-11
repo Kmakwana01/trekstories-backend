@@ -56,7 +56,7 @@ __decorate([
         type: String,
         enum: Object.values(gender_enum_1.Gender),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Traveler.prototype, "gender", void 0);
@@ -108,11 +108,21 @@ __decorate([
     __metadata("design:type", String)
 ], Booking.prototype, "bookingNumber", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'User', required: true, index: true }),
+    (0, mongoose_1.Prop)({
+        type: mongoose_2.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true,
+    }),
     __metadata("design:type", mongoose_2.Schema.Types.ObjectId)
 ], Booking.prototype, "user", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'Tour', required: true, index: true }),
+    (0, mongoose_1.Prop)({
+        type: mongoose_2.Schema.Types.ObjectId,
+        ref: 'Tour',
+        required: true,
+        index: true,
+    }),
     __metadata("design:type", mongoose_2.Schema.Types.ObjectId)
 ], Booking.prototype, "tour", void 0);
 __decorate([
@@ -177,7 +187,7 @@ __decorate([
         type: String,
         enum: Object.values(booking_status_enum_1.PaymentType),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Booking.prototype, "paymentType", void 0);
@@ -214,7 +224,7 @@ __decorate([
         enum: Object.values(booking_status_enum_1.RefundStatus),
         default: booking_status_enum_1.RefundStatus.NONE,
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Booking.prototype, "refundStatus", void 0);

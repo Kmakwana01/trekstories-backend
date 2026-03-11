@@ -70,27 +70,38 @@ describe('TransactionsService', () => {
     (MockTransactionModel as any).exec.mockResolvedValueOnce(mockTransaction);
     const result = await service.getTransactionById('transactionId', 'userId');
     expect(result).toEqual(mockTransaction);
-    expect(MockTransactionModel.findOne).toHaveBeenCalledWith({ _id: 'transactionId', user: 'userId' });
+    expect(MockTransactionModel.findOne).toHaveBeenCalledWith({
+      _id: 'transactionId',
+      user: 'userId',
+    });
   });
 
   it('should export transactions to CSV', async () => {
     const mockDate = new Date();
-    const transactions = [{
-      createdAt: mockDate,
-      transactionId: 'tx123',
-      user: { email: 'test@example.com' },
-      type: 'payment',
-      amount: 100,
-      status: 'success',
-      paymentMethod: 'card',
-      description: 'test'
-    }];
-    jest.spyOn(service, 'getAllTransactions').mockResolvedValue(transactions as any);
+    const transactions = [
+      {
+        createdAt: mockDate,
+        transactionId: 'tx123',
+        user: { email: 'test@example.com' },
+        type: 'payment',
+        amount: 100,
+        status: 'success',
+        paymentMethod: 'card',
+        description: 'test',
+      },
+    ];
+    jest
+      .spyOn(service, 'getAllTransactions')
+      .mockResolvedValue(transactions as any);
 
     const buffer = await service.exportToCSV({});
     expect(buffer).toBeInstanceOf(Buffer);
     const csvContent = buffer.toString();
-    expect(csvContent).toContain('Date,Transaction ID,User,Type,Amount,Status,Method,Description');
-    expect(csvContent).toContain('tx123,test@example.com,payment,100,success,card,test');
+    expect(csvContent).toContain(
+      'Date,Transaction ID,User,Type,Amount,Status,Method,Description',
+    );
+    expect(csvContent).toContain(
+      'tx123,test@example.com,payment,100,success,card,test',
+    );
   });
 });

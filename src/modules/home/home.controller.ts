@@ -8,54 +8,54 @@ import type { UserDocument } from '../../database/schemas/user.schema';
 
 @Controller('home')
 export class HomeController {
-    constructor(private readonly homeService: HomeService) { }
+  constructor(private readonly homeService: HomeService) {}
 
-    @Get('home-data')
-    async getHomeData() {
-        return this.homeService.getHomeData();
-    }
+  @Get('home-data')
+  async getHomeData() {
+    return this.homeService.getHomeData();
+  }
 
-    @Get('featured-tours')
-    async getFeaturedTours() {
-        return this.homeService.getFeaturedTours();
-    }
+  @Get('featured-tours')
+  async getFeaturedTours() {
+    return this.homeService.getFeaturedTours();
+  }
 
-    @Get('upcoming-departures')
-    async getUpcomingDepartures() {
-        return this.homeService.getUpcomingDepartures();
-    }
+  @Get('upcoming-departures')
+  async getUpcomingDepartures() {
+    return this.homeService.getUpcomingDepartures();
+  }
 
-    @Get('offers')
-    async getActiveOffers() {
-        return this.homeService.getActiveOffers();
-    }
+  @Get('offers')
+  async getActiveOffers() {
+    return this.homeService.getActiveOffers();
+  }
 
-    @Get('blogs')
-    async getLatestBlogs() {
-        return this.homeService.getLatestBlogs();
-    }
+  @Get('blogs')
+  async getLatestBlogs() {
+    return this.homeService.getLatestBlogs();
+  }
 
-    @Get('tours-by-state')
-    async getToursByState() {
-        return this.homeService.getToursByState();
-    }
+  @Get('tours-by-state')
+  async getToursByState() {
+    return this.homeService.getToursByState();
+  }
 
-    @Get('tours-by-state/:state')
-    async getToursByStateName(
-        @Param('state') state: string,
-        @Query('page') page: string,
-        @Query('limit') limit: string,
-    ) {
-        return this.homeService.getToursByStateName(
-            state,
-            parseInt(page) || 1,
-            parseInt(limit) || 10,
-        );
-    }
+  @Get('tours-by-state/:state')
+  async getToursByStateName(
+    @Param('state') state: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.homeService.getToursByStateName(
+      state,
+      parseInt(page) || 1,
+      parseInt(limit) || 10,
+    );
+  }
 
-    @Get('recently-viewed')
-    @UseGuards(JwtAuthGuard)
-    async getRecentlyViewed(@CurrentUser() user: UserDocument) {
-        return this.homeService.getRecentlyViewedTours(user._id.toString());
-    }
+  @Get('recently-viewed')
+  @UseGuards(JwtAuthGuard)
+  async getRecentlyViewed(@CurrentUser() user: UserDocument) {
+    return this.homeService.getRecentlyViewedTours(user._id.toString());
+  }
 }

@@ -16,11 +16,14 @@ exports.SettingsService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const cache_manager_1 = require("@nestjs/cache-manager");
 const setting_schema_1 = require("../../database/schemas/setting.schema");
 let SettingsService = class SettingsService {
     settingModel;
-    constructor(settingModel) {
+    cacheManager;
+    constructor(settingModel, cacheManager) {
         this.settingModel = settingModel;
+        this.cacheManager = cacheManager;
     }
     async getSettings() {
         let settings = await this.settingModel.findOne({ isGlobal: true }).exec();
@@ -30,7 +33,10 @@ let SettingsService = class SettingsService {
         return settings;
     }
     async updateSettings(updateDto) {
-        const updatedSettings = await this.settingModel.findOneAndUpdate({ isGlobal: true }, { $set: updateDto }, { returnDocument: 'after', upsert: true }).exec();
+        const updatedSettings = await this.settingModel
+            .findOneAndUpdate({ isGlobal: true }, { $set: updateDto }, { returnDocument: 'after', upsert: true })
+            .exec();
+        await this.cacheManager.del('home_data_payload');
         return updatedSettings;
     }
 };
@@ -38,6 +44,7 @@ exports.SettingsService = SettingsService;
 exports.SettingsService = SettingsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(setting_schema_1.Setting.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [mongoose_2.Model, Object])
 ], SettingsService);
 //# sourceMappingURL=settings.service.js.map

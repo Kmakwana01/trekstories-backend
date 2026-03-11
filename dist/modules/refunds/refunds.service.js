@@ -34,7 +34,7 @@ let RefundsService = class RefundsService {
     async requestRefund(userId, bookingId, reason) {
         const booking = await this.bookingModel.findOne({
             _id: new mongoose_2.Types.ObjectId(bookingId),
-            user: new mongoose_2.Types.ObjectId(userId)
+            user: new mongoose_2.Types.ObjectId(userId),
         });
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
@@ -55,7 +55,9 @@ let RefundsService = class RefundsService {
         return { message: 'Refund requested successfully', booking };
     }
     async adminApproveRefund(adminId, bookingId, refundAmount, refundAdminNote) {
-        const booking = await this.bookingModel.findById(bookingId).populate('user');
+        const booking = await this.bookingModel
+            .findById(bookingId)
+            .populate('user');
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
         if (booking.refundStatus !== booking_status_enum_1.RefundStatus.REQUESTED) {
@@ -76,7 +78,7 @@ let RefundsService = class RefundsService {
             status: transaction_enum_1.TransactionStatus.PENDING,
             description: `Refund approved for booking ${booking.bookingNumber}${refundAdminNote ? `. Note: ${refundAdminNote}` : ''}`,
             processedBy: new mongoose_2.Types.ObjectId(adminId),
-            processedAt: new Date()
+            processedAt: new Date(),
         });
         const userObj = booking.user;
         const msg = `Your refund of ₹${refundAmount} for booking ${booking.bookingNumber} has been approved. ${refundAdminNote ? `Note: ${refundAdminNote}` : ''}`;
@@ -84,7 +86,9 @@ let RefundsService = class RefundsService {
         return { message: 'Refund approved successfully', booking };
     }
     async adminRejectRefund(adminId, bookingId, reason) {
-        const booking = await this.bookingModel.findById(bookingId).populate('user');
+        const booking = await this.bookingModel
+            .findById(bookingId)
+            .populate('user');
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
         if (booking.refundStatus !== booking_status_enum_1.RefundStatus.REQUESTED) {
@@ -94,7 +98,7 @@ let RefundsService = class RefundsService {
         booking.internalNotes.push({
             note: `Refund rejected: ${reason}`,
             createdAt: new Date(),
-            adminId: new mongoose_2.Types.ObjectId(adminId)
+            adminId: new mongoose_2.Types.ObjectId(adminId),
         });
         await booking.save();
         const userObj = booking.user;
@@ -103,7 +107,9 @@ let RefundsService = class RefundsService {
         return { message: 'Refund rejected successfully', booking };
     }
     async markRefundProcessed(adminId, bookingId) {
-        const booking = await this.bookingModel.findById(bookingId).populate('user');
+        const booking = await this.bookingModel
+            .findById(bookingId)
+            .populate('user');
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
         if (booking.refundStatus !== booking_status_enum_1.RefundStatus.APPROVED) {
@@ -112,7 +118,17 @@ let RefundsService = class RefundsService {
         booking.refundStatus = booking_status_enum_1.RefundStatus.PROCESSED;
         booking.refundProcessedAt = new Date();
         await booking.save();
-        await this.transactionModel.updateMany({ booking: booking._id, type: transaction_enum_1.TransactionType.REFUND, status: transaction_enum_1.TransactionStatus.PENDING }, { $set: { status: transaction_enum_1.TransactionStatus.SUCCESS, processedAt: new Date(), processedBy: new mongoose_2.Types.ObjectId(adminId) } });
+        await this.transactionModel.updateMany({
+            booking: booking._id,
+            type: transaction_enum_1.TransactionType.REFUND,
+            status: transaction_enum_1.TransactionStatus.PENDING,
+        }, {
+            $set: {
+                status: transaction_enum_1.TransactionStatus.SUCCESS,
+                processedAt: new Date(),
+                processedBy: new mongoose_2.Types.ObjectId(adminId),
+            },
+        });
         const userObj = booking.user;
         const msg = `Your refund of ₹${booking.refundAmount} for booking ${booking.bookingNumber} has been processed.`;
         await this.notificationsService.createNotification(userObj._id.toString(), notification_type_enum_1.NotificationType.REFUND_PROCESSED, 'Refund Processed', msg);
@@ -127,9 +143,17 @@ let RefundsService = class RefundsService {
             filter.refundStatus = query.status;
         }
         else {
-            filter.refundStatus = { $in: [booking_status_enum_1.RefundStatus.REQUESTED, booking_status_enum_1.RefundStatus.APPROVED, booking_status_enum_1.RefundStatus.REJECTED, booking_status_enum_1.RefundStatus.PROCESSED] };
+            filter.refundStatus = {
+                $in: [
+                    booking_status_enum_1.RefundStatus.REQUESTED,
+                    booking_status_enum_1.RefundStatus.APPROVED,
+                    booking_status_enum_1.RefundStatus.REJECTED,
+                    booking_status_enum_1.RefundStatus.PROCESSED,
+                ],
+            };
         }
-        const items = await this.bookingModel.find(filter)
+        const items = await this.bookingModel
+            .find(filter)
             .populate('user', 'name email phone avatar')
             .populate('tour', 'title')
             .sort({ updatedAt: -1 })
@@ -143,7 +167,7 @@ let RefundsService = class RefundsService {
                 page,
                 limit,
                 totalPages: Math.ceil(total / limit),
-            }
+            },
         };
     }
 };

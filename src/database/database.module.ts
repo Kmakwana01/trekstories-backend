@@ -15,27 +15,27 @@ import { SettingSchema } from './schemas/setting.schema';
 
 @Global()
 @Module({
-    imports: [
-        MongooseModule.forRootAsync({
-            inject: [ConfigService],
-            useFactory: async (configService: ConfigService) => ({
-                uri: configService.get<string>('database.uri'),
-            }),
-        }),
-        MongooseModule.forFeature([
-            { name: 'User', schema: UserSchema },
-            { name: 'Tour', schema: TourSchema },
-            { name: 'TourDate', schema: TourDateSchema },
-            { name: 'Booking', schema: BookingSchema },
-            { name: 'Transaction', schema: TransactionSchema },
-            { name: 'Blog', schema: BlogSchema },
-            { name: 'Review', schema: ReviewSchema },
-            { name: 'Coupon', schema: CouponSchema },
-            { name: 'Notification', schema: NotificationSchema },
-            { name: 'AdminLog', schema: AdminLogSchema },
-            { name: 'Setting', schema: SettingSchema },
-        ]),
-    ],
-    exports: [MongooseModule],
+  imports: [
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('database.uri'),
+      }),
+    }),
+    MongooseModule.forFeature([
+      { name: 'User', schema: UserSchema },
+      { name: 'Tour', schema: TourSchema },
+      { name: 'TourDate', schema: TourDateSchema },
+      { name: 'Booking', schema: BookingSchema },
+      { name: 'Transaction', schema: TransactionSchema },
+      { name: 'Blog', schema: BlogSchema },
+      { name: 'Review', schema: ReviewSchema },
+      { name: 'Coupon', schema: CouponSchema },
+      { name: 'Notification', schema: NotificationSchema },
+      { name: 'AdminLog', schema: AdminLogSchema },
+      { name: 'Setting', schema: SettingSchema },
+    ]),
+  ],
+  exports: [MongooseModule],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

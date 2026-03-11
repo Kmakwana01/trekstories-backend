@@ -44,11 +44,15 @@ let HomeService = class HomeService {
         const cached = await this.cacheManager.get(cacheKey);
         if (cached)
             return cached;
-        const [states, categories, departureCities, featuredTours, toursByState, latestBlogs, settings] = await Promise.all([
+        const [states, categories, departureCities, featuredTours, toursByState, latestBlogs, settings,] = await Promise.all([
             this.tourModel.distinct('state', { isActive: true }),
             this.tourModel.distinct('category', { isActive: true }),
             this.tourModel.distinct('departureOptions.fromCity', { isActive: true }),
-            this.tourModel.find({ isFeatured: true, isActive: true }).lean().limit(6).exec(),
+            this.tourModel
+                .find({ isFeatured: true, isActive: true })
+                .lean()
+                .limit(6)
+                .exec(),
             this.tourModel.aggregate([
                 { $match: { isActive: true } },
                 {
@@ -70,21 +74,21 @@ let HomeService = class HomeService {
             ]),
             this.blogModel.aggregate([
                 { $match: { isPublished: true } },
-                { $sample: { size: 5 } }
+                { $sample: { size: 5 } },
             ]),
-            this.settingModel.findOne({ isGlobal: true }).lean().exec()
+            this.settingModel.findOne({ isGlobal: true }).lean().exec(),
         ]);
         const filterOptions = {
             states,
             categories,
-            departureCities: departureCities.filter(city => city),
+            departureCities: departureCities.filter((city) => city),
         };
         const result = {
             filterOptions,
             featuredTours,
             toursByState,
             latestBlogs,
-            settings
+            settings,
         };
         await this.cacheManager.set(cacheKey, result, 300 * 1000);
         return result;
@@ -107,7 +111,11 @@ let HomeService = class HomeService {
         if (cached)
             return cached;
         const today = date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate());
-        const thirtyDaysLater = date_util_1.DateUtil.nowIST().add(15, 'day').endOf('day').utc().toDate();
+        const thirtyDaysLater = date_util_1.DateUtil.nowIST()
+            .add(15, 'day')
+            .endOf('day')
+            .utc()
+            .toDate();
         const dates = await this.tourDateModel
             .find({
             startDate: { $gte: today, $lte: thirtyDaysLater },
@@ -126,7 +134,10 @@ let HomeService = class HomeService {
         if (cached)
             return cached;
         const offers = await this.couponModel
-            .find({ isActive: true, expiryDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) } })
+            .find({
+            isActive: true,
+            expiryDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) },
+        })
             .limit(5)
             .exec();
         await this.cacheManager.set(cacheKey, offers, 1800 * 1000);
@@ -135,7 +146,7 @@ let HomeService = class HomeService {
     async getLatestBlogs() {
         const blogs = await this.blogModel.aggregate([
             { $match: { isPublished: true } },
-            { $sample: { size: 5 } }
+            { $sample: { size: 5 } },
         ]);
         return blogs;
     }
@@ -171,7 +182,10 @@ let HomeService = class HomeService {
                 .skip(skip)
                 .limit(limit)
                 .exec(),
-            this.tourModel.countDocuments({ state: new RegExp(state, 'i'), isActive: true }),
+            this.tourModel.countDocuments({
+                state: new RegExp(state, 'i'),
+                isActive: true,
+            }),
         ]);
         return {
             tours,

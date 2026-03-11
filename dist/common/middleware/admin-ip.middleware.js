@@ -24,7 +24,7 @@ let AdminIpMiddleware = class AdminIpMiddleware {
             const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() ||
                 req.ip ||
                 req.socket.remoteAddress;
-            const isWhitelisted = whitelist.some(ip => {
+            const isWhitelisted = whitelist.some((ip) => {
                 return ip.trim() === clientIp;
             });
             if (!isWhitelisted) {

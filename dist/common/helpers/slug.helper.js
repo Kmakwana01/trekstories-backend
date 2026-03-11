@@ -14,7 +14,7 @@ function generateSlug(text) {
         .replace(/-+$/, '');
 }
 async function generateUniqueSlug(model, text, field = 'slug') {
-    let slug = generateSlug(text);
+    const slug = generateSlug(text);
     let uniqueSlug = slug;
     let counter = 1;
     while (await model.findOne({ [field]: uniqueSlug }).exec()) {

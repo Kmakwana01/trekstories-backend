@@ -5,9 +5,9 @@ import { UsersController } from './users.controller';
 import { User, UserSchema } from '../../database/schemas/user.schema';
 
 @Module({
-    imports: [],
-    controllers: [UsersController],
-    providers: [UsersService],
-    exports: [UsersService],
+  imports: [],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

@@ -64,7 +64,11 @@ __decorate([
     __metadata("design:type", String)
 ], TourDate.prototype, "status", void 0);
 exports.TourDate = TourDate = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
+    (0, mongoose_1.Schema)({
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    })
 ], TourDate);
 exports.TourDateSchema = mongoose_1.SchemaFactory.createForClass(TourDate);
 exports.TourDateSchema.virtual('availableSeats').get(function () {

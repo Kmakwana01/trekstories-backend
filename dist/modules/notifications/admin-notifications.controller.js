@@ -42,7 +42,9 @@ let AdminNotificationsController = class AdminNotificationsController {
         for (const phone of dto.phones) {
             await this.notificationsService.sendWhatsApp(phone, dto.message, dto.templateName, dto.templateData);
         }
-        return { message: `Queued WhatsApp messages for ${dto.phones.length} users` };
+        return {
+            message: `Queued WhatsApp messages for ${dto.phones.length} users`,
+        };
     }
 };
 exports.AdminNotificationsController = AdminNotificationsController;

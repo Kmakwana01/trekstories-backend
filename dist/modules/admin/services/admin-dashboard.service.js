@@ -46,7 +46,12 @@ let AdminDashboardService = class AdminDashboardService {
             ]),
             this.bookingModel.countDocuments({ createdAt: { $gte: today } }),
             this.bookingModel.aggregate([
-                { $match: { createdAt: { $gte: today }, status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED } } },
+                {
+                    $match: {
+                        createdAt: { $gte: today },
+                        status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED },
+                    },
+                },
                 { $group: { _id: null, total: { $sum: '$paidAmount' } } },
             ]),
             this.bookingModel.aggregate([
@@ -84,12 +89,17 @@ let AdminDashboardService = class AdminDashboardService {
             groupBy = { $dateToString: { format: '%Y', date: '$createdAt' } };
         }
         const raw = await this.bookingModel.aggregate([
-            { $match: { status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED }, paidAmount: { $gt: 0 } } },
+            {
+                $match: {
+                    status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED },
+                    paidAmount: { $gt: 0 },
+                },
+            },
             { $group: { _id: groupBy, revenue: { $sum: '$paidAmount' } } },
             { $sort: { _id: 1 } },
             { $limit: 30 },
         ]);
-        return raw.map(item => ({ date: item._id, revenue: item.revenue }));
+        return raw.map((item) => ({ date: item._id, revenue: item.revenue }));
     }
     async getTopTours(limit = 5) {
         const results = await this.bookingModel.aggregate([

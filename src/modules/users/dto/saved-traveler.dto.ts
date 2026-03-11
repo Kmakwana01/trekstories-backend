@@ -1,20 +1,27 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString, Min, IsOptional } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Min,
+  IsOptional,
+} from 'class-validator';
 import { Gender } from '../../../common/enums/gender.enum';
 
 export class SavedTravelerDto {
-    @IsString()
-    @IsNotEmpty()
-    fullName: string;
+  @IsString()
+  @IsNotEmpty()
+  fullName: string;
 
-    @IsInt()
-    @Min(0)
-    age: number;
+  @IsInt()
+  @Min(0)
+  age: number;
 
-    @IsEnum(Gender)
-    @IsOptional()
-    gender?: string;
+  @IsEnum(Gender)
+  @IsOptional()
+  gender?: string;
 
-    @IsString()
-    @IsOptional()
-    idNumber?: string;
+  @IsString()
+  @IsOptional()
+  idNumber?: string;
 }

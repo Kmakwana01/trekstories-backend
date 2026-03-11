@@ -9,16 +9,16 @@ import { Tour, TourSchema } from '../../database/schemas/tour.schema';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: Review.name, schema: ReviewSchema },
-            { name: Booking.name, schema: BookingSchema },
-            { name: Tour.name, schema: TourSchema },
-        ]),
-        AdminModule,
-    ],
-    controllers: [ReviewsController, AdminReviewsController],
-    providers: [ReviewsService],
-    exports: [ReviewsService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Review.name, schema: ReviewSchema },
+      { name: Booking.name, schema: BookingSchema },
+      { name: Tour.name, schema: TourSchema },
+    ]),
+    AdminModule,
+  ],
+  controllers: [ReviewsController, AdminReviewsController],
+  providers: [ReviewsService],
+  exports: [ReviewsService],
 })
-export class ReviewsModule { }
+export class ReviewsModule {}

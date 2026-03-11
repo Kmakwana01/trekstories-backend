@@ -120,37 +120,50 @@ let UsersService = class UsersService {
     }
     async getDashboardSummary(userId) {
         const uid = new mongoose_2.Types.ObjectId(userId);
-        const user = await this.userModel.findById(userId).select('wishlist').lean();
+        const user = await this.userModel
+            .findById(userId)
+            .select('wishlist')
+            .lean();
         const wishlistCount = user?.wishlist?.length || 0;
         const [allBookings, recentNotifications, reviewsCount] = await Promise.all([
-            this.bookingModel.find({ user: uid })
+            this.bookingModel
+                .find({ user: uid })
                 .populate('tour', 'title slug thumbnailImage location images')
                 .populate('tourDate', 'startDate endDate date')
                 .sort({ createdAt: -1 })
                 .lean(),
-            this.notificationModel.find({ user: uid })
+            this.notificationModel
+                .find({ user: uid })
                 .sort({ createdAt: -1 })
                 .limit(5)
                 .lean(),
-            this.reviewModel.countDocuments({ user: uid })
+            this.reviewModel.countDocuments({ user: uid }),
         ]);
         const totalBookingsCount = allBookings.length;
-        const completedTripsCount = allBookings.filter(b => b.status === booking_status_enum_1.BookingStatus.COMPLETED).length;
+        const completedTripsCount = allBookings.filter((b) => b.status === booking_status_enum_1.BookingStatus.COMPLETED).length;
         const recentBookings = allBookings.slice(0, 5);
         const now = date_util_1.DateUtil.nowUTC();
-        const upcomingBookings = allBookings.filter(b => {
+        const upcomingBookings = allBookings
+            .filter((b) => {
             const stat = b.status;
             const d = b.tourDate;
             const dateToCompare = d?.startDate || d?.date || b.createdAt;
-            return (stat === booking_status_enum_1.BookingStatus.CONFIRMED || stat === booking_status_enum_1.BookingStatus.PENDING) && date_util_1.DateUtil.startOfDayIST(dateToCompare) >= date_util_1.DateUtil.startOfDayIST(now);
-        }).sort((a, b) => {
+            return ((stat === booking_status_enum_1.BookingStatus.CONFIRMED ||
+                stat === booking_status_enum_1.BookingStatus.PENDING) &&
+                date_util_1.DateUtil.startOfDayIST(dateToCompare) >= date_util_1.DateUtil.startOfDayIST(now));
+        })
+            .sort((a, b) => {
             const dA = a.tourDate;
             const dB = b.tourDate;
             const dateA = new Date(dA?.startDate || dA?.date || a.createdAt).getTime();
             const dateB = new Date(dB?.startDate || dB?.date || b.createdAt).getTime();
             return dateA - dateB;
         });
-        const upcomingBooking = upcomingBookings.length > 0 ? upcomingBookings[0] : (recentBookings.length > 0 ? recentBookings[0] : null);
+        const upcomingBooking = upcomingBookings.length > 0
+            ? upcomingBookings[0]
+            : recentBookings.length > 0
+                ? recentBookings[0]
+                : null;
         return {
             upcomingBooking,
             recentBookings,
@@ -159,8 +172,8 @@ let UsersService = class UsersService {
                 totalBookingsCount,
                 completedTripsCount,
                 reviewsCount,
-                wishlistCount
-            }
+                wishlistCount,
+            },
         };
     }
     sanitizeUser(user) {

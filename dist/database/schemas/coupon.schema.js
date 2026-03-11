@@ -42,7 +42,7 @@ __decorate([
         enum: Object.values(coupon_enum_1.CouponType),
         required: true,
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Coupon.prototype, "discountType", void 0);

@@ -30,14 +30,18 @@ let CouponsService = class CouponsService {
         this.bookingModel = bookingModel;
     }
     async create(createCouponDto) {
-        const existing = await this.couponModel.findOne({ code: createCouponDto.code.toUpperCase() }).exec();
+        const existing = await this.couponModel
+            .findOne({ code: createCouponDto.code.toUpperCase() })
+            .exec();
         if (existing) {
             throw new common_1.ConflictException('Coupon code already exists');
         }
         const coupon = new this.couponModel({
             ...createCouponDto,
             code: createCouponDto.code.toUpperCase(),
-            expiryDate: createCouponDto.expiryDate ? date_util_1.DateUtil.parseISTToUTC(createCouponDto.expiryDate) : undefined
+            expiryDate: createCouponDto.expiryDate
+                ? date_util_1.DateUtil.parseISTToUTC(createCouponDto.expiryDate)
+                : undefined,
         });
         return coupon.save();
     }
@@ -61,7 +65,9 @@ let CouponsService = class CouponsService {
         if (updateData.expiryDate) {
             updateData.expiryDate = date_util_1.DateUtil.parseISTToUTC(updateData.expiryDate);
         }
-        const coupon = await this.couponModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
+        const coupon = await this.couponModel
+            .findByIdAndUpdate(id, updateData, { returnDocument: 'after' })
+            .exec();
         if (!coupon) {
             throw new common_1.NotFoundException('Coupon not found');
         }
@@ -74,7 +80,9 @@ let CouponsService = class CouponsService {
         }
     }
     async validateCoupon(code, userId, tourId, orderAmount) {
-        const coupon = await this.couponModel.findOne({ code: code.toUpperCase(), isActive: true }).exec();
+        const coupon = await this.couponModel
+            .findOne({ code: code.toUpperCase(), isActive: true })
+            .exec();
         if (!coupon) {
             throw new common_1.BadRequestException('Invalid or inactive coupon code');
         }
@@ -89,7 +97,7 @@ let CouponsService = class CouponsService {
             throw new common_1.BadRequestException(`Minimum order amount for this coupon is ${coupon.minOrderAmount}`);
         }
         if (coupon.applicableTours && coupon.applicableTours.length > 0) {
-            const isApplicable = coupon.applicableTours.some(t => t.toString() === tourId);
+            const isApplicable = coupon.applicableTours.some((t) => t.toString() === tourId);
             if (!isApplicable) {
                 throw new common_1.BadRequestException('Coupon is not applicable for this tour');
             }
@@ -98,7 +106,7 @@ let CouponsService = class CouponsService {
             const userUsageCount = await this.bookingModel.countDocuments({
                 user: userId,
                 couponCode: code.toUpperCase(),
-                status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED }
+                status: { $ne: booking_status_enum_1.BookingStatus.CANCELLED },
             });
             if (userUsageCount >= coupon.maxUsagePerUser) {
                 throw new common_1.BadRequestException('You have already reached the maximum usage limit for this coupon');
@@ -122,15 +130,19 @@ let CouponsService = class CouponsService {
                 _id: coupon._id,
                 code: coupon.code,
                 discountType: coupon.discountType,
-                discountValue: coupon.discountValue
-            }
+                discountValue: coupon.discountValue,
+            },
         };
     }
     async applyCoupon(code) {
-        return this.couponModel.findOneAndUpdate({ code: code.toUpperCase() }, { $inc: { usedCount: 1 } }, { returnDocument: 'after' }).exec();
+        return this.couponModel
+            .findOneAndUpdate({ code: code.toUpperCase() }, { $inc: { usedCount: 1 } }, { returnDocument: 'after' })
+            .exec();
     }
     async releaseCoupon(code) {
-        return this.couponModel.findOneAndUpdate({ code: code.toUpperCase() }, { $inc: { usedCount: -1 } }, { returnDocument: 'after' }).exec();
+        return this.couponModel
+            .findOneAndUpdate({ code: code.toUpperCase() }, { $inc: { usedCount: -1 } }, { returnDocument: 'after' })
+            .exec();
     }
     async getCouponUsage(id, pagination) {
         const coupon = await this.findOne(id);

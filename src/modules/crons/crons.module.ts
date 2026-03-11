@@ -6,12 +6,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
-  imports: [
-    TourDatesModule,
-    BookingsModule,
-    NotificationsModule,
-    AdminModule
-  ],
-  providers: [CronsService]
+  imports: [TourDatesModule, BookingsModule, NotificationsModule, AdminModule],
+  providers: [CronsService],
 })
-export class CronsModule { }
+export class CronsModule {}

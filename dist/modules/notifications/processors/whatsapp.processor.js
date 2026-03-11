@@ -34,15 +34,17 @@ let WhatsAppProcessor = WhatsAppProcessor_1 = class WhatsAppProcessor {
                 this.logger.log(`[MOCK WHATSAPP] To: ${phone}, Message: ${message}, Template: ${template}`);
                 return;
             }
-            const phoneNumberId = settings.otherSettings?.whatsappPhoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
-            const token = settings.otherSettings?.whatsappAccessToken || process.env.WHATSAPP_ACCESS_TOKEN;
+            const phoneNumberId = settings.otherSettings?.whatsappPhoneNumberId ||
+                process.env.WHATSAPP_PHONE_NUMBER_ID;
+            const token = settings.otherSettings?.whatsappAccessToken ||
+                process.env.WHATSAPP_ACCESS_TOKEN;
             const version = process.env.WHATSAPP_API_VERSION || 'v19.0';
             if (!phoneNumberId || !token) {
                 this.logger.error('WhatsApp credentials missing (Phone Number ID or Access Token).');
                 return;
             }
             const formattedPhone = phone.replace(/\+/g, '').replace(/\s/g, '');
-            let payload = {
+            const payload = {
                 messaging_product: 'whatsapp',
                 to: formattedPhone,
             };
@@ -51,7 +53,7 @@ let WhatsAppProcessor = WhatsAppProcessor_1 = class WhatsAppProcessor {
                 payload.template = {
                     name: template,
                     language: { code: 'en' },
-                    components: context || []
+                    components: context || [],
                 };
             }
             else if (message) {
@@ -60,7 +62,7 @@ let WhatsAppProcessor = WhatsAppProcessor_1 = class WhatsAppProcessor {
             }
             const url = `https://graph.facebook.com/${version}/${phoneNumberId}/messages`;
             await axios_1.default.post(url, payload, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             });
             this.logger.log(`Successfully sent WhatsApp message to ${phone}`);
         }

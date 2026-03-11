@@ -126,7 +126,10 @@ let BlogsService = class BlogsService {
         return blog;
     }
     async findOneByIdAdmin(id) {
-        const blog = await this.blogModel.findById(id).populate('author', 'name email').exec();
+        const blog = await this.blogModel
+            .findById(id)
+            .populate('author', 'name email')
+            .exec();
         if (!blog)
             throw new common_1.NotFoundException(`Blog with ID '${id}' not found`);
         return blog;

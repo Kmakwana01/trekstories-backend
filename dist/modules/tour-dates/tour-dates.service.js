@@ -28,7 +28,7 @@ let TourDatesService = class TourDatesService {
         const query = {
             tour: tourId,
             status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
-            startDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) }
+            startDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) },
         };
         return this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
     }
@@ -36,14 +36,17 @@ let TourDatesService = class TourDatesService {
         const query = {
             tour: tourId,
             status: { $in: [tour_date_status_enum_1.TourDateStatus.UPCOMING, tour_date_status_enum_1.TourDateStatus.FULL] },
-            startDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) }
+            startDate: { $gt: date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate()) },
         };
-        const dates = await this.tourDateModel.find(query).sort({ startDate: 1 }).exec();
-        return dates.map(d => {
+        const dates = await this.tourDateModel
+            .find(query)
+            .sort({ startDate: 1 })
+            .exec();
+        return dates.map((d) => {
             const doc = d.toObject();
             return {
                 ...doc,
-                availableSeats: doc.totalSeats - doc.bookedSeats
+                availableSeats: doc.totalSeats - doc.bookedSeats,
             };
         });
     }
@@ -55,7 +58,7 @@ let TourDatesService = class TourDatesService {
         const newDate = new this.tourDateModel({
             ...createTourDateDto,
             startDate: date_util_1.DateUtil.parseISTToUTC(startDate),
-            endDate: date_util_1.DateUtil.parseISTToUTC(endDate)
+            endDate: date_util_1.DateUtil.parseISTToUTC(endDate),
         });
         return newDate.save();
     }
@@ -69,7 +72,9 @@ let TourDatesService = class TourDatesService {
             updateData.startDate = date_util_1.DateUtil.parseISTToUTC(updateData.startDate);
         if (updateData.endDate)
             updateData.endDate = date_util_1.DateUtil.parseISTToUTC(updateData.endDate);
-        const updatedDate = await this.tourDateModel.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).exec();
+        const updatedDate = await this.tourDateModel
+            .findByIdAndUpdate(id, updateData, { returnDocument: 'after' })
+            .exec();
         if (!updatedDate) {
             throw new common_1.NotFoundException(`Tour date with ID ${id} not found`);
         }
@@ -84,7 +89,9 @@ let TourDatesService = class TourDatesService {
     }
     async updateStatus(id, status) {
         const query = { _id: id };
-        const updatedDate = await this.tourDateModel.findOneAndUpdate(query, { status }, { returnDocument: 'after' }).exec();
+        const updatedDate = await this.tourDateModel
+            .findOneAndUpdate(query, { status }, { returnDocument: 'after' })
+            .exec();
         if (!updatedDate) {
             throw new common_1.NotFoundException(`Tour date with ID ${id} not found`);
         }
@@ -94,11 +101,11 @@ let TourDatesService = class TourDatesService {
         const today = date_util_1.DateUtil.startOfDayIST(date_util_1.DateUtil.nowIST().toDate());
         const completedResult = await this.tourDateModel.updateMany({
             status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
-            endDate: { $lt: today }
+            endDate: { $lt: today },
         }, { status: tour_date_status_enum_1.TourDateStatus.COMPLETED });
         const fullResult = await this.tourDateModel.updateMany({
             status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
-            $expr: { $lte: ['$totalSeats', '$bookedSeats'] }
+            $expr: { $lte: ['$totalSeats', '$bookedSeats'] },
         }, { status: tour_date_status_enum_1.TourDateStatus.FULL });
         return `Updated ${completedResult.modifiedCount} to completed and ${fullResult.modifiedCount} to full.`;
     }

@@ -18,19 +18,22 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const transaction_schema_1 = require("../../database/schemas/transaction.schema");
+const user_schema_1 = require("../../database/schemas/user.schema");
+const transaction_enum_1 = require("../../common/enums/transaction.enum");
 const pagination_helper_1 = require("../../common/helpers/pagination.helper");
 const bookings_service_1 = require("../bookings/bookings.service");
 const notifications_service_1 = require("../notifications/notifications.service");
 const booking_status_enum_1 = require("../../common/enums/booking-status.enum");
-const transaction_enum_1 = require("../../common/enums/transaction.enum");
 const notification_type_enum_1 = require("../../common/enums/notification-type.enum");
 let TransactionsService = TransactionsService_1 = class TransactionsService {
     transactionModel;
+    userModel;
     bookingsService;
     notificationsService;
     logger = new common_1.Logger(TransactionsService_1.name);
-    constructor(transactionModel, bookingsService, notificationsService) {
+    constructor(transactionModel, userModel, bookingsService, notificationsService) {
         this.transactionModel = transactionModel;
+        this.userModel = userModel;
         this.bookingsService = bookingsService;
         this.notificationsService = notificationsService;
     }
@@ -39,7 +42,8 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         return transaction.save();
     }
     async getUserTransactions(userId) {
-        return this.transactionModel.find({ user: userId })
+        return this.transactionModel
+            .find({ user: userId })
             .sort({ createdAt: -1 })
             .exec();
     }
@@ -50,29 +54,58 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         return this.transactionModel.findOne(query).exec();
     }
     async getAllTransactions(filters = {}, paginationQuery = {}) {
-        const query = { ...filters };
+        const query = {};
+        Object.keys(filters).forEach((key) => {
+            if (filters[key] !== undefined &&
+                filters[key] !== null &&
+                filters[key] !== '') {
+                query[key] = filters[key];
+            }
+        });
+        if (paginationQuery.search) {
+            const searchRegex = new RegExp(paginationQuery.search, 'i');
+            const users = await this.userModel
+                .find({
+                $or: [{ name: searchRegex }, { email: searchRegex }],
+            })
+                .select('_id')
+                .exec();
+            const userIds = users.map((u) => u._id);
+            query.$or = [
+                { transactionId: { $regex: searchRegex } },
+                { description: { $regex: searchRegex } },
+                { paymentMethod: { $regex: searchRegex } },
+                { user: { $in: userIds } },
+            ];
+        }
         if (!paginationQuery.order)
             paginationQuery.order = 'desc';
-        return (0, pagination_helper_1.paginate)(this.transactionModel, query, paginationQuery, ['user', 'booking']);
+        return (0, pagination_helper_1.paginate)(this.transactionModel, query, paginationQuery, [
+            'user',
+            'booking',
+        ]);
     }
     async exportToCSV(filters = {}) {
         const result = await this.getAllTransactions(filters, { limit: 1000 });
         const transactions = result.items;
         const header = 'Date,Transaction ID,User,Type,Amount,Status,Method,Description\n';
-        const rows = transactions.map(t => {
+        const rows = transactions
+            .map((t) => {
             const userEmail = t.user?.email || 'Unknown';
             const bookingNum = t.booking?.bookingNumber || 'N/A';
             return `${t.createdAt.toISOString()},${t.transactionId},${userEmail},[${bookingNum}],${t.type},${t.amount},${t.status},${t.paymentMethod},${t.description || ''}`;
-        }).join('\n');
+        })
+            .join('\n');
         return Buffer.from(header + rows);
     }
     async submitPaymentProof(userId, dto) {
         this.logger.log(`User ${userId} submitting payment proof for booking ${dto.bookingId}`);
-        const { bookingId, transactionId, paymentMethod, receiptImage, paymentAmount } = dto;
+        const { bookingId, transactionId, paymentMethod, receiptImage, paymentAmount, } = dto;
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
-        if (booking.status === booking_status_enum_1.BookingStatus.CANCELLED || booking.status === booking_status_enum_1.BookingStatus.COMPLETED) {
+        if (booking.status === booking_status_enum_1.BookingStatus.CANCELLED ||
+            booking.status === booking_status_enum_1.BookingStatus.COMPLETED) {
             throw new common_1.BadRequestException(`Cannot submit payment for booking in ${booking.status} status`);
         }
         const existingPending = await this.transactionModel.findOne({
@@ -93,7 +126,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             transactionId,
             paymentMethod,
             receiptImage,
-            description: 'Online payment receipt submitted for review'
+            description: 'Online payment receipt submitted for review',
         });
         await transaction.save();
         await this.bookingsService.syncBookingReceiptInfo(bookingId, receiptImage, transactionId);
@@ -102,7 +135,8 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
     }
     async approvePayment(transactionId, adminId) {
         this.logger.log(`Admin ${adminId} approving transaction: ${transactionId}`);
-        const transaction = await this.transactionModel.findById(transactionId)
+        const transaction = await this.transactionModel
+            .findById(transactionId)
             .populate('user')
             .populate({ path: 'booking', populate: { path: 'tour' } })
             .exec();
@@ -125,19 +159,23 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             await this.bookingsService.adminConfirmBooking(bookingId);
         }
         const booking = await this.bookingsService.getBookingById(bookingId);
-        await this.notificationsService.createNotification(transaction.user._id.toString(), notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Payment Approved', `Your payment for booking ${booking.bookingNumber} has been approved.`, { bookingId: transaction.booking._id, transactionId: transaction._id });
+        await this.notificationsService.createNotification(transaction.user._id.toString(), notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Payment Approved', `Your payment for booking ${booking.bookingNumber} has been approved.`, {
+            bookingId: transaction.booking._id,
+            transactionId: transaction._id,
+        });
         await this.notificationsService.sendEmail(booking.user.email, 'Payment Approved', 'payment_approved', {
             name: booking.user.name,
             bookingNumber: booking.bookingNumber,
             tourTitle: booking.tour.title,
-            amount: transaction.amount
+            amount: transaction.amount,
         });
         this.logger.log(`Transaction ${transactionId} approved successfully.`);
         return transaction;
     }
     async rejectPayment(transactionId, adminId, reason) {
         this.logger.log(`Admin ${adminId} rejecting transaction: ${transactionId}. Reason: ${reason}`);
-        const transaction = await this.transactionModel.findById(transactionId)
+        const transaction = await this.transactionModel
+            .findById(transactionId)
             .populate('user')
             .populate({ path: 'booking', populate: { path: 'tour' } })
             .exec();
@@ -155,14 +193,17 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         await this.bookingsService.adminVerifyReceipt(bookingId, false, adminId);
         try {
             const uId = transaction.user._id.toString();
-            await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_FAILED, 'Payment Rejected', `Your payment for booking ${transaction.booking.bookingNumber} was rejected. Reason: ${reason}`, { bookingId: transaction.booking._id, transactionId: transaction._id });
+            await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_FAILED, 'Payment Rejected', `Your payment for booking ${transaction.booking.bookingNumber} was rejected. Reason: ${reason}`, {
+                bookingId: transaction.booking._id,
+                transactionId: transaction._id,
+            });
             if (transaction.user.email) {
                 await this.notificationsService.sendEmail(transaction.user.email, 'Payment Rejected', 'payment_rejected', {
                     name: transaction.user.name,
                     bookingNumber: transaction.booking.bookingNumber,
                     tourTitle: transaction.booking.tour.title,
                     amount: transaction.amount,
-                    reason: reason
+                    reason: reason,
                 });
             }
         }
@@ -173,7 +214,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
     }
     async recordOfflinePayment(adminId, dto) {
         this.logger.log(`Admin ${adminId} recording offline payment for booking ${dto.bookingId}`);
-        const { bookingId, amount, paymentMethod, receiptNumber, collectedAt, notes } = dto;
+        const { bookingId, amount, paymentMethod, receiptNumber, collectedAt, notes, } = dto;
         const booking = await this.bookingsService.getBookingById(bookingId);
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
@@ -187,7 +228,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             paymentMethod: paymentMethod || 'CASH',
             processedBy: adminId,
             processedAt: collectedAt || new Date(),
-            description: `Offline payment recorded (${notes || ''})`
+            description: `Offline payment recorded (${notes || ''})`,
         });
         await transaction.save();
         await this.bookingsService.adminUpdatePaidAmount(booking._id.toString(), amount);
@@ -196,20 +237,24 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         if (updatedBooking.status === booking_status_enum_1.BookingStatus.PENDING) {
             await this.bookingsService.adminConfirmBooking(bookingId);
         }
-        const populatedTrans = await this.transactionModel.findById(transaction._id)
+        const populatedTrans = await this.transactionModel
+            .findById(transaction._id)
             .populate('user')
             .populate({ path: 'booking', populate: { path: 'tour' } })
             .exec();
         if (populatedTrans && populatedTrans.user) {
             try {
                 const uId = populatedTrans.user._id.toString();
-                await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Offline Payment Received', `₹${amount} additional payment received. Remaining: ₹${updatedBooking.pendingAmount}`, { bookingId: populatedTrans.booking._id, transactionId: populatedTrans._id });
+                await this.notificationsService.createNotification(uId, notification_type_enum_1.NotificationType.PAYMENT_SUCCESS, 'Offline Payment Received', `₹${amount} additional payment received. Remaining: ₹${updatedBooking.pendingAmount}`, {
+                    bookingId: populatedTrans.booking._id,
+                    transactionId: populatedTrans._id,
+                });
                 if (populatedTrans.user.email) {
                     await this.notificationsService.sendEmail(populatedTrans.user.email, 'Offline Payment Received', 'payment_approved', {
                         name: populatedTrans.user.name,
                         bookingNumber: populatedTrans.booking.bookingNumber,
                         tourTitle: populatedTrans.booking.tour.title,
-                        amount: populatedTrans.amount
+                        amount: populatedTrans.amount,
                     });
                 }
             }
@@ -224,10 +269,23 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
         const booking = await this.bookingsService.getBookingById(bookingId, userId);
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
-        const transactions = await this.transactionModel.find({
+        const transactions = await this.transactionModel
+            .find({
             booking: bookingId,
-            type: { $in: [transaction_enum_1.TransactionType.ONLINE_RECEIPT, transaction_enum_1.TransactionType.OFFLINE_PAYMENT, transaction_enum_1.TransactionType.REFUND] },
-            status: { $in: [transaction_enum_1.TransactionStatus.SUCCESS, transaction_enum_1.TransactionStatus.PENDING, transaction_enum_1.TransactionStatus.FAILED] }
+            type: {
+                $in: [
+                    transaction_enum_1.TransactionType.ONLINE_RECEIPT,
+                    transaction_enum_1.TransactionType.OFFLINE_PAYMENT,
+                    transaction_enum_1.TransactionType.REFUND,
+                ],
+            },
+            status: {
+                $in: [
+                    transaction_enum_1.TransactionStatus.SUCCESS,
+                    transaction_enum_1.TransactionStatus.PENDING,
+                    transaction_enum_1.TransactionStatus.FAILED,
+                ],
+            },
         })
             .populate('processedBy', 'name')
             .sort({ createdAt: -1 })
@@ -237,7 +295,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             paidAmount: booking.paidAmount,
             pendingAmount: booking.pendingAmount,
             paymentType: booking.paymentType,
-            payments: transactions
+            payments: transactions,
         };
     }
 };
@@ -245,7 +303,9 @@ exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = TransactionsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(transaction_schema_1.Transaction.name)),
+    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
         bookings_service_1.BookingsService,
         notifications_service_1.NotificationsService])
 ], TransactionsService);

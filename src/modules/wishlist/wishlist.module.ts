@@ -6,14 +6,14 @@ import { User, UserSchema } from '../../database/schemas/user.schema';
 import { Tour, TourSchema } from '../../database/schemas/tour.schema';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: User.name, schema: UserSchema },
-            { name: Tour.name, schema: TourSchema },
-        ]),
-    ],
-    providers: [WishlistService],
-    controllers: [WishlistController],
-    exports: [WishlistService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Tour.name, schema: TourSchema },
+    ]),
+  ],
+  providers: [WishlistService],
+  controllers: [WishlistController],
+  exports: [WishlistService],
 })
-export class WishlistModule { }
+export class WishlistModule {}

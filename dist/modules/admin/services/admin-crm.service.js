@@ -48,53 +48,73 @@ let AdminCrmService = class AdminCrmService {
         return (0, pagination_helper_1.paginate)(this.userModel, query, paginationQuery);
     }
     async getUserById(id) {
-        const user = await this.userModel.findById(id)
+        const user = await this.userModel
+            .findById(id)
             .select('-passwordHash -otp -otpExpiry')
             .populate('wishlist', 'title slug thumbnailImage')
             .lean()
             .exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
-        const bookings = await this.bookingModel.find({ user: new mongoose_2.Types.ObjectId(id) }).sort({ createdAt: -1 }).lean().exec();
+        const bookings = await this.bookingModel
+            .find({ user: new mongoose_2.Types.ObjectId(id) })
+            .sort({ createdAt: -1 })
+            .lean()
+            .exec();
         const bookingCount = bookings.length;
         const totalSpent = bookings
-            .filter(b => b.status?.toUpperCase() !== 'CANCELLED')
+            .filter((b) => b.status?.toUpperCase() !== 'CANCELLED')
             .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
-        user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;
+        user.address = user.contactAddress
+            ? {
+                street: user.contactAddress,
+                city: user.country || 'Unknown',
+                country: user.country || 'Unknown',
+            }
+            : null;
         user.bookings = bookings;
-        if (user.internalNotes && (!user.adminNotes || user.adminNotes.length === 0)) {
-            user.adminNotes = [{ note: user.internalNotes, createdAt: user.updatedAt }];
+        if (user.internalNotes &&
+            (!user.adminNotes || user.adminNotes.length === 0)) {
+            user.adminNotes = [
+                { note: user.internalNotes, createdAt: user.updatedAt },
+            ];
         }
         return {
             user,
             totalBookings: bookingCount,
             totalSpent,
-            bookings
+            bookings,
         };
     }
     async blockUser(id, adminId, reason, ip, userAgent) {
-        const user = await this.userModel.findByIdAndUpdate(id, { isBlocked: true }, { returnDocument: 'after' }).exec();
+        const user = await this.userModel
+            .findByIdAndUpdate(id, { isBlocked: true }, { returnDocument: 'after' })
+            .exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
         await this.adminLogService.logAction(adminId, 'BLOCK_USER', 'users', id, { reason }, ip, userAgent);
         return user;
     }
     async unblockUser(id, adminId, ip, userAgent) {
-        const user = await this.userModel.findByIdAndUpdate(id, { isBlocked: false }, { returnDocument: 'after' }).exec();
+        const user = await this.userModel
+            .findByIdAndUpdate(id, { isBlocked: false }, { returnDocument: 'after' })
+            .exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
         await this.adminLogService.logAction(adminId, 'UNBLOCK_USER', 'users', id, null, ip, userAgent);
         return user;
     }
     async addUserNote(id, note) {
-        const user = await this.userModel.findByIdAndUpdate(id, {
+        const user = await this.userModel
+            .findByIdAndUpdate(id, {
             $push: {
                 adminNotes: {
                     note,
-                    createdAt: new Date()
-                }
-            }
-        }, { returnDocument: 'after' }).exec();
+                    createdAt: new Date(),
+                },
+            },
+        }, { returnDocument: 'after' })
+            .exec();
         if (!user)
             throw new common_1.NotFoundException('User not found');
         return user;

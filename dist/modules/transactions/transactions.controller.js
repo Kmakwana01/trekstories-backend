@@ -59,7 +59,7 @@ let TransactionsController = class TransactionsController {
             transactionId: dto.transactionId,
             paymentMethod: dto.paymentMethod,
             paymentAmount: dto.paymentAmount ? Number(dto.paymentAmount) : undefined,
-            receiptImage: receiptImageUrl
+            receiptImage: receiptImageUrl,
         });
     }
 };

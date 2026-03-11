@@ -30,24 +30,31 @@ let WishlistService = class WishlistService {
         if (!tour || !tour.isActive) {
             throw new common_1.NotFoundException('Tour not found or is inactive');
         }
-        const user = await this.userModel.findByIdAndUpdate(userId, { $addToSet: { wishlist: tourId } }, { returnDocument: 'after' }).populate('wishlist').exec();
+        const user = await this.userModel
+            .findByIdAndUpdate(userId, { $addToSet: { wishlist: tourId } }, { returnDocument: 'after' })
+            .populate('wishlist')
+            .exec();
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
         return user;
     }
     async removeFromWishlist(userId, tourId) {
-        const user = await this.userModel.findByIdAndUpdate(userId, { $pull: { wishlist: tourId } }, { returnDocument: 'after' }).populate('wishlist').exec();
+        const user = await this.userModel
+            .findByIdAndUpdate(userId, { $pull: { wishlist: tourId } }, { returnDocument: 'after' })
+            .populate('wishlist')
+            .exec();
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
         return user;
     }
     async getWishlist(userId) {
-        const user = await this.userModel.findById(userId)
+        const user = await this.userModel
+            .findById(userId)
             .populate({
             path: 'wishlist',
-            select: 'title slug thumbnailImage basePrice averageRating state location category'
+            select: 'title slug thumbnailImage basePrice averageRating state location category',
         })
             .exec();
         if (!user) {
@@ -60,7 +67,7 @@ let WishlistService = class WishlistService {
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
-        const tourExists = user.wishlist.some(id => id.toString() === tourId);
+        const tourExists = user.wishlist.some((id) => id.toString() === tourId);
         if (tourExists) {
             const updatedUser = await this.removeFromWishlist(userId, tourId);
             return { added: false, user: updatedUser };

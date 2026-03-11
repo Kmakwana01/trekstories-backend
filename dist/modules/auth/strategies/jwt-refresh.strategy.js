@@ -19,15 +19,19 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
                 (request) => {
-                    return request?.body?.refreshToken || request?.headers?.authorization?.replace('Bearer ', '');
+                    return (request?.body?.refreshToken ||
+                        request?.headers?.authorization?.replace('Bearer ', ''));
                 },
             ]),
-            secretOrKey: configService.get('jwt.refreshSecret') || configService.get('jwt.secret') || 'default_secret',
+            secretOrKey: configService.get('jwt.refreshSecret') ||
+                configService.get('jwt.secret') ||
+                'default_secret',
             passReqToCallback: true,
         });
     }
     validate(req, payload) {
-        const refreshToken = req.body?.refreshToken || req.headers?.authorization?.replace('Bearer ', '');
+        const refreshToken = req.body?.refreshToken ||
+            req.headers?.authorization?.replace('Bearer ', '');
         return { ...payload, refreshToken };
     }
 };

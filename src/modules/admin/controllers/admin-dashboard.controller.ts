@@ -9,25 +9,27 @@ import { AdminDashboardService } from '../services/admin-dashboard.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminDashboardController {
-    constructor(private dashboardService: AdminDashboardService) { }
+  constructor(private dashboardService: AdminDashboardService) {}
 
-    @Get('summary')
-    async getSummary() {
-        return this.dashboardService.getSummary();
-    }
+  @Get('summary')
+  async getSummary() {
+    return this.dashboardService.getSummary();
+  }
 
-    @Get('revenue-chart')
-    async getRevenueChart(@Query('period') period: 'daily' | 'monthly' | 'yearly') {
-        return this.dashboardService.getRevenueChart(period || 'daily');
-    }
+  @Get('revenue-chart')
+  async getRevenueChart(
+    @Query('period') period: 'daily' | 'monthly' | 'yearly',
+  ) {
+    return this.dashboardService.getRevenueChart(period || 'daily');
+  }
 
-    @Get('top-tours')
-    async getTopTours(@Query('limit') limit: string) {
-        return this.dashboardService.getTopTours(parseInt(limit) || 5);
-    }
+  @Get('top-tours')
+  async getTopTours(@Query('limit') limit: string) {
+    return this.dashboardService.getTopTours(parseInt(limit) || 5);
+  }
 
-    @Get('recent-bookings')
-    async getRecentBookings(@Query('limit') limit: string) {
-        return this.dashboardService.getRecentBookings(parseInt(limit) || 5);
-    }
+  @Get('recent-bookings')
+  async getRecentBookings(@Query('limit') limit: string) {
+    return this.dashboardService.getRecentBookings(parseInt(limit) || 5);
+  }
 }

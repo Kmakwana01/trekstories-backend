@@ -22,11 +22,19 @@ exports.DateUtil = {
             return (0, dayjs_1.default)().utc().toDate();
         if (dateString.includes('T'))
             return (0, dayjs_1.default)(dateString).utc().toDate();
-        return dayjs_1.default.tz(dateString, 'YYYY-MM-DD', TIMEZONE).startOf('day').utc().toDate();
+        return dayjs_1.default
+            .tz(dateString, 'YYYY-MM-DD', TIMEZONE)
+            .startOf('day')
+            .utc()
+            .toDate();
     },
     startOfDayIST(date) {
         if (typeof date === 'string') {
-            return dayjs_1.default.tz(date, 'YYYY-MM-DD', TIMEZONE).startOf('day').utc().toDate();
+            return dayjs_1.default
+                .tz(date, 'YYYY-MM-DD', TIMEZONE)
+                .startOf('day')
+                .utc()
+                .toDate();
         }
         const d = date || (0, dayjs_1.default)().toDate();
         return (0, dayjs_1.default)(d).tz(TIMEZONE).startOf('day').utc().toDate();
@@ -42,6 +50,6 @@ exports.DateUtil = {
         if (!date)
             return '';
         return (0, dayjs_1.default)(date).tz(TIMEZONE).format(format);
-    }
+    },
 };
 //# sourceMappingURL=date.util.js.map

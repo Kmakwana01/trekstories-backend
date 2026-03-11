@@ -53,11 +53,7 @@ let TeamMembersService = class TeamMembersService {
         }
         if (search) {
             const regex = new RegExp(search, 'i');
-            query.$or = [
-                { name: regex },
-                { designation: regex },
-                { bio: regex },
-            ];
+            query.$or = [{ name: regex }, { designation: regex }, { bio: regex }];
         }
         if (!paginationQuery.sort) {
             paginationQuery.sort = 'order';

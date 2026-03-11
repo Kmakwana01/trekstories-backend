@@ -5,7 +5,11 @@ import { Payment } from '../../database/schemas/payment.schema';
 import { BookingsService } from '../bookings/bookings.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 
 describe('PaymentsService', () => {
   let service: PaymentsService;
@@ -19,7 +23,7 @@ describe('PaymentsService', () => {
       bookingNumber: 'TRV-123456',
       user: { name: 'Test User', email: 'test@example.com' },
       tour: { title: 'Test Tour' },
-      toString: () => 'bookingId'
+      toString: () => 'bookingId',
     },
     transactionId: 'tx123',
     amount: 1000,
@@ -95,17 +99,17 @@ describe('PaymentsService', () => {
         bookingId: 'bookingId',
         transactionId: 'tx123',
         paymentMethod: 'UPI',
-        receiptImage: 'img.jpg'
+        receiptImage: 'img.jpg',
       };
 
       mockBookingsService.getBookingById.mockResolvedValue({
         status: 'pending',
         totalAmount: 1000,
-        save: jest.fn().mockResolvedValue(true)
+        save: jest.fn().mockResolvedValue(true),
       });
 
       MockPaymentModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null)
+        exec: jest.fn().mockResolvedValue(null),
       });
 
       const result = await service.submitPaymentProof('userId', dto);
@@ -114,17 +118,24 @@ describe('PaymentsService', () => {
 
     it('should fail if booking not found', async () => {
       mockBookingsService.getBookingById.mockResolvedValue(null);
-      await expect(service.submitPaymentProof('userId', {} as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.submitPaymentProof('userId', {} as any),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should fail if transaction ID exists', async () => {
-      mockBookingsService.getBookingById.mockResolvedValue({ status: 'pending', totalAmount: 1000 });
+      mockBookingsService.getBookingById.mockResolvedValue({
+        status: 'pending',
+        totalAmount: 1000,
+      });
       MockPaymentModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ _id: 'existing' })
+        exec: jest.fn().mockResolvedValue({ _id: 'existing' }),
       });
 
       const dto = { bookingId: 'bookingId', transactionId: 'tx123' };
-      await expect(service.submitPaymentProof('userId', dto)).rejects.toThrow(ConflictException);
+      await expect(service.submitPaymentProof('userId', dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -136,14 +147,14 @@ describe('PaymentsService', () => {
         exec: jest.fn().mockResolvedValue({
           ...mockPayment,
           status: 'under_review',
-          save: mockSave
-        })
+          save: mockSave,
+        }),
       });
 
       mockBookingsService.getBookingById.mockResolvedValue({
         bookingNumber: 'TRV-123',
         user: { name: 'User', email: 'test@example.com' },
-        tour: { title: 'Tour' }
+        tour: { title: 'Tour' },
       });
 
       mockBookingsService.adminConfirmBooking.mockResolvedValue({});
@@ -151,7 +162,9 @@ describe('PaymentsService', () => {
       const result = await service.approvePayment('paymentId', 'adminId');
       expect(result.status).toBe('success');
       expect(mockSave).toHaveBeenCalled();
-      expect(mockBookingsService.adminConfirmBooking).toHaveBeenCalledWith('bookingId');
+      expect(mockBookingsService.adminConfirmBooking).toHaveBeenCalledWith(
+        'bookingId',
+      );
     });
   });
 
@@ -162,7 +175,7 @@ describe('PaymentsService', () => {
         user: { name: 'Test User', email: 'test@example.com' },
         status: 'pending',
         pendingAmount: 0,
-        totalAmount: 1000
+        totalAmount: 1000,
       });
 
       mockBookingsService.adminConfirmBooking.mockResolvedValue({});
@@ -171,12 +184,14 @@ describe('PaymentsService', () => {
         bookingId: 'bookingId',
         amount: 1000,
         paymentMethod: 'cash',
-        receiptNumber: 'REC123'
+        receiptNumber: 'REC123',
       };
 
       const result = await service.recordOfflinePayment('adminId', dto);
       expect(result.paymentType).toBe('offline');
-      expect(mockBookingsService.adminConfirmBooking).toHaveBeenCalledWith('bookingId');
+      expect(mockBookingsService.adminConfirmBooking).toHaveBeenCalledWith(
+        'bookingId',
+      );
     });
   });
 });

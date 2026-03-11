@@ -26,7 +26,9 @@ let AdminReportsController = class AdminReportsController {
         this.reportsService = reportsService;
     }
     async getRevenueCSV(startDate, endDate, res) {
-        const start = startDate ? date_util_1.DateUtil.startOfDayIST(startDate) : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const start = startDate
+            ? date_util_1.DateUtil.startOfDayIST(startDate)
+            : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
         const end = endDate ? date_util_1.DateUtil.endOfDayIST(endDate) : date_util_1.DateUtil.nowUTC();
         const csv = await this.reportsService.generateRevenueCSV(start, end);
         res.setHeader('Content-Type', 'text/csv');
@@ -34,7 +36,9 @@ let AdminReportsController = class AdminReportsController {
         res.send(csv);
     }
     async getRevenuePDF(startDate, endDate, res) {
-        const start = startDate ? date_util_1.DateUtil.startOfDayIST(startDate) : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const start = startDate
+            ? date_util_1.DateUtil.startOfDayIST(startDate)
+            : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
         const end = endDate ? date_util_1.DateUtil.endOfDayIST(endDate) : date_util_1.DateUtil.nowUTC();
         const buffer = await this.reportsService.generateRevenuePDF(start, end);
         res.setHeader('Content-Type', 'application/pdf');
@@ -42,7 +46,9 @@ let AdminReportsController = class AdminReportsController {
         res.send(buffer);
     }
     async getBookingCSV(startDate, endDate, res) {
-        const start = startDate ? date_util_1.DateUtil.startOfDayIST(startDate) : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
+        const start = startDate
+            ? date_util_1.DateUtil.startOfDayIST(startDate)
+            : date_util_1.DateUtil.nowIST().subtract(30, 'day').startOf('day').utc().toDate();
         const end = endDate ? date_util_1.DateUtil.endOfDayIST(endDate) : date_util_1.DateUtil.nowUTC();
         const csv = await this.reportsService.generateBookingCSV(start, end);
         res.setHeader('Content-Type', 'text/csv');

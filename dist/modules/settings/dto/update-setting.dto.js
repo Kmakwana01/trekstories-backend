@@ -19,7 +19,6 @@ class BusinessDetailsDto {
     phoneNumber;
     officeAddress;
     supportEmail;
-    newsletterEmail;
 }
 exports.BusinessDetailsDto = BusinessDetailsDto;
 __decorate([
@@ -29,7 +28,9 @@ __decorate([
     __metadata("design:type", String)
 ], BusinessDetailsDto.prototype, "upiId", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'GST rate as a percentage (e.g. 5 for 5%). Range: 0–28.' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'GST rate as a percentage (e.g. 5 for 5%). Range: 0–28.',
+    }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.Max)(28),
@@ -54,12 +55,6 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], BusinessDetailsDto.prototype, "supportEmail", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'The email address where newsletter subscription alerts are sent' }),
-    (0, class_validator_1.IsEmail)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], BusinessDetailsDto.prototype, "newsletterEmail", void 0);
 class SocialMediaDto {
     facebook;
     instagram;
@@ -400,6 +395,7 @@ class UpdateSettingDto {
     otherSettings;
     policies;
     heroContent;
+    heroSliders;
     aboutContent;
     careerContent;
     faqs;
@@ -448,6 +444,13 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", HeroContentDto)
 ], UpdateSettingDto.prototype, "heroContent", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: [HeroContentDto] }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => HeroContentDto),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], UpdateSettingDto.prototype, "heroSliders", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ type: AboutContentDto }),
     (0, class_validator_1.ValidateNested)(),

@@ -33,7 +33,7 @@ __decorate([
         type: String,
         enum: Object.values(gender_enum_1.Gender),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], SavedTraveler.prototype, "gender", void 0);
@@ -95,7 +95,7 @@ __decorate([
         type: String,
         enum: Object.values(gender_enum_1.Gender),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "gender", void 0);
@@ -118,7 +118,7 @@ __decorate([
         default: roles_enum_1.Role.CUSTOMER,
         uppercase: true,
         trim: true,
-        index: true
+        index: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
@@ -167,7 +167,16 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "internalNotes", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [{ note: String, createdAt: { type: Date, default: Date.now }, adminId: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User' } }], default: [] }),
+    (0, mongoose_1.Prop)({
+        type: [
+            {
+                note: String,
+                createdAt: { type: Date, default: Date.now },
+                adminId: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User' },
+            },
+        ],
+        default: [],
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "adminNotes", void 0);
 exports.User = User = __decorate([

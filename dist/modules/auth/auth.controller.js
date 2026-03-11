@@ -45,7 +45,8 @@ let AuthController = class AuthController {
     async googleAuth(req) { }
     async googleAuthRedirect(req, res) {
         const result = await this.authService.googleLogin(req);
-        const frontendUrl = this.configService.get('frontend.url') || 'https://www.trekstories.in';
+        const frontendUrl = this.configService.get('frontend.url') ||
+            'https://www.trekstories.in';
         return res.redirect(`${frontendUrl}/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`);
     }
     async refresh(req) {

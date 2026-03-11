@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../../database/schemas/blog.schema';
@@ -11,179 +15,184 @@ import { BlogCategory } from '../../common/enums/blog-category.enum';
 
 @Injectable()
 export class BlogsService {
-    constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) { }
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-    async create(createBlogDto: CreateBlogDto, authorId: string, featuredImageUrl?: string): Promise<Blog> {
-        const slug = this.generateSlug(createBlogDto.title);
+  async create(
+    createBlogDto: CreateBlogDto,
+    authorId: string,
+    featuredImageUrl?: string,
+  ): Promise<Blog> {
+    const slug = this.generateSlug(createBlogDto.title);
 
-        // Check for existing slug (though schema has unique, good to check)
-        const existing = await this.blogModel.findOne({ slug });
-        if (existing)
-        {
-            throw new ConflictException('A blog with this title already exists.');
-        }
-
-        const newBlog = new this.blogModel({
-            ...createBlogDto,
-            slug,
-            author: authorId,
-            ...(featuredImageUrl ? { featuredImage: featuredImageUrl } : {}),
-        });
-        return newBlog.save();
+    // Check for existing slug (though schema has unique, good to check)
+    const existing = await this.blogModel.findOne({ slug });
+    if (existing) {
+      throw new ConflictException('A blog with this title already exists.');
     }
 
-    async findAllPublished(filters: FilterBlogDto) {
-        const { category, tag, search, page = 1, limit = 10 } = filters;
-        const query: any = { isPublished: true };
+    const newBlog = new this.blogModel({
+      ...createBlogDto,
+      slug,
+      author: authorId,
+      ...(featuredImageUrl ? { featuredImage: featuredImageUrl } : {}),
+    });
+    return newBlog.save();
+  }
 
-        if (category) query.category = category.toUpperCase();
-        if (tag) query.tags = tag;
-        if (search)
-        {
-            const regex = new RegExp(search, 'i');
-            query.$or = [
-                { title: regex },
-                { excerpt: regex },
-                { content: regex },
-                { category: regex },
-                { tags: { $in: [regex] } },
-            ];
-        }
+  async findAllPublished(filters: FilterBlogDto) {
+    const { category, tag, search, page = 1, limit = 10 } = filters;
+    const query: any = { isPublished: true };
 
-        const blogs = await this.blogModel
-            .find(query)
-            .populate('author', 'name email')
-            .sort({ publishedAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .exec();
-
-        const total = await this.blogModel.countDocuments(query);
-
-        const totalPages = Math.ceil(total / limit);
-
-        return {
-            items: blogs,
-            total,
-            page,
-            limit,
-            totalPages,
-            hasNext: page < totalPages,
-            hasPrev: page > 1,
-        };
+    if (category) query.category = category.toUpperCase();
+    if (tag) query.tags = tag;
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      query.$or = [
+        { title: regex },
+        { excerpt: regex },
+        { content: regex },
+        { category: regex },
+        { tags: { $in: [regex] } },
+      ];
     }
 
-    async findAllAdmin(filters: FilterBlogDto) {
-        const { category, tag, search, page = 1, limit = 10 } = filters;
-        const query: any = {}; // No isPublished filter
+    const blogs = await this.blogModel
+      .find(query)
+      .populate('author', 'name email')
+      .sort({ publishedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
-        if (category) query.category = category.toUpperCase();
-        if (tag) query.tags = tag;
-        if (search)
-        {
-            const regex = new RegExp(search, 'i');
-            query.$or = [
-                { title: regex },
-                { excerpt: regex },
-                { content: regex },
-                { category: regex },
-                { tags: { $in: [regex] } },
-            ];
-        }
+    const total = await this.blogModel.countDocuments(query);
 
-        const blogs = await this.blogModel
-            .find(query)
-            .populate('author', 'name email')
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .exec();
+    const totalPages = Math.ceil(total / limit);
 
-        const total = await this.blogModel.countDocuments(query);
+    return {
+      items: blogs,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    };
+  }
 
-        const totalPages = Math.ceil(total / limit);
+  async findAllAdmin(filters: FilterBlogDto) {
+    const { category, tag, search, page = 1, limit = 10 } = filters;
+    const query: any = {}; // No isPublished filter
 
-        return {
-            items: blogs,
-            total,
-            page,
-            limit,
-            totalPages,
-            hasNext: page < totalPages,
-            hasPrev: page > 1,
-        };
+    if (category) query.category = category.toUpperCase();
+    if (tag) query.tags = tag;
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      query.$or = [
+        { title: regex },
+        { excerpt: regex },
+        { content: regex },
+        { category: regex },
+        { tags: { $in: [regex] } },
+      ];
     }
 
-    async findOneBySlug(slug: string): Promise<Blog> {
-        const blog = await this.blogModel
-            .findOne({ slug, isPublished: true })
-            .populate('author', 'name email')
-            .exec();
+    const blogs = await this.blogModel
+      .find(query)
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
-        if (!blog)
-        {
-            throw new NotFoundException(`Blog with slug '${slug}' not found`);
-        }
+    const total = await this.blogModel.countDocuments(query);
 
-        // Increment view count asynchronously
-        blog.viewCount += 1;
-        await blog.save();
+    const totalPages = Math.ceil(total / limit);
 
-        return blog;
+    return {
+      items: blogs,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    };
+  }
+
+  async findOneBySlug(slug: string): Promise<Blog> {
+    const blog = await this.blogModel
+      .findOne({ slug, isPublished: true })
+      .populate('author', 'name email')
+      .exec();
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with slug '${slug}' not found`);
     }
 
-    async findOneByIdAdmin(id: string): Promise<Blog> {
-        const blog = await this.blogModel.findById(id).populate('author', 'name email').exec();
-        if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
-        return blog;
+    // Increment view count asynchronously
+    blog.viewCount += 1;
+    await blog.save();
+
+    return blog;
+  }
+
+  async findOneByIdAdmin(id: string): Promise<Blog> {
+    const blog = await this.blogModel
+      .findById(id)
+      .populate('author', 'name email')
+      .exec();
+    if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
+    return blog;
+  }
+
+  async update(
+    id: string,
+    updateBlogDto: UpdateBlogDto,
+    featuredImageUrl?: string,
+  ): Promise<Blog> {
+    const blog = await this.blogModel.findById(id);
+    if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
+
+    if (updateBlogDto.title && updateBlogDto.title !== blog.title) {
+      const newSlug = this.generateSlug(updateBlogDto.title);
+      const existing = await this.blogModel.findOne({ slug: newSlug });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('A blog with this title already exists.');
+      }
+      blog.slug = newSlug;
     }
 
-    async update(id: string, updateBlogDto: UpdateBlogDto, featuredImageUrl?: string): Promise<Blog> {
-        const blog = await this.blogModel.findById(id);
-        if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
+    Object.assign(blog, updateBlogDto);
+    if (featuredImageUrl) blog.featuredImage = featuredImageUrl;
+    return blog.save();
+  }
 
-        if (updateBlogDto.title && updateBlogDto.title !== blog.title)
-        {
-            const newSlug = this.generateSlug(updateBlogDto.title);
-            const existing = await this.blogModel.findOne({ slug: newSlug });
-            if (existing && existing.id !== id)
-            {
-                throw new ConflictException('A blog with this title already exists.');
-            }
-            blog.slug = newSlug;
-        }
+  async remove(id: string): Promise<void> {
+    const result = await this.blogModel.findByIdAndDelete(id);
+    if (!result) throw new NotFoundException(`Blog with ID '${id}' not found`);
+  }
 
-        Object.assign(blog, updateBlogDto);
-        if (featuredImageUrl) blog.featuredImage = featuredImageUrl;
-        return blog.save();
-    }
+  async publish(id: string): Promise<Blog> {
+    const blog = await this.blogModel.findByIdAndUpdate(
+      id,
+      { isPublished: true, publishedAt: DateUtil.nowUTC() },
+      { returnDocument: 'after' },
+    );
+    if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
+    return blog;
+  }
 
-    async remove(id: string): Promise<void> {
-        const result = await this.blogModel.findByIdAndDelete(id);
-        if (!result) throw new NotFoundException(`Blog with ID '${id}' not found`);
-    }
+  async unpublish(id: string): Promise<Blog> {
+    const blog = await this.blogModel.findByIdAndUpdate(
+      id,
+      { isPublished: false },
+      { returnDocument: 'after' },
+    );
+    if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
+    return blog;
+  }
 
-    async publish(id: string): Promise<Blog> {
-        const blog = await this.blogModel.findByIdAndUpdate(
-            id,
-            { isPublished: true, publishedAt: DateUtil.nowUTC() },
-            { returnDocument: 'after' },
-        );
-        if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
-        return blog;
-    }
-
-    async unpublish(id: string): Promise<Blog> {
-        const blog = await this.blogModel.findByIdAndUpdate(
-            id,
-            { isPublished: false },
-            { returnDocument: 'after' },
-        );
-        if (!blog) throw new NotFoundException(`Blog with ID '${id}' not found`);
-        return blog;
-    }
-
-    private generateSlug(title: string): string {
-        return slugify(title, { lower: true, strict: true });
-    }
+  private generateSlug(title: string): string {
+    return slugify(title, { lower: true, strict: true });
+  }
 }

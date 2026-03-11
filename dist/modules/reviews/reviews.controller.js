@@ -46,7 +46,8 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_review_dto_1.CreateReviewDto, user_schema_1.User]),
+    __metadata("design:paramtypes", [create_review_dto_1.CreateReviewDto,
+        user_schema_1.User]),
     __metadata("design:returntype", Promise)
 ], ReviewsController.prototype, "create", null);
 __decorate([

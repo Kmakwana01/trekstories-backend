@@ -23,7 +23,9 @@ exports.NotificationsModule = NotificationsModule;
 exports.NotificationsModule = NotificationsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: notification_schema_1.Notification.name, schema: notification_schema_1.NotificationSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: notification_schema_1.Notification.name, schema: notification_schema_1.NotificationSchema },
+            ]),
             bull_1.BullModule.registerQueue({ name: 'email' }, { name: 'whatsapp' }),
             settings_module_1.SettingsModule,
         ],

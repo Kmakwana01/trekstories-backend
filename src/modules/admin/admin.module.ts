@@ -14,16 +14,26 @@ import { Tour, TourSchema } from '../../database/schemas/tour.schema';
 import { Review, ReviewSchema } from '../../database/schemas/review.schema';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: Booking.name, schema: BookingSchema },
-            { name: User.name, schema: UserSchema },
-            { name: Tour.name, schema: TourSchema },
-            { name: Review.name, schema: ReviewSchema },
-        ]),
-    ],
-    providers: [AdminLogService, AdminDashboardService, AdminCrmService, ReportsService],
-    controllers: [AdminDashboardController, AdminUsersController, AdminReportsController, AdminLogsController],
-    exports: [AdminLogService, ReportsService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Booking.name, schema: BookingSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Tour.name, schema: TourSchema },
+      { name: Review.name, schema: ReviewSchema },
+    ]),
+  ],
+  providers: [
+    AdminLogService,
+    AdminDashboardService,
+    AdminCrmService,
+    ReportsService,
+  ],
+  controllers: [
+    AdminDashboardController,
+    AdminUsersController,
+    AdminReportsController,
+    AdminLogsController,
+  ],
+  exports: [AdminLogService, ReportsService],
 })
-export class AdminModule { }
+export class AdminModule {}

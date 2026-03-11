@@ -29,7 +29,7 @@ exports.RefundsModule = RefundsModule = __decorate([
             auth_module_1.AuthModule,
         ],
         controllers: [refunds_controller_1.RefundsController],
-        providers: [refunds_service_1.RefundsService]
+        providers: [refunds_service_1.RefundsService],
     })
 ], RefundsModule);
 //# sourceMappingURL=refunds.module.js.map

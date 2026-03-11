@@ -35,7 +35,12 @@ __decorate([
     __metadata("design:type", tour_schema_1.Tour)
 ], Review.prototype, "tour", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'Booking', required: true, unique: true }),
+    (0, mongoose_1.Prop)({
+        type: mongoose_2.Schema.Types.ObjectId,
+        ref: 'Booking',
+        required: true,
+        unique: true,
+    }),
     __metadata("design:type", booking_schema_1.Booking)
 ], Review.prototype, "booking", void 0);
 __decorate([
@@ -54,7 +59,7 @@ __decorate([
         default: review_status_enum_1.ReviewStatus.PENDING,
         uppercase: true,
         trim: true,
-        index: true
+        index: true,
     }),
     __metadata("design:type", String)
 ], Review.prototype, "status", void 0);

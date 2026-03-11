@@ -42,7 +42,7 @@ let ToursService = ToursService_1 = class ToursService {
         if (state) {
             const stateArray = typeof state === 'string' ? state.split(',') : state;
             if (Array.isArray(stateArray) && stateArray.length > 0) {
-                query.state = { $in: stateArray.map(s => new RegExp(s.trim(), 'i')) };
+                query.state = { $in: stateArray.map((s) => new RegExp(s.trim(), 'i')) };
             }
             else if (typeof state === 'string' && state.trim()) {
                 query.state = new RegExp(state.trim(), 'i');
@@ -51,7 +51,7 @@ let ToursService = ToursService_1 = class ToursService {
         if (category) {
             const catArray = typeof category === 'string' ? category.split(',') : category;
             if (Array.isArray(catArray) && catArray.length > 0) {
-                query.category = { $in: catArray.map(c => c.trim().toUpperCase()) };
+                query.category = { $in: catArray.map((c) => c.trim().toUpperCase()) };
             }
             else if (typeof category === 'string' && category.trim()) {
                 query.category = category.trim().toUpperCase();
@@ -79,9 +79,13 @@ let ToursService = ToursService_1 = class ToursService {
             }
         }
         if (departureCity) {
-            const cityArray = typeof departureCity === 'string' ? departureCity.split(',') : departureCity;
+            const cityArray = typeof departureCity === 'string'
+                ? departureCity.split(',')
+                : departureCity;
             if (Array.isArray(cityArray) && cityArray.length > 0) {
-                query['departureOptions.fromCity'] = { $in: cityArray.map(c => new RegExp(c.trim(), 'i')) };
+                query['departureOptions.fromCity'] = {
+                    $in: cityArray.map((c) => new RegExp(c.trim(), 'i')),
+                };
             }
             else if (typeof departureCity === 'string' && departureCity.trim()) {
                 query['departureOptions.fromCity'] = new RegExp(departureCity.trim(), 'i');
@@ -114,9 +118,9 @@ let ToursService = ToursService_1 = class ToursService {
             .sort({ startDate: 1 })
             .lean()
             .exec();
-        const availableDates = dates.map(d => ({
+        const availableDates = dates.map((d) => ({
             ...d,
-            availableSeats: d.totalSeats - d.bookedSeats
+            availableSeats: d.totalSeats - d.bookedSeats,
         }));
         return { ...tour, availableDates };
     }
@@ -139,7 +143,7 @@ let ToursService = ToursService_1 = class ToursService {
         return {
             states,
             categories,
-            departureCities: departureCities.filter(city => city),
+            departureCities: departureCities.filter((city) => city),
         };
     }
     async getByState(state, pagination) {
@@ -149,7 +153,7 @@ let ToursService = ToursService_1 = class ToursService {
     async adminCreateTour(createTourDto, uploadedImages = [], thumbnailUrl, brochureUrl) {
         this.logger.log(`Admin creating tour: ${createTourDto.title}`);
         const slug = await (0, slug_helper_1.generateUniqueSlug)(this.tourModel, createTourDto.title);
-        const images = uploadedImages.length > 0 ? uploadedImages : (createTourDto.images || []);
+        const images = uploadedImages.length > 0 ? uploadedImages : createTourDto.images || [];
         const thumbnailImage = thumbnailUrl || createTourDto.thumbnailImage;
         const brochure = brochureUrl || createTourDto.brochureUrl;
         const tour = new this.tourModel({
@@ -227,7 +231,9 @@ let ToursService = ToursService_1 = class ToursService {
             this.logger.warn(`Toggle status failed: Tour ${id} not found`);
             throw new common_1.NotFoundException('Tour not found');
         }
-        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isActive: !tour.isActive } }, { returnDocument: 'after', runValidators: false }).exec();
+        const updatedTour = await this.tourModel
+            .findByIdAndUpdate(id, { $set: { isActive: !tour.isActive } }, { returnDocument: 'after', runValidators: false })
+            .exec();
         this.logger.log(`Tour ${id} status toggled to: ${updatedTour?.isActive}`);
         return updatedTour;
     }
@@ -238,7 +244,9 @@ let ToursService = ToursService_1 = class ToursService {
             this.logger.warn(`Toggle featured failed: Tour ${id} not found`);
             throw new common_1.NotFoundException('Tour not found');
         }
-        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isFeatured: !tour.isFeatured } }, { returnDocument: 'after', runValidators: false }).exec();
+        const updatedTour = await this.tourModel
+            .findByIdAndUpdate(id, { $set: { isFeatured: !tour.isFeatured } }, { returnDocument: 'after', runValidators: false })
+            .exec();
         this.logger.log(`Tour ${id} featured toggled to: ${updatedTour?.isFeatured}`);
         return updatedTour;
     }

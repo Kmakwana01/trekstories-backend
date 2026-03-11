@@ -48,7 +48,7 @@ __decorate([
         enum: Object.values(transaction_enum_1.TransactionType),
         required: true,
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Transaction.prototype, "type", void 0);
@@ -70,7 +70,7 @@ __decorate([
         enum: Object.values(transaction_enum_1.TransactionStatus),
         default: transaction_enum_1.TransactionStatus.PENDING,
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], Transaction.prototype, "status", void 0);

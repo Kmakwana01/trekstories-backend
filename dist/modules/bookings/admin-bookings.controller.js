@@ -42,7 +42,7 @@ let AdminBookingsController = class AdminBookingsController {
         const paymentHistory = await this.transactionsService.getMyBookingPaymentHistory(id);
         return {
             ...booking,
-            paymentSummary: paymentHistory
+            paymentSummary: paymentHistory,
         };
     }
     async updateStatus(id, status, internalNotes, adminId, req) {

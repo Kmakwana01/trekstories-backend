@@ -4,7 +4,6 @@ export declare class BusinessDetailsDto {
     phoneNumber?: string;
     officeAddress?: string;
     supportEmail?: string;
-    newsletterEmail?: string;
 }
 export declare class SocialMediaDto {
     facebook?: string;
@@ -76,6 +75,7 @@ export declare class UpdateSettingDto {
     otherSettings?: OtherSettingsDto;
     policies?: PolicyContentDto;
     heroContent?: HeroContentDto;
+    heroSliders?: HeroContentDto[];
     aboutContent?: AboutContentDto;
     careerContent?: CareerContentDto;
     faqs?: FaqItemDto[];

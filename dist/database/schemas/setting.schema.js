@@ -17,7 +17,6 @@ let BusinessDetails = class BusinessDetails {
     phoneNumber;
     officeAddress;
     supportEmail;
-    newsletterEmail;
 };
 exports.BusinessDetails = BusinessDetails;
 __decorate([
@@ -40,10 +39,6 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], BusinessDetails.prototype, "supportEmail", void 0);
-__decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
-], BusinessDetails.prototype, "newsletterEmail", void 0);
 exports.BusinessDetails = BusinessDetails = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], BusinessDetails);
@@ -330,6 +325,7 @@ let Setting = class Setting {
     otherSettings;
     policies;
     heroContent;
+    heroSliders;
     aboutContent;
     careerContent;
     faqs;
@@ -364,6 +360,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: HeroContent, default: () => ({}) }),
     __metadata("design:type", HeroContent)
 ], Setting.prototype, "heroContent", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [HeroContent], default: [] }),
+    __metadata("design:type", Array)
+], Setting.prototype, "heroSliders", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: AboutContent, default: () => ({}) }),
     __metadata("design:type", AboutContent)

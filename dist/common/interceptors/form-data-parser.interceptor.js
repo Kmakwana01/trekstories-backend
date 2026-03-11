@@ -50,7 +50,7 @@ let FormDataParserInterceptor = class FormDataParserInterceptor {
             request.body &&
             Object.keys(request.body).length > 0) {
             const rawBody = request.body;
-            const hasBracketKeys = Object.keys(rawBody).some(k => k.includes('['));
+            const hasBracketKeys = Object.keys(rawBody).some((k) => k.includes('['));
             if (hasBracketKeys) {
                 const queryParts = [];
                 for (const [key, val] of Object.entries(rawBody)) {

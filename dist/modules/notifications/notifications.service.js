@@ -47,17 +47,27 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         return (0, pagination_helper_1.paginate)(this.notificationModel, { user: userId }, query);
     }
     async markRead(userId, id) {
-        const notification = await this.notificationModel.findOneAndUpdate({ _id: id, user: userId }, { isRead: true, readAt: date_util_1.DateUtil.nowUTC() }, { returnDocument: 'after' }).exec();
+        const notification = await this.notificationModel
+            .findOneAndUpdate({ _id: id, user: userId }, { isRead: true, readAt: date_util_1.DateUtil.nowUTC() }, { returnDocument: 'after' })
+            .exec();
         if (!notification)
             throw new common_1.NotFoundException('Notification not found');
         return notification;
     }
     async markAllRead(userId) {
-        await this.notificationModel.updateMany({ user: userId, isRead: false }, { isRead: true, readAt: date_util_1.DateUtil.nowUTC() }).exec();
+        await this.notificationModel
+            .updateMany({ user: userId, isRead: false }, {
+            isRead: true,
+            readAt: date_util_1.DateUtil.nowUTC(),
+        })
+            .exec();
         return { success: true };
     }
     async getUnreadCount(userId) {
-        const count = await this.notificationModel.countDocuments({ user: userId, isRead: false });
+        const count = await this.notificationModel.countDocuments({
+            user: userId,
+            isRead: false,
+        });
         return { count };
     }
     async sendEmail(to, subject, template, context) {

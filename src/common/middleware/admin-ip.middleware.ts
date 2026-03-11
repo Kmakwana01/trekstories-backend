@@ -11,19 +11,23 @@ export class AdminIpMiddleware implements NestMiddleware {
     const whitelist = settings.adminIpWhitelist || [];
 
     if (whitelist.length > 0) {
-      const clientIp = 
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || 
-        req.ip || 
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+        req.ip ||
         req.socket.remoteAddress;
 
-      const isWhitelisted = whitelist.some(ip => {
+      const isWhitelisted = whitelist.some((ip) => {
         // Simple string match or basic IP comparison
         return ip.trim() === clientIp;
       });
 
       if (!isWhitelisted) {
-        console.warn(`Blocked unauthorized admin access attempt from IP: ${clientIp}`);
-        throw new ForbiddenException(`Your IP (${clientIp}) is not authorized to access the admin panel.`);
+        console.warn(
+          `Blocked unauthorized admin access attempt from IP: ${clientIp}`,
+        );
+        throw new ForbiddenException(
+          `Your IP (${clientIp}) is not authorized to access the admin panel.`,
+        );
       }
     }
 

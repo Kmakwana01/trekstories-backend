@@ -56,7 +56,8 @@ let ReportsService = class ReportsService {
             amount: t.amount,
             paymentMethod: t.paymentMethod,
         }));
-        return csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(records);
+        return (csvStringifier.getHeaderString() +
+            csvStringifier.stringifyRecords(records));
     }
     async generateBookingCSV(startDate, endDate) {
         const bookings = await this.bookingModel
@@ -84,7 +85,8 @@ let ReportsService = class ReportsService {
             amount: b.totalAmount,
             status: b.status,
         }));
-        return csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(records);
+        return (csvStringifier.getHeaderString() +
+            csvStringifier.stringifyRecords(records));
     }
     async generateRevenuePDF(startDate, endDate) {
         const transactions = await this.transactionModel
@@ -106,12 +108,16 @@ let ReportsService = class ReportsService {
                 reject(err);
             });
             doc.fontSize(20).text('Revenue Report', { align: 'center' });
-            doc.fontSize(12).text(`Period: ${date_util_1.DateUtil.formatToIST(startDate)} to ${date_util_1.DateUtil.formatToIST(endDate)}`, { align: 'center' });
+            doc
+                .fontSize(12)
+                .text(`Period: ${date_util_1.DateUtil.formatToIST(startDate)} to ${date_util_1.DateUtil.formatToIST(endDate)}`, { align: 'center' });
             doc.moveDown();
             doc.fontSize(14).text('Summary Table', { underline: true });
             doc.moveDown();
             transactions.forEach((t) => {
-                doc.fontSize(10).text(`${date_util_1.DateUtil.formatToIST(t.createdAt, 'YYYY-MM-DD')} | ${t.transactionId} | ${t.user?.name} | INR ${t.amount}`);
+                doc
+                    .fontSize(10)
+                    .text(`${date_util_1.DateUtil.formatToIST(t.createdAt, 'YYYY-MM-DD')} | ${t.transactionId} | ${t.user?.name} | INR ${t.amount}`);
             });
             const total = transactions.reduce((sum, t) => sum + t.amount, 0);
             doc.moveDown();

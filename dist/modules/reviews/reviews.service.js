@@ -39,10 +39,13 @@ let ReviewsService = class ReviewsService {
         if (booking.user.toString() !== userId) {
             throw new common_1.BadRequestException('You can only review your own bookings');
         }
-        if (booking.status !== booking_status_enum_1.BookingStatus.COMPLETED && booking.status !== booking_status_enum_1.BookingStatus.CONFIRMED) {
+        if (booking.status !== booking_status_enum_1.BookingStatus.COMPLETED &&
+            booking.status !== booking_status_enum_1.BookingStatus.CONFIRMED) {
             throw new common_1.BadRequestException('You can only review completed (or confirmed) bookings');
         }
-        const existing = await this.reviewModel.findOne({ booking: bookingId });
+        const existing = await this.reviewModel.findOne({
+            booking: bookingId,
+        });
         if (existing) {
             throw new common_1.ConflictException('You have already reviewed this booking');
         }

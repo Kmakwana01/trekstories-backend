@@ -27,7 +27,7 @@ async function bootstrap() {
             'https://trekstories.in',
             'https://www.trekstories.in',
             'https://travel-frontend-m1bhuxejy-shivanshholidays27-4685s-projects.vercel.app',
-            'https://travel-frontend-sable.vercel.app'
+            'https://travel-frontend-sable.vercel.app',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,

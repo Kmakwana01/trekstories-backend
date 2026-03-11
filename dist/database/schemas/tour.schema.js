@@ -73,7 +73,7 @@ __decorate([
         type: String,
         enum: Object.values(pickup_type_enum_1.PickupType),
         uppercase: true,
-        trim: true
+        trim: true,
     }),
     __metadata("design:type", String)
 ], PickupPoint.prototype, "type", void 0);
@@ -178,7 +178,7 @@ __decorate([
         enum: Object.values(tour_category_enum_1.TourCategory),
         uppercase: true,
         trim: true,
-        index: true
+        index: true,
     }),
     __metadata("design:type", String)
 ], Tour.prototype, "category", void 0);

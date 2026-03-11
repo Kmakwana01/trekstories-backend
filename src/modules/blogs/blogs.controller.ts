@@ -4,15 +4,15 @@ import { FilterBlogDto } from './dto/filter-blog.dto';
 
 @Controller('blogs')
 export class BlogsController {
-    constructor(private readonly blogsService: BlogsService) { }
+  constructor(private readonly blogsService: BlogsService) {}
 
-    @Get()
-    findAll(@Query() filterBlogDto: FilterBlogDto) {
-        return this.blogsService.findAllPublished(filterBlogDto);
-    }
+  @Get()
+  findAll(@Query() filterBlogDto: FilterBlogDto) {
+    return this.blogsService.findAllPublished(filterBlogDto);
+  }
 
-    @Get(':slug')
-    findOne(@Param('slug') slug: string) {
-        return this.blogsService.findOneBySlug(slug);
-    }
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.blogsService.findOneBySlug(slug);
+  }
 }

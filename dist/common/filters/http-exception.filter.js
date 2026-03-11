@@ -19,7 +19,9 @@ let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
             ? exception.getStatus()
             : common_1.HttpStatus.INTERNAL_SERVER_ERROR;
         if (status === common_1.HttpStatus.INTERNAL_SERVER_ERROR) {
-            this.logger.error(`Internal Server Error on ${request.url}`, exception instanceof Error ? exception.stack : JSON.stringify(exception));
+            this.logger.error(`Internal Server Error on ${request.url}`, exception instanceof Error
+                ? exception.stack
+                : JSON.stringify(exception));
         }
         const exceptionResponse = exception instanceof common_1.HttpException
             ? exception.getResponse()
