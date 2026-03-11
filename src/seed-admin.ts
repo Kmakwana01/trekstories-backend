@@ -1,17 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { SeedModule } from './seed.module';
 import { getModelToken } from '@nestjs/mongoose';
 import { User } from './database/schemas/user.schema';
 import { Role } from './common/enums/roles.enum';
 import * as bcrypt from 'bcryptjs';
 import { Logger } from '@nestjs/common';
+import { Gender } from './common/enums/gender.enum';
 
 async function bootstrap() {
     const logger = new Logger('SeedAdmin');
-    const app = await NestFactory.createApplicationContext(AppModule);
+    const app = await NestFactory.createApplicationContext(SeedModule);
     const userModel = app.get(getModelToken(User.name));
 
-    const adminEmail = 'info@trekstories.in';
+    const adminEmail = 'shivanshholidays27@gmail.com';
     const adminPass = 'Shivansh@1212';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
@@ -23,6 +24,11 @@ async function bootstrap() {
         existingAdmin.role = Role.ADMIN;
         existingAdmin.isVerified = true;
         existingAdmin.passwordHash = passwordHash;
+        existingAdmin.gender = 'MALE';
+        existingAdmin.country = 'India';
+        existingAdmin.contactAddress = '123 Admin St, New Delhi';
+        existingAdmin.name = 'System Admin';
+        existingAdmin.phone = '+919999999999';
         await existingAdmin.save();
         logger.log('Admin user updated successfully.');
     } else
@@ -33,13 +39,21 @@ async function bootstrap() {
             passwordHash: passwordHash,
             role: Role.ADMIN,
             isVerified: true,
-            phone: '+910000000000',
+            phone: '+919909899025',
+            gender: Gender.MALE,
+            dateOfBirth: new Date('1990-01-01'),
+            country: 'India',
+            contactAddress: 'Office No 426, 4th Floor, Star Plaza Phulchhab Chowk, Rajkot, Gujarat, India - 360001',
+            lastLogin: new Date(),
         });
         logger.log('Admin user created successfully.');
     }
 
-    logger.log('Email: ' + adminEmail);
-    logger.log('Password: ' + adminPass);
+    logger.log('----------------------------------------');
+    logger.log(`Email: ${adminEmail}`);
+    logger.log(`Password: ${adminPass}`);
+    logger.log('Use these credentials to log into the Admin Panel.');
+    logger.log('----------------------------------------');
 
     await app.close();
     process.exit(0);

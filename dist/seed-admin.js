@@ -34,17 +34,18 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
-const app_module_1 = require("./app.module");
+const seed_module_1 = require("./seed.module");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("./database/schemas/user.schema");
 const roles_enum_1 = require("./common/enums/roles.enum");
 const bcrypt = __importStar(require("bcryptjs"));
 const common_1 = require("@nestjs/common");
+const gender_enum_1 = require("./common/enums/gender.enum");
 async function bootstrap() {
     const logger = new common_1.Logger('SeedAdmin');
-    const app = await core_1.NestFactory.createApplicationContext(app_module_1.AppModule);
+    const app = await core_1.NestFactory.createApplicationContext(seed_module_1.SeedModule);
     const userModel = app.get((0, mongoose_1.getModelToken)(user_schema_1.User.name));
-    const adminEmail = 'info@trekstories.in';
+    const adminEmail = 'shivanshholidays27@gmail.com';
     const adminPass = 'Shivansh@1212';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
@@ -53,6 +54,11 @@ async function bootstrap() {
         existingAdmin.role = roles_enum_1.Role.ADMIN;
         existingAdmin.isVerified = true;
         existingAdmin.passwordHash = passwordHash;
+        existingAdmin.gender = 'MALE';
+        existingAdmin.country = 'India';
+        existingAdmin.contactAddress = '123 Admin St, New Delhi';
+        existingAdmin.name = 'System Admin';
+        existingAdmin.phone = '+919999999999';
         await existingAdmin.save();
         logger.log('Admin user updated successfully.');
     }
@@ -63,12 +69,20 @@ async function bootstrap() {
             passwordHash: passwordHash,
             role: roles_enum_1.Role.ADMIN,
             isVerified: true,
-            phone: '+910000000000',
+            phone: '+919909899025',
+            gender: gender_enum_1.Gender.MALE,
+            dateOfBirth: new Date('1990-01-01'),
+            country: 'India',
+            contactAddress: 'Office No 426, 4th Floor, Star Plaza Phulchhab Chowk, Rajkot, Gujarat, India - 360001',
+            lastLogin: new Date(),
         });
         logger.log('Admin user created successfully.');
     }
-    logger.log('Email: ' + adminEmail);
-    logger.log('Password: ' + adminPass);
+    logger.log('----------------------------------------');
+    logger.log(`Email: ${adminEmail}`);
+    logger.log(`Password: ${adminPass}`);
+    logger.log('Use these credentials to log into the Admin Panel.');
+    logger.log('----------------------------------------');
     await app.close();
     process.exit(0);
 }
