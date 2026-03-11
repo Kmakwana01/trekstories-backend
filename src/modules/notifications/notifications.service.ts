@@ -36,6 +36,7 @@ export class NotificationsService {
     }
 
     async getNotifications(userId: string, query: any) {
+        if (!query.order) query.order = 'desc';
         return paginate(this.notificationModel, { user: userId }, query);
     }
 

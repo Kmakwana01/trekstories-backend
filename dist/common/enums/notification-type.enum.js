@@ -8,7 +8,6 @@ var NotificationType;
     NotificationType["BOOKING_CANCELLED"] = "booking_cancelled";
     NotificationType["PAYMENT_SUCCESS"] = "payment_success";
     NotificationType["PAYMENT_FAILED"] = "payment_failed";
-    NotificationType["PAYMENT_UNDER_REVIEW"] = "payment_under_review";
     NotificationType["TRIP_REMINDER"] = "trip_reminder";
     NotificationType["OFFER"] = "offer";
     NotificationType["GENERAL"] = "general";

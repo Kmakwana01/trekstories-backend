@@ -146,22 +146,24 @@ let ToursService = ToursService_1 = class ToursService {
         const query = { state: new RegExp(state, 'i'), isActive: true };
         return (0, pagination_helper_1.paginate)(this.tourModel, query, pagination);
     }
-    async adminCreateTour(createTourDto, uploadedImages = [], thumbnailUrl) {
+    async adminCreateTour(createTourDto, uploadedImages = [], thumbnailUrl, brochureUrl) {
         this.logger.log(`Admin creating tour: ${createTourDto.title}`);
         const slug = await (0, slug_helper_1.generateUniqueSlug)(this.tourModel, createTourDto.title);
         const images = uploadedImages.length > 0 ? uploadedImages : (createTourDto.images || []);
         const thumbnailImage = thumbnailUrl || createTourDto.thumbnailImage;
+        const brochure = brochureUrl || createTourDto.brochureUrl;
         const tour = new this.tourModel({
             ...createTourDto,
             slug,
             images,
             thumbnailImage,
+            brochureUrl: brochure,
         });
         const savedTour = await tour.save();
         this.logger.log(`Tour created successfully: ${savedTour.slug} (${savedTour._id})`);
         return savedTour;
     }
-    async adminUpdateTour(id, updateTourDto, uploadedImages = [], thumbnailUrl) {
+    async adminUpdateTour(id, updateTourDto, uploadedImages = [], thumbnailUrl, brochureUrl) {
         this.logger.log(`Admin updating tour ${id}`);
         const tour = await this.tourModel.findById(id).exec();
         if (!tour) {
@@ -189,6 +191,9 @@ let ToursService = ToursService_1 = class ToursService {
         });
         if (thumbnailUrl) {
             tour.thumbnailImage = thumbnailUrl;
+        }
+        if (brochureUrl) {
+            tour.brochureUrl = brochureUrl;
         }
         if (dtoImages !== undefined) {
             tour.images = dtoImages;
@@ -222,7 +227,7 @@ let ToursService = ToursService_1 = class ToursService {
             this.logger.warn(`Toggle status failed: Tour ${id} not found`);
             throw new common_1.NotFoundException('Tour not found');
         }
-        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isActive: !tour.isActive } }, { new: true, runValidators: false }).exec();
+        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isActive: !tour.isActive } }, { returnDocument: 'after', runValidators: false }).exec();
         this.logger.log(`Tour ${id} status toggled to: ${updatedTour?.isActive}`);
         return updatedTour;
     }
@@ -233,11 +238,13 @@ let ToursService = ToursService_1 = class ToursService {
             this.logger.warn(`Toggle featured failed: Tour ${id} not found`);
             throw new common_1.NotFoundException('Tour not found');
         }
-        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isFeatured: !tour.isFeatured } }, { new: true, runValidators: false }).exec();
+        const updatedTour = await this.tourModel.findByIdAndUpdate(id, { $set: { isFeatured: !tour.isFeatured } }, { returnDocument: 'after', runValidators: false }).exec();
         this.logger.log(`Tour ${id} featured toggled to: ${updatedTour?.isFeatured}`);
         return updatedTour;
     }
     async adminGetTours(pagination) {
+        if (!pagination.order)
+            pagination.order = 'desc';
         return (0, pagination_helper_1.paginate)(this.tourModel, {}, pagination);
     }
     async adminGetTourById(id) {

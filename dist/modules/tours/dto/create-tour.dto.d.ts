@@ -39,6 +39,7 @@ export declare class CreateTourDto {
     faqs?: FAQDto[];
     images?: string[];
     thumbnailImage?: string;
+    brochureUrl?: string;
     isActive?: boolean;
     isFeatured?: boolean;
 }
@@ -60,6 +61,7 @@ export declare class UpdateTourDto {
     faqs?: FAQDto[];
     images?: string[];
     thumbnailImage?: string;
+    brochureUrl?: string;
     duration?: string;
     isActive?: boolean;
     isFeatured?: boolean;

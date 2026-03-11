@@ -179,24 +179,26 @@ export class ToursService {
 
     // --- Admin Methods ---
 
-    async adminCreateTour(createTourDto: CreateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string): Promise<TourDocument> {
+    async adminCreateTour(createTourDto: CreateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string, brochureUrl?: string): Promise<TourDocument> {
         this.logger.log(`Admin creating tour: ${createTourDto.title}`);
         const slug = await generateUniqueSlug(this.tourModel, createTourDto.title);
         // Uploaded file paths take precedence over any URLs in the DTO
         const images = uploadedImages.length > 0 ? uploadedImages : (createTourDto.images || []);
         const thumbnailImage = thumbnailUrl || createTourDto.thumbnailImage;
+        const brochure = brochureUrl || createTourDto.brochureUrl;
         const tour = new this.tourModel({
             ...createTourDto,
             slug,
             images,
             thumbnailImage,
+            brochureUrl: brochure,
         });
         const savedTour = await tour.save();
         this.logger.log(`Tour created successfully: ${savedTour.slug} (${savedTour._id})`);
         return savedTour;
     }
 
-    async adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string): Promise<TourDocument> {
+    async adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages: string[] = [], thumbnailUrl?: string, brochureUrl?: string): Promise<TourDocument> {
         this.logger.log(`Admin updating tour ${id}`);
 
         const tour = await this.tourModel.findById(id).exec();
@@ -233,6 +235,11 @@ export class ToursService {
         if (thumbnailUrl)
         {
             tour.thumbnailImage = thumbnailUrl;
+        }
+
+        if (brochureUrl)
+        {
+            tour.brochureUrl = brochureUrl;
         }
 
         // Handle Images
@@ -282,7 +289,7 @@ export class ToursService {
         const updatedTour = await this.tourModel.findByIdAndUpdate(
             id,
             { $set: { isActive: !tour.isActive } },
-            { new: true, runValidators: false }
+            { returnDocument: 'after', runValidators: false }
         ).exec();
 
         this.logger.log(`Tour ${id} status toggled to: ${updatedTour?.isActive}`);
@@ -304,7 +311,7 @@ export class ToursService {
         const updatedTour = await this.tourModel.findByIdAndUpdate(
             id,
             { $set: { isFeatured: !tour.isFeatured } },
-            { new: true, runValidators: false }
+            { returnDocument: 'after', runValidators: false }
         ).exec();
 
         this.logger.log(`Tour ${id} featured toggled to: ${updatedTour?.isFeatured}`);
@@ -312,6 +319,7 @@ export class ToursService {
     }
 
     async adminGetTours(pagination: any) {
+        if (!pagination.order) pagination.order = 'desc';
         return paginate(this.tourModel, {}, pagination);
     }
 

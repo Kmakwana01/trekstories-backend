@@ -6,14 +6,20 @@ import { Role } from './common/enums/roles.enum';
 import * as bcrypt from 'bcryptjs';
 import { Logger } from '@nestjs/common';
 import { Gender } from './common/enums/gender.enum';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     const logger = new Logger('SeedAdmin');
     const app = await NestFactory.createApplicationContext(SeedModule);
+
+    const configService = app.get(ConfigService);
+    const dbUri = configService.get('database.uri');
+    logger.log(`Connecting to database: ${dbUri?.replace(/\/\/.*@/, '//****:****@')}`);
+
     const userModel = app.get(getModelToken(User.name));
 
     const adminEmail = 'shivanshholidays27@gmail.com';
-    const adminPass = 'Shivansh@1212';
+    const adminPass = 'Shivansh_0176';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
 

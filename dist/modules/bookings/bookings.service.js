@@ -129,7 +129,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
             _id: dto.tourDateId,
             status: tour_date_status_enum_1.TourDateStatus.UPCOMING,
             $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, dto.travelers.length] }
-        }, { $inc: { bookedSeats: dto.travelers.length } }, { new: true }).exec();
+        }, { $inc: { bookedSeats: dto.travelers.length } }, { returnDocument: 'after' }).exec();
         if (!updatedDate) {
             const check = await this.tourDateModel.findById(dto.tourDateId).exec();
             if (!check)
@@ -251,7 +251,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
         const oldStatus = oldBooking.status;
         const newStatus = status.toUpperCase();
         if (oldStatus !== booking_status_enum_1.BookingStatus.CANCELLED && newStatus === booking_status_enum_1.BookingStatus.CANCELLED) {
-            const restoredDate = await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { $inc: { bookedSeats: -oldBooking.totalTravelers } }, { new: true }).exec();
+            const restoredDate = await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { $inc: { bookedSeats: -oldBooking.totalTravelers } }, { returnDocument: 'after' }).exec();
             if (restoredDate && restoredDate.status === tour_date_status_enum_1.TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats) {
                 await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, { status: tour_date_status_enum_1.TourDateStatus.UPCOMING });
             }
@@ -260,7 +260,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
             const updatedDate = await this.tourDateModel.findOneAndUpdate({
                 _id: oldBooking.tourDate,
                 $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, oldBooking.totalTravelers] }
-            }, { $inc: { bookedSeats: oldBooking.totalTravelers } }, { new: true }).exec();
+            }, { $inc: { bookedSeats: oldBooking.totalTravelers } }, { returnDocument: 'after' }).exec();
             if (!updatedDate)
                 throw new common_1.BadRequestException('Cannot revert cancellation: Not enough seats available on this tour date.');
             if (updatedDate.bookedSeats >= updatedDate.totalSeats) {
@@ -273,7 +273,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
                 internalNotes: { note, createdAt: new Date(), adminId: adminId || null },
             };
         }
-        const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after', new: true })
+        const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after' })
             .populate('user', 'name email')
             .exec();
         return booking;
@@ -287,21 +287,21 @@ let BookingsService = BookingsService_1 = class BookingsService {
         return booking.save();
     }
     async syncBookingReceiptInfo(id, receiptImage, transactionId) {
-        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { returnDocument: 'after' }).exec();
     }
     async markPaymentVerified(id) {
         return this.bookingModel.findByIdAndUpdate(id, {
             paymentVerifiedAt: new Date(),
             receiptImage: null,
             transactionId: null
-        }, { new: true }).exec();
+        }, { returnDocument: 'after' }).exec();
     }
     async adminUpdatePaymentTypeAndNote(id, paymentType, note, adminId) {
         const updateOp = { paymentType };
         if (note) {
             updateOp.$push = { internalNotes: { note, createdAt: new Date(), adminId: adminId || null } };
         }
-        return this.bookingModel.findByIdAndUpdate(id, updateOp, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after' }).exec();
     }
     async adminCancelBooking(id) {
         return this.cancelBooking(id);

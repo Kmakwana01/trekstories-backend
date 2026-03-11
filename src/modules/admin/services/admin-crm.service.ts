@@ -29,6 +29,7 @@ export class AdminCrmService {
             ];
         }
 
+        if (!paginationQuery.order) paginationQuery.order = 'desc';
         return paginate(this.userModel, query, paginationQuery);
     }
 
@@ -45,7 +46,7 @@ export class AdminCrmService {
         const bookingCount = bookings.length;
         const totalSpent = bookings
             .filter(b => b.status?.toUpperCase() !== 'CANCELLED')
-            .reduce((sum, b) => sum + (b.totalAmount || b.paidAmount || 0), 0);
+            .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
 
         // Populate Address fallback
         user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;

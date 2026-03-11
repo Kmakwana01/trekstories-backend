@@ -3,7 +3,7 @@ import { RequestRefundDto, ApproveRefundDto, RejectRefundDto } from './dto/refun
 export declare class RefundsController {
     private readonly refundsService;
     constructor(refundsService: RefundsService);
-    requestRefund(req: any, body: RequestRefundDto & {
+    requestRefund(userId: string, body: RequestRefundDto & {
         bookingId: string;
     }): Promise<{
         message: string;
@@ -30,7 +30,7 @@ export declare class RefundsController {
             totalPages: number;
         };
     }>;
-    approveRefund(req: any, bookingId: string, body: ApproveRefundDto): Promise<{
+    approveRefund(adminId: string, bookingId: string, body: ApproveRefundDto): Promise<{
         message: string;
         booking: import("mongoose").Document<unknown, {}, import("../../database/schemas/booking.schema").BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/booking.schema").Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
             _id: import("mongoose").Types.ObjectId;
@@ -40,7 +40,7 @@ export declare class RefundsController {
             id: string;
         };
     }>;
-    rejectRefund(req: any, bookingId: string, body: RejectRefundDto): Promise<{
+    rejectRefund(adminId: string, bookingId: string, body: RejectRefundDto): Promise<{
         message: string;
         booking: import("mongoose").Document<unknown, {}, import("../../database/schemas/booking.schema").BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/booking.schema").Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
             _id: import("mongoose").Types.ObjectId;
@@ -50,7 +50,7 @@ export declare class RefundsController {
             id: string;
         };
     }>;
-    markRefundProcessed(req: any, bookingId: string): Promise<{
+    markRefundProcessed(adminId: string, bookingId: string): Promise<{
         message: string;
         booking: import("mongoose").Document<unknown, {}, import("../../database/schemas/booking.schema").BookingDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/booking.schema").Booking & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
             _id: import("mongoose").Types.ObjectId;

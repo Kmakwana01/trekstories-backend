@@ -195,6 +195,7 @@ class CreateTourDto {
     faqs;
     images;
     thumbnailImage;
+    brochureUrl;
     isActive;
     isFeatured;
 }
@@ -311,6 +312,11 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTourDto.prototype, "thumbnailImage", void 0);
 __decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateTourDto.prototype, "brochureUrl", void 0);
+__decorate([
     ParseBoolean(),
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
@@ -340,6 +346,7 @@ class UpdateTourDto {
     faqs;
     images;
     thumbnailImage;
+    brochureUrl;
     duration;
     isActive;
     isFeatured;
@@ -452,6 +459,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateTourDto.prototype, "thumbnailImage", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateTourDto.prototype, "brochureUrl", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

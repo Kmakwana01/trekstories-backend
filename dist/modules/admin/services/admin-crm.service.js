@@ -43,6 +43,8 @@ let AdminCrmService = class AdminCrmService {
                 { phone: new RegExp(filters.search, 'i') },
             ];
         }
+        if (!paginationQuery.order)
+            paginationQuery.order = 'desc';
         return (0, pagination_helper_1.paginate)(this.userModel, query, paginationQuery);
     }
     async getUserById(id) {
@@ -57,7 +59,7 @@ let AdminCrmService = class AdminCrmService {
         const bookingCount = bookings.length;
         const totalSpent = bookings
             .filter(b => b.status?.toUpperCase() !== 'CANCELLED')
-            .reduce((sum, b) => sum + (b.totalAmount || b.paidAmount || 0), 0);
+            .reduce((sum, b) => sum + (b.paidAmount || 0), 0);
         user.address = user.contactAddress ? { street: user.contactAddress, city: user.country || 'Unknown', country: user.country || 'Unknown' } : null;
         user.bookings = bookings;
         if (user.internalNotes && (!user.adminNotes || user.adminNotes.length === 0)) {

@@ -32,6 +32,7 @@ export class CouponsService {
     }
 
     async findAll(filters: any = {}, paginationQuery: PaginationQuery = {}) {
+        if (!paginationQuery.order) paginationQuery.order = 'desc';
         return paginate(this.couponModel, filters, paginationQuery);
     }
 

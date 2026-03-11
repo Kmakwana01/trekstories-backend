@@ -8,9 +8,14 @@ export declare class ImageUploadService {
     private readonly cloudinaryApiSecret;
     private readonly imgbbApiKey;
     private readonly imgbbApiUrl;
+    private readonly imagekitPublicKey;
+    private readonly imagekitPrivateKey;
+    private readonly imagekitUrlEndpoint;
+    private readonly imagekitUploadUrl;
     constructor(configService: ConfigService);
     uploadImage(file: Express.Multer.File): Promise<string>;
     uploadImages(files: Express.Multer.File[]): Promise<string[]>;
     private uploadToCloudinary;
     private uploadToImgbb;
+    private uploadToImageKit;
 }

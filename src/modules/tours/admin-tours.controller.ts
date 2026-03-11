@@ -30,9 +30,9 @@ import { FormDataParserInterceptor } from '../../common/interceptors/form-data-p
 const tourMulterOptions = {
     storage: memoryStorage(),
     fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/))
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|pdf)$/))
         {
-            return cb(new Error('Only image files are allowed!'), false);
+            return cb(new Error('Only image files and PDFs are allowed!'), false);
         }
         cb(null, true);
     },
@@ -58,12 +58,13 @@ export class AdminToursController {
         FileFieldsInterceptor([
             { name: 'images', maxCount: 10 },
             { name: 'thumbnailImage', maxCount: 1 },
+            { name: 'brochure', maxCount: 1 },
         ], tourMulterOptions),
         FormDataParserInterceptor
     )
     async createTour(
         @Body() createTourDto: CreateTourDto,
-        @UploadedFiles() files: { images?: Express.Multer.File[], thumbnailImage?: Express.Multer.File[] },
+        @UploadedFiles() files: { images?: Express.Multer.File[], thumbnailImage?: Express.Multer.File[], brochure?: Express.Multer.File[] },
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
@@ -83,7 +84,13 @@ export class AdminToursController {
             thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
 
-        const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl);
+        let brochureUrl: string | undefined;
+        if (files?.brochure?.[0])
+        {
+            brochureUrl = await this.imageUploadService.uploadImage(files.brochure[0]);
+        }
+
+        const tour = await this.toursService.adminCreateTour(createTourDto, imageUrls, thumbnailUrl, brochureUrl);
         await this.adminLogService.logAction(adminId, 'CREATE_TOUR', 'Tours', (tour as any)._id?.toString(), { title: tour.title }, req.ip, req.headers['user-agent']);
         return tour;
     }
@@ -98,13 +105,14 @@ export class AdminToursController {
         FileFieldsInterceptor([
             { name: 'images', maxCount: 10 },
             { name: 'thumbnailImage', maxCount: 1 },
+            { name: 'brochure', maxCount: 1 },
         ], tourMulterOptions),
         FormDataParserInterceptor
     )
     async updateTour(
         @Param('id') id: string,
         @Body() updateTourDto: UpdateTourDto,
-        @UploadedFiles() files: { images?: Express.Multer.File[], thumbnailImage?: Express.Multer.File[] },
+        @UploadedFiles() files: { images?: Express.Multer.File[], thumbnailImage?: Express.Multer.File[], brochure?: Express.Multer.File[] },
         @CurrentUser('_id') adminId: string,
         @Req() req: any,
     ) {
@@ -122,7 +130,13 @@ export class AdminToursController {
             thumbnailUrl = await this.imageUploadService.uploadImage(files.thumbnailImage[0]);
         }
 
-        const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl);
+        let brochureUrl: string | undefined;
+        if (files?.brochure?.[0])
+        {
+            brochureUrl = await this.imageUploadService.uploadImage(files.brochure[0]);
+        }
+
+        const tour = await this.toursService.adminUpdateTour(id, updateTourDto, imageUrls, thumbnailUrl, brochureUrl);
         await this.adminLogService.logAction(adminId, 'UPDATE_TOUR', 'Tours', id, { fields: Object.keys(updateTourDto) }, req.ip, req.headers['user-agent']);
         return tour;
     }

@@ -289,6 +289,10 @@ export class CreateTourDto {
     @IsOptional()
     thumbnailImage?: string;
 
+    @IsString()
+    @IsOptional()
+    brochureUrl?: string;
+
     @ParseBoolean()
     @IsBoolean()
     @IsOptional()
@@ -397,6 +401,10 @@ export class UpdateTourDto {
     @IsString()
     @IsOptional()
     thumbnailImage?: string;
+
+    @IsString()
+    @IsOptional()
+    brochureUrl?: string;
 
     @IsString()
     @IsOptional()

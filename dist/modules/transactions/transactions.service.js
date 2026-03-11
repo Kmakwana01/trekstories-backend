@@ -51,6 +51,8 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
     }
     async getAllTransactions(filters = {}, paginationQuery = {}) {
         const query = { ...filters };
+        if (!paginationQuery.order)
+            paginationQuery.order = 'desc';
         return (0, pagination_helper_1.paginate)(this.transactionModel, query, paginationQuery, ['user', 'booking']);
     }
     async exportToCSV(filters = {}) {
@@ -224,7 +226,7 @@ let TransactionsService = TransactionsService_1 = class TransactionsService {
             throw new common_1.NotFoundException('Booking not found');
         const transactions = await this.transactionModel.find({
             booking: bookingId,
-            type: { $in: [transaction_enum_1.TransactionType.ONLINE_RECEIPT, transaction_enum_1.TransactionType.OFFLINE_PAYMENT] },
+            type: { $in: [transaction_enum_1.TransactionType.ONLINE_RECEIPT, transaction_enum_1.TransactionType.OFFLINE_PAYMENT, transaction_enum_1.TransactionType.REFUND] },
             status: { $in: [transaction_enum_1.TransactionStatus.SUCCESS, transaction_enum_1.TransactionStatus.PENDING, transaction_enum_1.TransactionStatus.FAILED] }
         })
             .populate('processedBy', 'name')

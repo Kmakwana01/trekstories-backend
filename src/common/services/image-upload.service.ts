@@ -18,6 +18,12 @@ export class ImageUploadService {
     private readonly imgbbApiKey: string | undefined;
     private readonly imgbbApiUrl = 'https://api.imgbb.com/1/upload';
 
+    // ImageKit Config
+    private readonly imagekitPublicKey: string | undefined;
+    private readonly imagekitPrivateKey: string | undefined;
+    private readonly imagekitUrlEndpoint: string | undefined;
+    private readonly imagekitUploadUrl = 'https://upload.imagekit.io/api/v1/files/upload';
+
     constructor(private configService: ConfigService) {
         this.provider = this.configService.get<string>('image.provider', 'cloudinary').toLowerCase();
 
@@ -27,9 +33,19 @@ export class ImageUploadService {
 
         this.imgbbApiKey = this.configService.get<string>('image.imgbb.apiKey');
 
+        this.imagekitPublicKey = this.configService.get<string>('image.imagekit.publicKey');
+        this.imagekitPrivateKey = this.configService.get<string>('image.imagekit.privateKey');
+        this.imagekitUrlEndpoint = this.configService.get<string>('image.imagekit.urlEndpoint');
+
         if (this.provider === 'cloudinary' && (!this.cloudinaryCloudName || !this.cloudinaryApiKey || !this.cloudinaryApiSecret))
         {
-            this.logger.warn('Cloudinary configuration is incomplete. Falling back to ImgBB.');
+            this.logger.warn('Cloudinary configuration is incomplete. Falling back to ImageKit if possible, then ImgBB.');
+            this.provider = (this.imagekitPublicKey && this.imagekitPrivateKey) ? 'imagekit' : 'imgbb';
+        }
+
+        if (this.provider === 'imagekit' && (!this.imagekitPublicKey || !this.imagekitPrivateKey))
+        {
+            this.logger.warn('ImageKit configuration is incomplete. Falling back to ImgBB.');
             this.provider = 'imgbb';
         }
 
@@ -48,6 +64,9 @@ export class ImageUploadService {
         if (this.provider === 'cloudinary')
         {
             return this.uploadToCloudinary(file);
+        } else if (this.provider === 'imagekit')
+        {
+            return this.uploadToImageKit(file);
         } else
         {
             return this.uploadToImgbb(file);
@@ -79,8 +98,9 @@ export class ImageUploadService {
             formData.append('api_key', this.cloudinaryApiKey!);
             formData.append('timestamp', timestamp);
             formData.append('signature', signature);
+            formData.append('resource_type', 'auto');
 
-            const url = `https://api.cloudinary.com/v1_1/${this.cloudinaryCloudName}/image/upload`;
+            const url = `https://api.cloudinary.com/v1_1/${this.cloudinaryCloudName}/auto/upload`;
 
             const response = await axios.post(url, formData, {
                 headers: {
@@ -129,6 +149,42 @@ export class ImageUploadService {
         {
             this.logger.error(`ImgBB upload failed: ${error.message}`, error.stack);
             throw new BadRequestException(`Failed to upload image to ImgBB: ${error.message}`);
+        }
+    }
+
+    private async uploadToImageKit(file: Express.Multer.File): Promise<string> {
+        if (!this.imagekitPrivateKey)
+        {
+            throw new BadRequestException('ImageKit private key is not configured');
+        }
+
+        try
+        {
+            const formData = new FormData();
+            formData.append('file', file.buffer, { filename: file.originalname });
+            formData.append('fileName', file.originalname);
+            formData.append('useUniqueFileName', 'true');
+
+            // ImageKit uses Basic Auth with Private Key
+            const authHeader = Buffer.from(`${this.imagekitPrivateKey}:`).toString('base64');
+
+            const response = await axios.post(this.imagekitUploadUrl, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                    'Authorization': `Basic ${authHeader}`,
+                },
+            });
+
+            if (response.data && response.data.url)
+            {
+                return response.data.url;
+            }
+
+            throw new Error('Invalid response from ImageKit');
+        } catch (error: any)
+        {
+            this.logger.error(`ImageKit upload failed: ${error.response?.data?.message || error.message}`, error.stack);
+            throw new BadRequestException(`Failed to upload to ImageKit: ${error.response?.data?.message || error.message}`);
         }
     }
 }

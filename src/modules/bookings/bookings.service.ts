@@ -154,7 +154,7 @@ export class BookingsService {
                 $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, dto.travelers.length] }
             },
             { $inc: { bookedSeats: dto.travelers.length } },
-            { new: true }
+            { returnDocument: 'after' }
         ).exec();
 
         if (!updatedDate)
@@ -316,7 +316,7 @@ export class BookingsService {
             const restoredDate = await this.tourDateModel.findByIdAndUpdate(
                 oldBooking.tourDate,
                 { $inc: { bookedSeats: -oldBooking.totalTravelers } },
-                { new: true }
+                { returnDocument: 'after' }
             ).exec();
             if (restoredDate && restoredDate.status === TourDateStatus.FULL && restoredDate.bookedSeats < restoredDate.totalSeats)
             {
@@ -331,7 +331,7 @@ export class BookingsService {
                     $expr: { $gte: [{ $subtract: ['$totalSeats', '$bookedSeats'] }, oldBooking.totalTravelers] }
                 },
                 { $inc: { bookedSeats: oldBooking.totalTravelers } },
-                { new: true }
+                { returnDocument: 'after' }
             ).exec();
 
             if (!updatedDate) throw new BadRequestException('Cannot revert cancellation: Not enough seats available on this tour date.');
@@ -348,7 +348,7 @@ export class BookingsService {
                 internalNotes: { note, createdAt: new Date(), adminId: adminId || null },
             };
         }
-        const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after', new: true })
+        const booking = await this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after' })
             .populate('user', 'name email')
             .exec();
         return booking;
@@ -366,16 +366,15 @@ export class BookingsService {
 
     /** Called by TransactionsService after receipt upload to sync fields onto the Booking document */
     async syncBookingReceiptInfo(id: string, receiptImage: string, transactionId: string) {
-        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, { receiptImage, transactionId }, { returnDocument: 'after' }).exec();
     }
 
-    /** Called by PaymentsService after approving a payment to mark the receipt as verified */
     async markPaymentVerified(id: string) {
         return this.bookingModel.findByIdAndUpdate(id, {
             paymentVerifiedAt: new Date(),
             receiptImage: null,
             transactionId: null
-        }, { new: true }).exec();
+        }, { returnDocument: 'after' }).exec();
     }
 
     async adminUpdatePaymentTypeAndNote(id: string, paymentType: string, note?: string, adminId?: string) {
@@ -384,7 +383,7 @@ export class BookingsService {
         {
             updateOp.$push = { internalNotes: { note, createdAt: new Date(), adminId: adminId || null } };
         }
-        return this.bookingModel.findByIdAndUpdate(id, updateOp, { new: true }).exec();
+        return this.bookingModel.findByIdAndUpdate(id, updateOp, { returnDocument: 'after' }).exec();
     }
 
     async adminCancelBooking(id: string) {

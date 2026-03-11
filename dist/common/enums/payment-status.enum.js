@@ -4,7 +4,6 @@ exports.PaymentMethod = exports.PaymentStatus = void 0;
 var PaymentStatus;
 (function (PaymentStatus) {
     PaymentStatus["PENDING"] = "PENDING";
-    PaymentStatus["UNDER_REVIEW"] = "UNDER_REVIEW";
     PaymentStatus["SUCCESS"] = "SUCCESS";
     PaymentStatus["FAILED"] = "FAILED";
     PaymentStatus["REJECTED"] = "REJECTED";

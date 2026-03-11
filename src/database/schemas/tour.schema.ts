@@ -154,6 +154,9 @@ export class Tour {
 
     @Prop({ type: Date, default: null })
     deletedAt: Date | null;
+
+    @Prop()
+    brochureUrl: string;
 }
 
 export const TourSchema = SchemaFactory.createForClass(Tour);

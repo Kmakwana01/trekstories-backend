@@ -23,7 +23,7 @@ export class SettingsService {
         const updatedSettings = await this.settingModel.findOneAndUpdate(
             { isGlobal: true },
             { $set: updateDto },
-            { new: true, upsert: true }
+            { returnDocument: 'after', upsert: true }
         ).exec();
 
         return updatedSettings;

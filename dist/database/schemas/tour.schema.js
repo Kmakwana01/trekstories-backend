@@ -140,6 +140,7 @@ let Tour = class Tour {
     reviewCount;
     isDeleted;
     deletedAt;
+    brochureUrl;
 };
 exports.Tour = Tour;
 __decorate([
@@ -253,6 +254,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Date, default: null }),
     __metadata("design:type", Object)
 ], Tour.prototype, "deletedAt", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Tour.prototype, "brochureUrl", void 0);
 exports.Tour = Tour = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Tour);

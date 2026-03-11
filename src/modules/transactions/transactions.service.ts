@@ -39,6 +39,7 @@ export class TransactionsService {
     // Admin methods
     async getAllTransactions(filters: any = {}, paginationQuery: PaginationQuery = {}) {
         const query = { ...filters };
+        if (!paginationQuery.order) paginationQuery.order = 'desc';
         return paginate(this.transactionModel, query, paginationQuery, ['user', 'booking']);
     }
 
@@ -311,7 +312,7 @@ export class TransactionsService {
 
         const transactions = await this.transactionModel.find({
             booking: bookingId as any,
-            type: { $in: [TransactionType.ONLINE_RECEIPT, TransactionType.OFFLINE_PAYMENT] },
+            type: { $in: [TransactionType.ONLINE_RECEIPT, TransactionType.OFFLINE_PAYMENT, TransactionType.REFUND] },
             status: { $in: [TransactionStatus.SUCCESS, TransactionStatus.PENDING, TransactionStatus.FAILED] }
         })
             .populate('processedBy', 'name')

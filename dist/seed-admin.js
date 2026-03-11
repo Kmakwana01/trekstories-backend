@@ -41,12 +41,16 @@ const roles_enum_1 = require("./common/enums/roles.enum");
 const bcrypt = __importStar(require("bcryptjs"));
 const common_1 = require("@nestjs/common");
 const gender_enum_1 = require("./common/enums/gender.enum");
+const config_1 = require("@nestjs/config");
 async function bootstrap() {
     const logger = new common_1.Logger('SeedAdmin');
     const app = await core_1.NestFactory.createApplicationContext(seed_module_1.SeedModule);
+    const configService = app.get(config_1.ConfigService);
+    const dbUri = configService.get('database.uri');
+    logger.log(`Connecting to database: ${dbUri?.replace(/\/\/.*@/, '//****:****@')}`);
     const userModel = app.get((0, mongoose_1.getModelToken)(user_schema_1.User.name));
     const adminEmail = 'shivanshholidays27@gmail.com';
-    const adminPass = 'Shivansh@1212';
+    const adminPass = 'Shivansh_0176';
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminPass, salt);
     const existingAdmin = await userModel.findOne({ email: adminEmail });

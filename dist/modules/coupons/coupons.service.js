@@ -42,6 +42,8 @@ let CouponsService = class CouponsService {
         return coupon.save();
     }
     async findAll(filters = {}, paginationQuery = {}) {
+        if (!paginationQuery.order)
+            paginationQuery.order = 'desc';
         return (0, pagination_helper_1.paginate)(this.couponModel, filters, paginationQuery);
     }
     async findOne(id) {

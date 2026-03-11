@@ -12,6 +12,7 @@ export declare class AdminToursController {
     createTour(createTourDto: CreateTourDto, files: {
         images?: Express.Multer.File[];
         thumbnailImage?: Express.Multer.File[];
+        brochure?: Express.Multer.File[];
     }, adminId: string, req: any): Promise<import("../../database/schemas/tour.schema").TourDocument>;
     getTourById(id: string): Promise<import("mongoose").Document<unknown, {}, import("../../database/schemas/tour.schema").TourDocument, {}, import("mongoose").DefaultSchemaOptions> & import("../../database/schemas/tour.schema").Tour & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
         _id: import("mongoose").Types.ObjectId;
@@ -23,6 +24,7 @@ export declare class AdminToursController {
     updateTour(id: string, updateTourDto: UpdateTourDto, files: {
         images?: Express.Multer.File[];
         thumbnailImage?: Express.Multer.File[];
+        brochure?: Express.Multer.File[];
     }, adminId: string, req: any): Promise<import("../../database/schemas/tour.schema").TourDocument>;
     deleteTour(id: string, adminId: string, req: any): Promise<{
         message: string;

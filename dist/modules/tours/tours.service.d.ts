@@ -20,8 +20,8 @@ export declare class ToursService {
         departureCities: string[];
     }>;
     getByState(state: string, pagination: any): Promise<PaginationResult<unknown>>;
-    adminCreateTour(createTourDto: CreateTourDto, uploadedImages?: string[], thumbnailUrl?: string): Promise<TourDocument>;
-    adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages?: string[], thumbnailUrl?: string): Promise<TourDocument>;
+    adminCreateTour(createTourDto: CreateTourDto, uploadedImages?: string[], thumbnailUrl?: string, brochureUrl?: string): Promise<TourDocument>;
+    adminUpdateTour(id: string, updateTourDto: UpdateTourDto, uploadedImages?: string[], thumbnailUrl?: string, brochureUrl?: string): Promise<TourDocument>;
     adminSoftDelete(id: string): Promise<void>;
     toggleStatus(id: string): Promise<TourDocument>;
     toggleFeatured(id: string): Promise<TourDocument>;

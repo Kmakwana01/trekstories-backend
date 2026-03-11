@@ -132,6 +132,7 @@ export declare class Tour {
     reviewCount: number;
     isDeleted: boolean;
     deletedAt: Date | null;
+    brochureUrl: string;
 }
 export declare const TourSchema: import("mongoose").Schema<Tour, import("mongoose").Model<Tour, any, any, any, (Document<unknown, any, Tour, any, import("mongoose").DefaultSchemaOptions> & Tour & {
     _id: import("mongoose").Types.ObjectId;
@@ -378,6 +379,15 @@ export declare const TourSchema: import("mongoose").Schema<Tour, import("mongoos
         id: string;
     }> | undefined;
     deletedAt?: import("mongoose").SchemaDefinitionProperty<Date | null, Tour, Document<unknown, {}, Tour, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Tour & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    brochureUrl?: import("mongoose").SchemaDefinitionProperty<string, Tour, Document<unknown, {}, Tour, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Tour & {
         _id: import("mongoose").Types.ObjectId;

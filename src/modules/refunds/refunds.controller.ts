@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RefundsService } from './refunds.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -15,10 +16,10 @@ export class RefundsController {
     @UseGuards(JwtAuthGuard)
     @Post('refunds/request')
     async requestRefund(
-        @Req() req: any,
+        @CurrentUser('_id') userId: string,
         @Body() body: RequestRefundDto & { bookingId: string }
     ) {
-        return this.refundsService.requestRefund(req.user.userId, body.bookingId, body.reason);
+        return this.refundsService.requestRefund(userId, body.bookingId, body.reason);
     }
 
     // --- Admin Endpoints ---
@@ -34,31 +35,31 @@ export class RefundsController {
     @Roles(Role.ADMIN)
     @Post('admin/refunds/:id/approve')
     async approveRefund(
-        @Req() req: any,
+        @CurrentUser('_id') adminId: string,
         @Param('id') bookingId: string,
         @Body() body: ApproveRefundDto
     ) {
-        return this.refundsService.adminApproveRefund(req.user.userId, bookingId, body.refundAmount, body.refundAdminNote);
+        return this.refundsService.adminApproveRefund(adminId, bookingId, body.refundAmount, body.refundAdminNote);
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN)
     @Post('admin/refunds/:id/reject')
     async rejectRefund(
-        @Req() req: any,
+        @CurrentUser('_id') adminId: string,
         @Param('id') bookingId: string,
         @Body() body: RejectRefundDto
     ) {
-        return this.refundsService.adminRejectRefund(req.user.userId, bookingId, body.reason);
+        return this.refundsService.adminRejectRefund(adminId, bookingId, body.reason);
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN)
     @Post('admin/refunds/:id/processed')
     async markRefundProcessed(
-        @Req() req: any,
+        @CurrentUser('_id') adminId: string,
         @Param('id') bookingId: string
     ) {
-        return this.refundsService.markRefundProcessed(req.user.userId, bookingId);
+        return this.refundsService.markRefundProcessed(adminId, bookingId);
     }
 }

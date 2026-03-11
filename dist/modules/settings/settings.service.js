@@ -30,7 +30,7 @@ let SettingsService = class SettingsService {
         return settings;
     }
     async updateSettings(updateDto) {
-        const updatedSettings = await this.settingModel.findOneAndUpdate({ isGlobal: true }, { $set: updateDto }, { new: true, upsert: true }).exec();
+        const updatedSettings = await this.settingModel.findOneAndUpdate({ isGlobal: true }, { $set: updateDto }, { returnDocument: 'after', upsert: true }).exec();
         return updatedSettings;
     }
 };

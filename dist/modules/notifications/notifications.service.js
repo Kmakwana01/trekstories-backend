@@ -42,6 +42,8 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         return notification.save();
     }
     async getNotifications(userId, query) {
+        if (!query.order)
+            query.order = 'desc';
         return (0, pagination_helper_1.paginate)(this.notificationModel, { user: userId }, query);
     }
     async markRead(userId, id) {

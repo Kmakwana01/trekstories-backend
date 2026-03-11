@@ -38,6 +38,11 @@ declare const _default: () => {
         imgbb: {
             apiKey: string | undefined;
         };
+        imagekit: {
+            publicKey: string | undefined;
+            privateKey: string | undefined;
+            urlEndpoint: string | undefined;
+        };
     };
 };
 export default _default;
