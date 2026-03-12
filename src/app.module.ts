@@ -36,6 +36,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { CommonModule } from './common/common.module';
 import { RefundsModule } from './modules/refunds/refunds.module';
+import { CustomToursModule } from './modules/custom-tours/custom-tours.module';
 
 @Module({
   imports: [
@@ -117,6 +118,7 @@ import { RefundsModule } from './modules/refunds/refunds.module';
       }),
     }),
     RefundsModule,
+    CustomToursModule,
   ],
   controllers: [AppController],
   providers: [

@@ -16,65 +16,63 @@ exports.CustomToursService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const custom_tour_schema_1 = require("./schemas/custom-tour.schema");
+const custom_tour_request_schema_1 = require("./schemas/custom-tour-request.schema");
 let CustomToursService = class CustomToursService {
-    customTourModel;
-    constructor(customTourModel) {
-        this.customTourModel = customTourModel;
+    model;
+    constructor(model) {
+        this.model = model;
     }
-    async create(createCustomTourDto) {
-        const createdCustomTour = new this.customTourModel(createCustomTourDto);
-        return createdCustomTour.save();
+    async create(dto) {
+        const doc = await this.model.create(dto);
+        return doc;
     }
-    async findAll(query = {}) {
-        const page = parseInt(query.page) || 1;
-        const limit = parseInt(query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const filter = {};
-        if (query.status) {
-            filter.status = query.status;
+    async findAll(filter) {
+        const { status, search, page = 1, limit = 15 } = filter;
+        const query = {};
+        if (status)
+            query.status = status;
+        if (search) {
+            const re = new RegExp(search, 'i');
+            query.$or = [{ name: re }, { email: re }, { phone: re }, { destination: re }];
         }
-        const [data, total] = await Promise.all([
-            this.customTourModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
-            this.customTourModel.countDocuments(filter),
+        const skip = (page - 1) * limit;
+        const [items, total] = await Promise.all([
+            this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            this.model.countDocuments(query),
         ]);
         return {
-            data,
-            meta: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit),
-            },
+            items,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
         };
     }
     async findOne(id) {
-        const customTour = await this.customTourModel.findById(id).exec();
-        if (!customTour) {
-            throw new common_1.NotFoundException(`Custom tour request #${id} not found`);
-        }
-        return customTour;
+        const doc = await this.model.findById(id).lean();
+        if (!doc)
+            throw new common_1.NotFoundException('Custom tour request not found');
+        return doc;
     }
-    async update(id, updateCustomTourDto) {
-        const updatedCustomTour = await this.customTourModel
-            .findByIdAndUpdate(id, updateCustomTourDto, { new: true })
-            .exec();
-        if (!updatedCustomTour) {
-            throw new common_1.NotFoundException(`Custom tour request #${id} not found`);
-        }
-        return updatedCustomTour;
+    async updateStatus(id, dto) {
+        const doc = await this.model.findByIdAndUpdate(id, { status: dto.status, ...(dto.adminNotes !== undefined && { adminNotes: dto.adminNotes }) }, { new: true }).lean();
+        if (!doc)
+            throw new common_1.NotFoundException('Custom tour request not found');
+        return doc;
     }
-    async remove(id) {
-        const result = await this.customTourModel.findByIdAndDelete(id).exec();
-        if (!result) {
-            throw new common_1.NotFoundException(`Custom tour request #${id} not found`);
-        }
+    async getStats() {
+        const [total, newCount, contacted, closed] = await Promise.all([
+            this.model.countDocuments(),
+            this.model.countDocuments({ status: 'NEW' }),
+            this.model.countDocuments({ status: 'CONTACTED' }),
+            this.model.countDocuments({ status: 'CLOSED' }),
+        ]);
+        return { total, new: newCount, contacted, closed };
     }
 };
 exports.CustomToursService = CustomToursService;
 exports.CustomToursService = CustomToursService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(custom_tour_schema_1.CustomTour.name)),
+    __param(0, (0, mongoose_1.InjectModel)(custom_tour_request_schema_1.CustomTourRequest.name)),
     __metadata("design:paramtypes", [mongoose_2.Model])
 ], CustomToursService);
 //# sourceMappingURL=custom-tours.service.js.map

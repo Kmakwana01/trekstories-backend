@@ -9,20 +9,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomToursModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const custom_tours_controller_1 = require("./custom-tours.controller");
 const custom_tours_service_1 = require("./custom-tours.service");
-const custom_tour_schema_1 = require("./schemas/custom-tour.schema");
+const custom_tours_controller_1 = require("./custom-tours.controller");
+const admin_custom_tours_controller_1 = require("./admin-custom-tours.controller");
+const custom_tour_request_schema_1 = require("./schemas/custom-tour-request.schema");
+const admin_module_1 = require("../admin/admin.module");
 let CustomToursModule = class CustomToursModule {
 };
 exports.CustomToursModule = CustomToursModule;
 exports.CustomToursModule = CustomToursModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: custom_tour_schema_1.CustomTour.name, schema: custom_tour_schema_1.CustomTourSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: custom_tour_request_schema_1.CustomTourRequest.name, schema: custom_tour_request_schema_1.CustomTourRequestSchema },
+            ]),
+            admin_module_1.AdminModule,
         ],
-        controllers: [custom_tours_controller_1.CustomToursController],
         providers: [custom_tours_service_1.CustomToursService],
-        exports: [custom_tours_service_1.CustomToursService],
+        controllers: [custom_tours_controller_1.CustomToursController, admin_custom_tours_controller_1.AdminCustomToursController],
     })
 ], CustomToursModule);
 //# sourceMappingURL=custom-tours.module.js.map

@@ -15,76 +15,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomToursController = void 0;
 const common_1 = require("@nestjs/common");
 const custom_tours_service_1 = require("./custom-tours.service");
-const custom_tour_dto_1 = require("./dto/custom-tour.dto");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const create_custom_tour_request_dto_1 = require("./dto/create-custom-tour-request.dto");
 let CustomToursController = class CustomToursController {
-    customToursService;
-    constructor(customToursService) {
-        this.customToursService = customToursService;
+    service;
+    constructor(service) {
+        this.service = service;
     }
-    create(createCustomTourDto) {
-        return this.customToursService.create(createCustomTourDto);
-    }
-    findAll(query) {
-        return this.customToursService.findAll(query);
-    }
-    findOne(id) {
-        return this.customToursService.findOne(id);
-    }
-    update(id, updateCustomTourDto) {
-        return this.customToursService.update(id, updateCustomTourDto);
-    }
-    remove(id) {
-        return this.customToursService.remove(id);
+    async submitRequest(dto) {
+        const result = await this.service.create(dto);
+        return {
+            success: true,
+            message: 'Your custom tour request has been received! We will contact you shortly.',
+            data: { id: result._id },
+        };
     }
 };
 exports.CustomToursController = CustomToursController;
 __decorate([
-    (0, common_1.Post)(),
+    (0, common_1.Post)('request'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [custom_tour_dto_1.CreateCustomTourDto]),
-    __metadata("design:returntype", void 0)
-], CustomToursController.prototype, "create", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin', 'employee'),
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], CustomToursController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin', 'employee'),
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], CustomToursController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin', 'employee'),
-    (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, custom_tour_dto_1.UpdateCustomTourDto]),
-    __metadata("design:returntype", void 0)
-], CustomToursController.prototype, "update", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin'),
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], CustomToursController.prototype, "remove", null);
+    __metadata("design:paramtypes", [create_custom_tour_request_dto_1.CreateCustomTourRequestDto]),
+    __metadata("design:returntype", Promise)
+], CustomToursController.prototype, "submitRequest", null);
 exports.CustomToursController = CustomToursController = __decorate([
     (0, common_1.Controller)('custom-tours'),
     __metadata("design:paramtypes", [custom_tours_service_1.CustomToursService])

@@ -9,73 +9,66 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateCustomTourDto = exports.CreateCustomTourDto = void 0;
+exports.CreateCustomTourRequestDto = void 0;
 const class_validator_1 = require("class-validator");
-const custom_tour_schema_1 = require("../schemas/custom-tour.schema");
-class CreateCustomTourDto {
+const class_transformer_1 = require("class-transformer");
+class CreateCustomTourRequestDto {
     name;
     email;
     phone;
     destination;
-    duration;
-    travelDate;
+    travelDates;
     groupSize;
+    budget;
+    tourType;
     message;
 }
-exports.CreateCustomTourDto = CreateCustomTourDto;
+exports.CreateCustomTourRequestDto = CreateCustomTourRequestDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "name", void 0);
+], CreateCustomTourRequestDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "email", void 0);
+], CreateCustomTourRequestDto.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "phone", void 0);
+], CreateCustomTourRequestDto.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "destination", void 0);
+], CreateCustomTourRequestDto.prototype, "destination", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCustomTourRequestDto.prototype, "travelDates", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
-], CreateCustomTourDto.prototype, "duration", void 0);
+], CreateCustomTourRequestDto.prototype, "groupSize", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCustomTourRequestDto.prototype, "budget", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCustomTourRequestDto.prototype, "tourType", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "travelDate", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
-], CreateCustomTourDto.prototype, "groupSize", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateCustomTourDto.prototype, "message", void 0);
-class UpdateCustomTourDto {
-    status;
-    adminNotes;
-}
-exports.UpdateCustomTourDto = UpdateCustomTourDto;
-__decorate([
-    (0, class_validator_1.IsEnum)(custom_tour_schema_1.CustomTourStatus),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateCustomTourDto.prototype, "status", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateCustomTourDto.prototype, "adminNotes", void 0);
-//# sourceMappingURL=custom-tour.dto.js.map
+], CreateCustomTourRequestDto.prototype, "message", void 0);
+//# sourceMappingURL=create-custom-tour-request.dto.js.map
