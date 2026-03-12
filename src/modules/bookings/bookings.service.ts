@@ -41,7 +41,7 @@ export class BookingsService {
     private readonly couponsService: CouponsService,
     private readonly notificationsService: NotificationsService,
     private readonly settingsService: SettingsService,
-  ) {}
+  ) { }
 
   async previewBooking(dto: PreviewBookingDto) {
     this.logger.log(`Previewing booking for tour date: ${dto.tourDateId}`);
@@ -63,7 +63,8 @@ export class BookingsService {
     if (
       pickupOptionIndex < 0 ||
       pickupOptionIndex >= tour.departureOptions.length
-    ) {
+    )
+    {
       throw new BadRequestException('Invalid pickup option index');
     }
     const pickupOption = tour.departureOptions[pickupOptionIndex];
@@ -75,8 +76,10 @@ export class BookingsService {
     let couponDiscount = 0;
     let appliedCoupon: any = null;
 
-    if (couponCode) {
-      try {
+    if (couponCode)
+    {
+      try
+      {
         const validation = await this.couponsService.validateCoupon(
           couponCode,
           '', // userId is optional for basic validation here
@@ -86,7 +89,8 @@ export class BookingsService {
 
         couponDiscount = validation.discountAmount;
         appliedCoupon = validation.coupon;
-      } catch (error) {
+      } catch (error)
+      {
         // If coupon invalid, we can either throw or just ignore it
         // In preview, maybe we should just not apply it and show no discount?
         // But usually better to throw error if user explicitly provided a code.
@@ -106,19 +110,23 @@ export class BookingsService {
 
     // 5. Generate Readable Summary
     let pricingSummary = '';
-    if (pickupOption.priceAdjustment > 0) {
+    if (pickupOption.priceAdjustment > 0)
+    {
       pricingSummary += `${fmt(baseAmountPerPerson)} (Base) + ${fmt(pickupOption.priceAdjustment)} (Extra) = ${fmt(perPersonPrice)} per person. `;
-    } else {
+    } else
+    {
       pricingSummary += `${fmt(perPersonPrice)} per person. `;
     }
 
     pricingSummary += `Total for ${travelerCount} traveler(s): ${fmt(subtotal)}. `;
 
-    if (couponDiscount > 0) {
+    if (couponDiscount > 0)
+    {
       pricingSummary += `Coupon (${appliedCoupon?.code}): -${fmt(couponDiscount)}. `;
     }
 
-    if (gstRate > 0) {
+    if (gstRate > 0)
+    {
       pricingSummary += `Tax (${gstRate}%): ${fmt(taxAmount)}. `;
     }
     pricingSummary += `Grand Total: ${fmt(totalAmount)}.`;
@@ -190,7 +198,8 @@ export class BookingsService {
       )
       .exec();
 
-    if (!updatedDate) {
+    if (!updatedDate)
+    {
       // Fetch to give a precise error
       const check = await this.tourDateModel.findById(dto.tourDateId).exec();
       if (!check) throw new ConflictException('Tour date not found');
@@ -204,7 +213,8 @@ export class BookingsService {
       );
     }
 
-    if (updatedDate.bookedSeats >= updatedDate.totalSeats) {
+    if (updatedDate.bookedSeats >= updatedDate.totalSeats)
+    {
       await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, {
         status: TourDateStatus.FULL,
       });
@@ -240,14 +250,17 @@ export class BookingsService {
     });
 
     // Increment coupon usage if used
-    if (dto.couponCode) {
+    if (dto.couponCode)
+    {
       await this.couponsService.applyCoupon(dto.couponCode);
     }
 
     let savedBooking;
-    try {
+    try
+    {
       savedBooking = await booking.save();
-    } catch (error) {
+    } catch (error)
+    {
       // IMPORTANT: If booking fails to save (e.g. validation error), restore the seats!
       await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, {
         $inc: { bookedSeats: -dto.travelers.length },
@@ -258,13 +271,15 @@ export class BookingsService {
         check &&
         check.status === TourDateStatus.FULL &&
         check.bookedSeats < check.totalSeats
-      ) {
+      )
+      {
         await this.tourDateModel.findByIdAndUpdate(dto.tourDateId, {
           status: TourDateStatus.UPCOMING,
         });
       }
 
-      if (error.code === 11000) {
+      if (error.code === 11000)
+      {
         this.logger.error(
           `Concurrency error on booking creation: duplicated booking number ${bNo}`,
         );
@@ -279,7 +294,8 @@ export class BookingsService {
     );
 
     // Fire 'Booking Created' notification
-    try {
+    try
+    {
       await this.notificationsService.createNotification(
         userId,
         NotificationType.BOOKING_CREATED,
@@ -287,7 +303,8 @@ export class BookingsService {
         `Your booking #${savedBooking.bookingNumber} has been created successfully!`,
         { bookingId: savedBooking._id },
       );
-    } catch (err) {
+    } catch (err)
+    {
       this.logger.error(
         `Failed to create notification for booking ${savedBooking.bookingNumber}`,
         err.stack,
@@ -325,34 +342,127 @@ export class BookingsService {
   async adminGetAllBookings(filters: any = {}) {
     const {
       search,
+      tourId,
       status,
+      paymentStatus,
       startDate,
       endDate,
+      travelStartDate,
+      travelEndDate,
+      needsReview,
+      sortBy = 'createdAt',
+      sortOrder = -1,
       page = 1,
       limit = 10,
     } = filters;
     const query: any = {};
 
+    // 1. Basic Filters
     if (status) query.status = status;
-    if (startDate || endDate) {
+    if (tourId) query.tour = tourId;
+
+    if (needsReview === 'true' || needsReview === true)
+    {
+      query.receiptImage = { $ne: null };
+      query.paymentVerifiedAt = null;
+    }
+
+    // 2. Created Date Range
+    if (startDate || endDate)
+    {
       query.createdAt = {};
       if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) {
+      if (endDate)
+      {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
         query.createdAt.$lte = end;
       }
     }
-    if (search) query.bookingNumber = { $regex: search, $options: 'i' };
+
+    // 3. Payment Status Filtering
+    if (paymentStatus)
+    {
+      if (paymentStatus === 'PAID')
+      {
+        query.pendingAmount = { $lte: 0 };
+        query.paidAmount = { $gt: 0 };
+      } else if (paymentStatus === 'PARTIAL')
+      {
+        query.pendingAmount = { $gt: 0 };
+        query.paidAmount = { $gt: 0 };
+      } else if (paymentStatus === 'PENDING_PAY')
+      {
+        query.paidAmount = { $lte: 0 };
+      }
+    }
+
+    // 4. Advanced Search (Booking #, Customer Name/Email, Tour Title, Traveler Name)
+    if (search)
+    {
+      const searchRegex = { $regex: search, $options: 'i' };
+
+      const [users, tours] = await Promise.all([
+        this.bookingModel.db.model('User').find({
+          $or: [{ name: searchRegex }, { email: searchRegex }]
+        }).select('_id').exec(),
+        this.tourModel.find({ title: searchRegex }).select('_id').exec()
+      ]);
+
+      const userIds = users.map(u => u._id);
+      const tourIds = tours.map(t => t._id);
+
+      query.$or = [
+        { bookingNumber: searchRegex },
+        { user: { $in: userIds } },
+        { tour: { $in: tourIds } },
+        { 'travelers.fullName': searchRegex }
+      ];
+    }
+
+    // 5. Travel Date Filtering
+    if (travelStartDate || travelEndDate)
+    {
+      const dateQuery: any = {};
+      if (travelStartDate) dateQuery.$gte = new Date(travelStartDate);
+      if (travelEndDate)
+      {
+        const tEnd = new Date(travelEndDate);
+        tEnd.setHours(23, 59, 59, 999);
+        dateQuery.$lte = tEnd;
+      }
+
+      const matchingDates = await this.tourDateModel.find({
+        startDate: dateQuery
+      }).select('_id').exec();
+
+      const tourDateIds = matchingDates.map(d => d._id);
+      query.tourDate = { $in: tourDateIds };
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
+
+    // Define sort object
+    let sortObj: any = {};
+    if (sortBy === 'travelDate')
+    {
+      // Special case: we might need to aggregate if sorting by nested field in find() 
+      // but since we are using populate, we can't easily sort by tourDate.startDate in find()
+      // However, we can use an aggregation pipeline if needed. 
+      // For now, let's keep it simple and default to createdAt if not easy.
+      sortObj = { createdAt: -1 };
+    } else
+    {
+      sortObj[sortBy] = Number(sortOrder);
+    }
+
     const [items, total] = await Promise.all([
       this.bookingModel
         .find(query)
-        .populate('user', 'name email')
-        .populate('tour', 'title thumbnailImage')
+        .populate('user', 'name email phone')
+        .populate('tour', 'title thumbnailImage location')
         .populate('tourDate', 'startDate endDate')
-        .sort({ createdAt: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(Number(limit))
         .exec(),
@@ -383,7 +493,8 @@ export class BookingsService {
     if (
       oldStatus !== BookingStatus.CANCELLED &&
       newStatus === BookingStatus.CANCELLED
-    ) {
+    )
+    {
       // Restoring seats as it moves TO cancelled
       const restoredDate = await this.tourDateModel
         .findByIdAndUpdate(
@@ -396,7 +507,8 @@ export class BookingsService {
         restoredDate &&
         restoredDate.status === TourDateStatus.FULL &&
         restoredDate.bookedSeats < restoredDate.totalSeats
-      ) {
+      )
+      {
         await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, {
           status: TourDateStatus.UPCOMING,
         });
@@ -404,7 +516,8 @@ export class BookingsService {
     } else if (
       oldStatus === BookingStatus.CANCELLED &&
       newStatus !== BookingStatus.CANCELLED
-    ) {
+    )
+    {
       // Re-reserving seats as it moves FROM cancelled
       const updatedDate = await this.tourDateModel
         .findOneAndUpdate(
@@ -426,7 +539,8 @@ export class BookingsService {
         throw new BadRequestException(
           'Cannot revert cancellation: Not enough seats available on this tour date.',
         );
-      if (updatedDate.bookedSeats >= updatedDate.totalSeats) {
+      if (updatedDate.bookedSeats >= updatedDate.totalSeats)
+      {
         await this.tourDateModel.findByIdAndUpdate(oldBooking.tourDate, {
           status: TourDateStatus.FULL,
         });
@@ -434,7 +548,8 @@ export class BookingsService {
     }
 
     const updateOp: any = { status: newStatus };
-    if (note) {
+    if (note)
+    {
       updateOp.$push = {
         internalNotes: {
           note,
@@ -499,7 +614,8 @@ export class BookingsService {
     adminId?: string,
   ) {
     const updateOp: any = { paymentType };
-    if (note) {
+    if (note)
+    {
       updateOp.$push = {
         internalNotes: {
           note,
@@ -525,7 +641,8 @@ export class BookingsService {
       .exec();
     if (!booking) throw new NotFoundException('Booking not found');
 
-    if (approve) {
+    if (approve)
+    {
       // Set payment fields FIRST, then let adminConfirmBooking handle status + seats + notifications
       booking.paymentVerifiedAt = new Date();
       booking.paidAmount = booking.totalAmount;
@@ -539,7 +656,8 @@ export class BookingsService {
       this.logger.log(
         `Receipt approved and booking confirmed: #${booking.bookingNumber}`,
       );
-    } else {
+    } else
+    {
       // Reject receipt — keep booking in PENDING AND clear receipt fields so user can re-upload
       await this.bookingModel
         .findByIdAndUpdate(id, {
@@ -564,8 +682,10 @@ export class BookingsService {
       const uId =
         (booking.user as any)?._id?.toString() ||
         (booking.user as any)?.toString();
-      if (uId) {
-        try {
+      if (uId)
+      {
+        try
+        {
           await this.notificationsService.createNotification(
             uId,
             NotificationType.PAYMENT_FAILED,
@@ -573,7 +693,8 @@ export class BookingsService {
             `Your payment receipt for booking #${booking.bookingNumber} was rejected. Please re-upload a valid receipt.`,
             { bookingId: booking._id },
           );
-        } catch (err) {
+        } catch (err)
+        {
           this.logger.error(
             `Failed to notify user on receipt rejection: ${booking.bookingNumber}`,
             err.stack,
@@ -597,7 +718,8 @@ export class BookingsService {
     if (booking.status === BookingStatus.CONFIRMED) return booking;
 
     // If admin confirms manually with no payment record, assume it is an OFFLINE booking
-    if (booking.paidAmount === 0 && !booking.paymentType) {
+    if (booking.paidAmount === 0 && !booking.paymentType)
+    {
       booking.paymentType = PaymentType.OFFLINE;
     }
 
@@ -613,8 +735,10 @@ export class BookingsService {
       .exec();
 
     // Notify user of manual confirmation
-    if (populatedBooking && populatedBooking.user) {
-      try {
+    if (populatedBooking && populatedBooking.user)
+    {
+      try
+      {
         await this.notificationsService.createNotification(
           (populatedBooking.user as any)._id.toString(),
           NotificationType.BOOKING_CONFIRMED,
@@ -635,7 +759,8 @@ export class BookingsService {
             amount: populatedBooking.totalAmount,
           },
         );
-      } catch (err) {
+      } catch (err)
+      {
         this.logger.error(
           `Failed to dispatch confirm notification for booking ${populatedBooking.bookingNumber}`,
           err.stack,
@@ -676,7 +801,8 @@ export class BookingsService {
       restoredDate &&
       restoredDate.status === TourDateStatus.FULL &&
       restoredDate.bookedSeats < restoredDate.totalSeats
-    ) {
+    )
+    {
       await this.tourDateModel.findByIdAndUpdate(booking.tourDate, {
         status: TourDateStatus.UPCOMING,
       });
@@ -688,12 +814,14 @@ export class BookingsService {
     booking.status = BookingStatus.CANCELLED;
 
     // Release coupon if used
-    if (booking.couponCode) {
+    if (booking.couponCode)
+    {
       await this.couponsService.releaseCoupon(booking.couponCode);
     }
 
     // Auto-request refund if payment exists
-    if (booking.paidAmount > 0) {
+    if (booking.paidAmount > 0)
+    {
       booking.refundStatus = RefundStatus.REQUESTED;
       booking.refundReason = 'Auto-requested on booking cancellation';
       booking.refundRequestedAt = new Date();
@@ -704,11 +832,13 @@ export class BookingsService {
       `Booking cancelled successfully: #${savedBooking.bookingNumber}`,
     );
 
-    try {
+    try
+    {
       const uId =
         (booking.user as any)?._id?.toString() ||
         (booking.user as any)?.toString();
-      if (uId) {
+      if (uId)
+      {
         await this.notificationsService.createNotification(
           uId,
           NotificationType.BOOKING_CANCELLED,
@@ -717,7 +847,8 @@ export class BookingsService {
           { bookingId: booking._id },
         );
 
-        if ((booking.user as any).email) {
+        if ((booking.user as any).email)
+        {
           await this.notificationsService.sendEmail(
             (booking.user as any).email,
             'Booking Cancelled',
@@ -729,7 +860,8 @@ export class BookingsService {
           );
         }
       }
-    } catch (err) {
+    } catch (err)
+    {
       this.logger.error(
         `Failed to dispatch cancel notification for booking ${booking.bookingNumber}`,
         err.stack,

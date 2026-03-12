@@ -244,10 +244,16 @@ let BookingsService = BookingsService_1 = class BookingsService {
         return booking.toObject({ virtuals: true });
     }
     async adminGetAllBookings(filters = {}) {
-        const { search, status, startDate, endDate, page = 1, limit = 10, } = filters;
+        const { search, tourId, status, paymentStatus, startDate, endDate, travelStartDate, travelEndDate, needsReview, sortBy = 'createdAt', sortOrder = -1, page = 1, limit = 10, } = filters;
         const query = {};
         if (status)
             query.status = status;
+        if (tourId)
+            query.tour = tourId;
+        if (needsReview === 'true' || needsReview === true) {
+            query.receiptImage = { $ne: null };
+            query.paymentVerifiedAt = null;
+        }
         if (startDate || endDate) {
             query.createdAt = {};
             if (startDate)
@@ -258,16 +264,66 @@ let BookingsService = BookingsService_1 = class BookingsService {
                 query.createdAt.$lte = end;
             }
         }
-        if (search)
-            query.bookingNumber = { $regex: search, $options: 'i' };
+        if (paymentStatus) {
+            if (paymentStatus === 'PAID') {
+                query.pendingAmount = { $lte: 0 };
+                query.paidAmount = { $gt: 0 };
+            }
+            else if (paymentStatus === 'PARTIAL') {
+                query.pendingAmount = { $gt: 0 };
+                query.paidAmount = { $gt: 0 };
+            }
+            else if (paymentStatus === 'PENDING_PAY') {
+                query.paidAmount = { $lte: 0 };
+            }
+        }
+        if (search) {
+            const searchRegex = { $regex: search, $options: 'i' };
+            const [users, tours] = await Promise.all([
+                this.bookingModel.db.model('User').find({
+                    $or: [{ name: searchRegex }, { email: searchRegex }]
+                }).select('_id').exec(),
+                this.tourModel.find({ title: searchRegex }).select('_id').exec()
+            ]);
+            const userIds = users.map(u => u._id);
+            const tourIds = tours.map(t => t._id);
+            query.$or = [
+                { bookingNumber: searchRegex },
+                { user: { $in: userIds } },
+                { tour: { $in: tourIds } },
+                { 'travelers.fullName': searchRegex }
+            ];
+        }
+        if (travelStartDate || travelEndDate) {
+            const dateQuery = {};
+            if (travelStartDate)
+                dateQuery.$gte = new Date(travelStartDate);
+            if (travelEndDate) {
+                const tEnd = new Date(travelEndDate);
+                tEnd.setHours(23, 59, 59, 999);
+                dateQuery.$lte = tEnd;
+            }
+            const matchingDates = await this.tourDateModel.find({
+                startDate: dateQuery
+            }).select('_id').exec();
+            const tourDateIds = matchingDates.map(d => d._id);
+            query.tourDate = { $in: tourDateIds };
+        }
         const skip = (Number(page) - 1) * Number(limit);
+        let sortObj = {};
+        if (sortBy === 'travelDate') {
+            sortObj = { createdAt: -1 };
+        }
+        else {
+            sortObj[sortBy] = Number(sortOrder);
+        }
         const [items, total] = await Promise.all([
             this.bookingModel
                 .find(query)
-                .populate('user', 'name email')
-                .populate('tour', 'title thumbnailImage')
+                .populate('user', 'name email phone')
+                .populate('tour', 'title thumbnailImage location')
                 .populate('tourDate', 'startDate endDate')
-                .sort({ createdAt: -1 })
+                .sort(sortObj)
                 .skip(skip)
                 .limit(Number(limit))
                 .exec(),
