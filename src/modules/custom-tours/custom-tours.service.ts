@@ -55,7 +55,7 @@ export class CustomToursService {
         const doc = await this.model.findByIdAndUpdate(
             id,
             { status: dto.status, ...(dto.adminNotes !== undefined && { adminNotes: dto.adminNotes }) },
-            { new: true },
+            { returnDocument: 'after' },
         ).lean();
         if (!doc) throw new NotFoundException('Custom tour request not found');
         return doc;

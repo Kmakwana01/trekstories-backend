@@ -54,7 +54,7 @@ let CustomToursService = class CustomToursService {
         return doc;
     }
     async updateStatus(id, dto) {
-        const doc = await this.model.findByIdAndUpdate(id, { status: dto.status, ...(dto.adminNotes !== undefined && { adminNotes: dto.adminNotes }) }, { new: true }).lean();
+        const doc = await this.model.findByIdAndUpdate(id, { status: dto.status, ...(dto.adminNotes !== undefined && { adminNotes: dto.adminNotes }) }, { returnDocument: 'after' }).lean();
         if (!doc)
             throw new common_1.NotFoundException('Custom tour request not found');
         return doc;

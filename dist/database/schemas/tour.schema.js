@@ -263,5 +263,4 @@ exports.Tour = Tour = __decorate([
 ], Tour);
 exports.TourSchema = mongoose_1.SchemaFactory.createForClass(Tour);
 exports.TourSchema.index({ isActive: 1, isFeatured: 1 });
-exports.TourSchema.index({ isDeleted: 1 });
 //# sourceMappingURL=tour.schema.js.map

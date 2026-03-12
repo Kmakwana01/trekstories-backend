@@ -163,4 +163,3 @@ export const TourSchema = SchemaFactory.createForClass(Tour);
 
 // Compound index for featured tours sorting/filtering
 TourSchema.index({ isActive: 1, isFeatured: 1 });
-TourSchema.index({ isDeleted: 1 });
