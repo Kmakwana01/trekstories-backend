@@ -63,7 +63,7 @@ const ParseNumber = () => (0, class_transformer_1.Transform)(({ value }) => {
 const ParseUppercase = () => (0, class_transformer_1.Transform)(({ value }) => typeof value === 'string' ? value.trim().toUpperCase() : value);
 class ItineraryPointDto {
     text;
-    subPoints;
+    description;
 }
 exports.ItineraryPointDto = ItineraryPointDto;
 __decorate([
@@ -74,11 +74,10 @@ __decorate([
 ], ItineraryPointDto.prototype, "text", void 0);
 __decorate([
     (0, class_transformer_1.Expose)(),
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
-], ItineraryPointDto.prototype, "subPoints", void 0);
+    __metadata("design:type", String)
+], ItineraryPointDto.prototype, "description", void 0);
 class ItineraryDayDto {
     dayNumber;
     title;

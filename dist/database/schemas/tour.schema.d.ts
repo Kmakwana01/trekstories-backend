@@ -2,7 +2,7 @@ import { Document } from 'mongoose';
 export type TourDocument = Tour & Document;
 declare class ItineraryPoint {
     text: string;
-    subPoints: string[];
+    description: string;
 }
 declare class ItineraryDay {
     dayNumber: number;

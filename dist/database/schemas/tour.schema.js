@@ -15,16 +15,16 @@ const tour_category_enum_1 = require("../../common/enums/tour-category.enum");
 const pickup_type_enum_1 = require("../../common/enums/pickup-type.enum");
 let ItineraryPoint = class ItineraryPoint {
     text;
-    subPoints;
+    description;
 };
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], ItineraryPoint.prototype, "text", void 0);
 __decorate([
-    (0, mongoose_1.Prop)([String]),
-    __metadata("design:type", Array)
-], ItineraryPoint.prototype, "subPoints", void 0);
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], ItineraryPoint.prototype, "description", void 0);
 ItineraryPoint = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], ItineraryPoint);

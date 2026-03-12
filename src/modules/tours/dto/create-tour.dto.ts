@@ -26,17 +26,21 @@ import { PickupType } from '../../../common/enums/pickup-type.enum';
 const ParseJson = (type?: any) =>
   Transform(({ value }) => {
     // ── Case 1: JSON string (e.g. '[{"type":"AC","totalDays":2}]') ──────────
-    if (typeof value === 'string') {
-      try {
+    if (typeof value === 'string')
+    {
+      try
+      {
         const parsed = JSON.parse(value);
-        if (type) {
+        if (type)
+        {
           return plainToInstance(type, parsed, {
             enableImplicitConversion: true,
             excludeExtraneousValues: false,
           });
         }
         return parsed;
-      } catch {
+      } catch
+      {
         return value; // not valid JSON – pass through as-is
       }
     }
@@ -45,7 +49,8 @@ const ParseJson = (type?: any) =>
     if (
       type &&
       (Array.isArray(value) || (typeof value === 'object' && value !== null))
-    ) {
+    )
+    {
       return plainToInstance(type, value, {
         enableImplicitConversion: true,
         excludeExtraneousValues: false,
@@ -76,7 +81,8 @@ const ParseNumber = () =>
     if (value === '' || value === null || value === undefined) return undefined;
     // Already a number (e.g. came from JSON.parse or bracket-notation parsed by qs)
     if (typeof value === 'number' && !isNaN(value)) return value;
-    if (typeof value === 'string') {
+    if (typeof value === 'string')
+    {
       const num = Number(value);
       if (!isNaN(num)) return num;
     }
@@ -104,10 +110,9 @@ export class ItineraryPointDto {
   text: string;
 
   @Expose()
-  @IsArray()
-  @IsString({ each: true })
+  @IsString()
   @IsOptional()
-  subPoints?: string[];
+  description?: string;
 }
 
 export class ItineraryDayDto {

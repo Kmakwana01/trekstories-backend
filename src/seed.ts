@@ -231,10 +231,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Arrive at Kushok Bakula Rimpochee Airport',
-              subPoints: [
-                'Transfer to hotel in Leh',
-                'Complete rest – avoid exertion',
-              ],
+              description: 'Transfer to hotel in Leh\nComplete rest – avoid exertion',
             },
           ],
         },
@@ -244,7 +241,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Visit city landmarks',
-              subPoints: ['Shanti Stupa', 'Leh Palace'],
+              description: 'Shanti Stupa\nLeh Palace',
             },
           ],
         },
@@ -252,7 +249,7 @@ async function bootstrap() {
           dayNumber: 3,
           title: 'Leh – Nubra Valley via Khardung La',
           points: [
-            { text: 'Cross Khardung La', subPoints: ['Arrive Hunder Village'] },
+            { text: 'Cross Khardung La', description: 'Arrive Hunder Village' },
           ],
         },
         {
@@ -261,7 +258,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Diskit Monastery & Murals',
-              subPoints: ['Visit Panamik hot springs'],
+              description: 'Visit Panamik hot springs',
             },
           ],
         },
@@ -269,7 +266,7 @@ async function bootstrap() {
           dayNumber: 5,
           title: 'Nubra – Pangong Lake',
           points: [
-            { text: 'Drive to Pangong Tso', subPoints: ['Sunset at the lake'] },
+            { text: 'Drive to Pangong Tso', description: 'Sunset at the lake' },
           ],
         },
         {
@@ -278,14 +275,14 @@ async function bootstrap() {
           points: [
             {
               text: 'Morning by the lake',
-              subPoints: ['Return to Leh via Chang La Pass'],
+              description: 'Return to Leh via Chang La Pass',
             },
           ],
         },
         {
           dayNumber: 7,
           title: 'Departure',
-          points: [{ text: 'Transfer to airport', subPoints: ['Tour ends'] }],
+          points: [{ text: 'Transfer to airport', description: 'Tour ends' }],
         },
       ],
       isFeatured: true,
@@ -364,7 +361,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Check-in, Baga & Calangute',
-              subPoints: ['Sunset at Baga'],
+              description: 'Sunset at Baga',
             },
           ],
         },
@@ -372,14 +369,14 @@ async function bootstrap() {
           dayNumber: 2,
           title: 'Fort Trail',
           points: [
-            { text: 'Aguada & Chapora Forts', subPoints: ['Anjuna market'] },
+            { text: 'Aguada & Chapora Forts', description: 'Anjuna market' },
           ],
         },
         {
           dayNumber: 3,
           title: 'Dudhsagar & Spice Plantation',
           points: [
-            { text: 'Day excursion to Dudhsagar', subPoints: ['Jeep safari'] },
+            { text: 'Day excursion to Dudhsagar', description: 'Jeep safari' },
           ],
         },
         {
@@ -388,7 +385,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Morning at leisure, check-out',
-              subPoints: ['Drop to station'],
+              description: 'Drop to station',
             },
           ],
         },
@@ -455,7 +452,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Board the houseboat at noon',
-              subPoints: ['Welcome drink & lunch on board'],
+              description: 'Welcome drink & lunch on board',
             },
           ],
         },
@@ -465,7 +462,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Early morning canoe ride',
-              subPoints: ['Ayurvedic massage session'],
+              description: 'Ayurvedic massage session',
             },
           ],
         },
@@ -473,7 +470,7 @@ async function bootstrap() {
           dayNumber: 3,
           title: 'Disembark & Departure',
           points: [
-            { text: 'Morning tea cruise', subPoints: ['Check-out by 09:00'] },
+            { text: 'Morning tea cruise', description: 'Check-out by 09:00' },
           ],
         },
       ],
@@ -544,7 +541,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Check-in & orientation walk',
-              subPoints: ['Visit Hawa Mahal'],
+              description: 'Visit Hawa Mahal',
             },
           ],
         },
@@ -552,7 +549,7 @@ async function bootstrap() {
           dayNumber: 2,
           title: 'Jaipur Sightseeing',
           points: [
-            { text: 'Amber Fort & City Palace', subPoints: ['Elephant ride'] },
+            { text: 'Amber Fort & City Palace', description: 'Elephant ride' },
           ],
         },
         {
@@ -561,49 +558,49 @@ async function bootstrap() {
           points: [
             {
               text: 'Drive to Jodhpur',
-              subPoints: ['Check-in to heritage haveli'],
+              description: 'Check-in to heritage haveli',
             },
           ],
         },
         {
           dayNumber: 4,
           title: 'Jodhpur Blue City',
-          points: [{ text: 'Mehrangarh Fort', subPoints: ['Old city tour'] }],
+          points: [{ text: 'Mehrangarh Fort', description: 'Old city tour' }],
         },
         {
           dayNumber: 5,
           title: 'Jodhpur – Jaisalmer',
-          points: [{ text: 'Drive to Jaisalmer', subPoints: ['Golden Fort'] }],
+          points: [{ text: 'Drive to Jaisalmer', description: 'Golden Fort' }],
         },
         {
           dayNumber: 6,
           title: 'Jaisalmer Desert',
-          points: [{ text: 'Sam Sand Dunes', subPoints: ['Camel safari'] }],
+          points: [{ text: 'Sam Sand Dunes', description: 'Camel safari' }],
         },
         {
           dayNumber: 7,
           title: 'Jaisalmer – Udaipur',
-          points: [{ text: 'Long drive day', subPoints: ['Ranakpur'] }],
+          points: [{ text: 'Long drive day', description: 'Ranakpur' }],
         },
         {
           dayNumber: 8,
           title: 'Udaipur City of Lakes',
           points: [
-            { text: 'City Palace', subPoints: ['Lake Pichola boat ride'] },
+            { text: 'City Palace', description: 'Lake Pichola boat ride' },
           ],
         },
         {
           dayNumber: 9,
           title: 'Udaipur Leisure',
           points: [
-            { text: 'Local shopping', subPoints: ['Saheliyon ki Bari'] },
+            { text: 'Local shopping', description: 'Saheliyon ki Bari' },
           ],
         },
         {
           dayNumber: 10,
           title: 'Departure',
           points: [
-            { text: 'Drop to Udaipur Airport', subPoints: ['Tour concludes'] },
+            { text: 'Drop to Udaipur Airport', description: 'Tour concludes' },
           ],
         },
       ],
@@ -675,24 +672,24 @@ async function bootstrap() {
           points: [
             {
               text: 'Drive through foothils',
-              subPoints: ['Overnight at Narkanda'],
+              description: 'Overnight at Narkanda',
             },
           ],
         },
         {
           dayNumber: 2,
           title: 'Narkanda – Sangla',
-          points: [{ text: 'Kinnaur Valley', subPoints: ['Kamru Fort'] }],
+          points: [{ text: 'Kinnaur Valley', description: 'Kamru Fort' }],
         },
         {
           dayNumber: 3,
           title: 'Sangla – Chitkul – Kaza',
-          points: [{ text: 'Chitkul village', subPoints: ['Arrive Kaza'] }],
+          points: [{ text: 'Chitkul village', description: 'Arrive Kaza' }],
         },
         {
           dayNumber: 4,
           title: 'Key & Kibber',
-          points: [{ text: 'Key Monastery', subPoints: ['Chicham Bridge'] }],
+          points: [{ text: 'Key Monastery', description: 'Chicham Bridge' }],
         },
         {
           dayNumber: 5,
@@ -700,7 +697,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Fossil village',
-              subPoints: ['Highest inhabited village'],
+              description: 'Highest inhabited village',
             },
           ],
         },
@@ -708,26 +705,26 @@ async function bootstrap() {
           dayNumber: 6,
           title: 'Pin Valley National Park',
           points: [
-            { text: 'Snow leopard habitat', subPoints: ['Mudh village'] },
+            { text: 'Snow leopard habitat', description: 'Mudh village' },
           ],
         },
         {
           dayNumber: 7,
           title: 'Kaza – Chandratal Lake',
-          points: [{ text: 'Moon Lake', subPoints: ['Camp by the lake'] }],
+          points: [{ text: 'Moon Lake', description: 'Camp by the lake' }],
         },
         {
           dayNumber: 8,
           title: 'Chandratal – Manali',
           points: [
-            { text: 'Cross Rohtang Pass', subPoints: ['Arrive Manali'] },
+            { text: 'Cross Rohtang Pass', description: 'Arrive Manali' },
           ],
         },
         {
           dayNumber: 9,
           title: 'Departure from Manali',
           points: [
-            { text: 'Morning leisure', subPoints: ['Drop to bus stand'] },
+            { text: 'Morning leisure', description: 'Drop to bus stand' },
           ],
         },
       ],
@@ -795,13 +792,13 @@ async function bootstrap() {
         {
           dayNumber: 1,
           title: 'Arrive Port Blair',
-          points: [{ text: 'Cellular Jail', subPoints: ['Hotel check-in'] }],
+          points: [{ text: 'Cellular Jail', description: 'Hotel check-in' }],
         },
         {
           dayNumber: 2,
           title: 'Port Blair Local',
           points: [
-            { text: 'Ross Island', subPoints: ['North Bay snorkelling'] },
+            { text: 'Ross Island', description: 'North Bay snorkelling' },
           ],
         },
         {
@@ -810,7 +807,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Ferry to Havelock',
-              subPoints: ['Radhanagar Beach sunset'],
+              description: 'Radhanagar Beach sunset',
             },
           ],
         },
@@ -820,7 +817,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Scuba diving (optional)',
-              subPoints: ['Bioluminescent beach'],
+              description: 'Bioluminescent beach',
             },
           ],
         },
@@ -828,14 +825,14 @@ async function bootstrap() {
           dayNumber: 5,
           title: 'Neil Island',
           points: [
-            { text: 'Ferry to Neil Island', subPoints: ['Natural Bridge'] },
+            { text: 'Ferry to Neil Island', description: 'Natural Bridge' },
           ],
         },
         {
           dayNumber: 6,
           title: 'Departure',
           points: [
-            { text: 'Return to Port Blair', subPoints: ['Drop to airport'] },
+            { text: 'Return to Port Blair', description: 'Drop to airport' },
           ],
         },
       ],
@@ -903,7 +900,7 @@ async function bootstrap() {
           dayNumber: 1,
           title: 'Arrive & Explore Madikeri',
           points: [
-            { text: "Raja's Seat & Abbey Falls", subPoints: ['Madikeri Fort'] },
+            { text: "Raja's Seat & Abbey Falls", description: 'Madikeri Fort' },
           ],
         },
         {
@@ -912,7 +909,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Morning estate walk',
-              subPoints: ['Dubare Elephant Camp'],
+              description: 'Dubare Elephant Camp',
             },
           ],
         },
@@ -922,7 +919,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Visit Iruppu Falls',
-              subPoints: ['Return to Bangalore by evening'],
+              description: 'Return to Bangalore by evening',
             },
           ],
         },
@@ -993,7 +990,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Evening Dashashwamedh Aarti',
-              subPoints: ['Orientation walk'],
+              description: 'Orientation walk',
             },
           ],
         },
@@ -1003,7 +1000,7 @@ async function bootstrap() {
           points: [
             {
               text: '5:00 AM sunrise boat ride',
-              subPoints: ['Sarnath excursion afternoon'],
+              description: 'Sarnath excursion afternoon',
             },
           ],
         },
@@ -1011,7 +1008,7 @@ async function bootstrap() {
           dayNumber: 3,
           title: 'Old City Walk & Bazaar',
           points: [
-            { text: 'Vishwanath Gali', subPoints: ['Banaras chaat lunch'] },
+            { text: 'Vishwanath Gali', description: 'Banaras chaat lunch' },
           ],
         },
         {
@@ -1020,7 +1017,7 @@ async function bootstrap() {
           points: [
             {
               text: 'Ghat-side yoga session',
-              subPoints: ['Transfer to airport'],
+              description: 'Transfer to airport',
             },
           ],
         },

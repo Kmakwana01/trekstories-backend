@@ -1,6 +1,6 @@
 export declare class ItineraryPointDto {
     text: string;
-    subPoints?: string[];
+    description?: string;
 }
 export declare class ItineraryDayDto {
     dayNumber: number;

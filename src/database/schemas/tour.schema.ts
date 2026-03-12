@@ -10,8 +10,8 @@ class ItineraryPoint {
   @Prop({ required: true })
   text: string;
 
-  @Prop([String])
-  subPoints: string[];
+  @Prop()
+  description: string;
 }
 const ItineraryPointSchema = SchemaFactory.createForClass(ItineraryPoint);
 
