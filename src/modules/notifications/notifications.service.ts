@@ -20,7 +20,7 @@ export class NotificationsService {
     private notificationModel: Model<NotificationDocument>,
     @InjectQueue('email') private emailQueue: Queue,
     @InjectQueue('whatsapp') private whatsappQueue: Queue,
-  ) {}
+  ) { }
 
   async createNotification(
     userId: string,
@@ -97,6 +97,7 @@ export class NotificationsService {
     message: string,
     template?: string,
     context?: any,
+    language?: string,
   ) {
     this.logger.log(`Enqueuing WhatsApp to: ${phone}`);
     await this.whatsappQueue.add('send-whatsapp', {
@@ -104,6 +105,7 @@ export class NotificationsService {
       message,
       template,
       context,
+      language,
     });
   }
 }

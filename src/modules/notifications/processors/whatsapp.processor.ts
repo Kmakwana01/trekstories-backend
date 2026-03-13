@@ -8,19 +8,21 @@ import { SettingsService } from '../../settings/settings.service';
 export class WhatsAppProcessor {
   private readonly logger = new Logger(WhatsAppProcessor.name);
 
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(private readonly settingsService: SettingsService) { }
 
   @Process('send-whatsapp')
   async handleSendWhatsApp(job: Job) {
-    const { phone, message, template, context } = job.data;
+    const { phone, message, template, context, language } = job.data;
     this.logger.log(`Processing WhatsApp job to: ${phone}`);
 
-    try {
+    try
+    {
       const settings = await this.settingsService.getSettings();
 
       // Prefer settings from DB, fallback to env
       const isEnabled = settings.otherSettings?.whatsappEnabled;
-      if (!isEnabled && process.env.WHATSAPP_PROVIDER !== 'meta') {
+      if (!isEnabled && process.env.WHATSAPP_PROVIDER !== 'meta')
+      {
         this.logger.log(
           `[MOCK WHATSAPP] To: ${phone}, Message: ${message}, Template: ${template}`,
         );
@@ -33,9 +35,10 @@ export class WhatsAppProcessor {
       const token =
         settings.otherSettings?.whatsappAccessToken ||
         process.env.WHATSAPP_ACCESS_TOKEN;
-      const version = process.env.WHATSAPP_API_VERSION || 'v19.0';
+      const version = process.env.WHATSAPP_API_VERSION || 'v22.0';
 
-      if (!phoneNumberId || !token) {
+      if (!phoneNumberId || !token)
+      {
         this.logger.error(
           'WhatsApp credentials missing (Phone Number ID or Access Token).',
         );
@@ -51,31 +54,39 @@ export class WhatsAppProcessor {
       };
 
       // Check if template is provided, else fallback to simple text message if message is provided
-      if (template) {
+      if (template)
+      {
         payload.type = 'template';
         payload.template = {
           name: template,
-          language: { code: 'en' },
-          components: context || [],
+          language: { code: language || 'en_US' },
         };
-      } else if (message) {
+        // Only add components if there is actual context provided
+        if (context && context.length > 0)
+        {
+          payload.template.components = context;
+        }
+      } else if (message)
+      {
         payload.type = 'text';
         payload.text = { body: message };
       }
 
       const url = `https://graph.facebook.com/${version}/${phoneNumberId}/messages`;
 
+      this.logger.log(`Sending WhatsApp to ${url} with payload: ${JSON.stringify(payload)}`);
+
       await axios.post(url, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       this.logger.log(`Successfully sent WhatsApp message to ${phone}`);
-    } catch (error: any) {
+    } catch (error: any)
+    {
+      const errorData = error.response?.data;
       this.logger.error(
-        `Failed to send WhatsApp message to ${phone}: ${error.response?.data?.error?.message || error.message}`,
+        `Failed to send WhatsApp message to ${phone}: ${JSON.stringify(errorData || error.message)}`,
       );
-      // We do not rethrow to avoid crashing the job loop continuously for bad numbers
-      // In a production app, we might handle retries or dead-letter queues.
     }
   }
 }

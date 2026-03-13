@@ -12,11 +12,12 @@ import { NotificationType } from '../../common/enums/notification-type.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class AdminNotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
   @Post('email')
   async sendBulkEmail(@Body() dto: BulkEmailDto) {
-    for (const email of dto.emails) {
+    for (const email of dto.emails)
+    {
       // Always merge dto.message into templateData so {{message}} is available
       // in the general.hbs template even when custom templateData is supplied
       const context = {
@@ -36,7 +37,8 @@ export class AdminNotificationsController {
 
   @Post('whatsapp')
   async sendBulkWhatsApp(@Body() dto: BulkWhatsAppDto) {
-    for (const phone of dto.phones) {
+    for (const phone of dto.phones)
+    {
       await this.notificationsService.sendWhatsApp(
         phone,
         dto.message,
@@ -47,5 +49,11 @@ export class AdminNotificationsController {
     return {
       message: `Queued WhatsApp messages for ${dto.phones.length} users`,
     };
+  }
+
+  @Post('test-whatsapp')
+  async testWhatsApp(@Body() dto: { phone: string; message: string }) {
+    await this.notificationsService.sendWhatsApp(dto.phone, dto.message);
+    return { message: `Test WhatsApp message queued for ${dto.phone}` };
   }
 }

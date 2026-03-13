@@ -17,7 +17,7 @@ export class AdminCrmService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     private adminLogService: AdminLogService,
-  ) {}
+  ) { }
 
   async getAllUsers(filters: any, paginationQuery: any) {
     const query: any = { role: Role.CUSTOMER };
@@ -25,7 +25,8 @@ export class AdminCrmService {
       query.isVerified = filters.isVerified === 'true';
     if (filters.isBlocked !== undefined)
       query.isBlocked = filters.isBlocked === 'true';
-    if (filters.search) {
+    if (filters.search)
+    {
       query.$or = [
         { name: new RegExp(filters.search, 'i') },
         { email: new RegExp(filters.search, 'i') },
@@ -60,10 +61,10 @@ export class AdminCrmService {
     // Populate Address fallback
     user.address = user.contactAddress
       ? {
-          street: user.contactAddress,
-          city: user.country || 'Unknown',
-          country: user.country || 'Unknown',
-        }
+        street: user.contactAddress,
+        city: user.country || 'Unknown',
+        country: user.country || 'Unknown',
+      }
       : null;
     user.bookings = bookings;
 
@@ -71,7 +72,8 @@ export class AdminCrmService {
     if (
       user.internalNotes &&
       (!user.adminNotes || user.adminNotes.length === 0)
-    ) {
+    )
+    {
       user.adminNotes = [
         { note: user.internalNotes, createdAt: user.updatedAt },
       ];

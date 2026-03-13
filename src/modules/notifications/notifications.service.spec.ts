@@ -143,4 +143,14 @@ describe('NotificationsService', () => {
       context: { otp: '123456', message: '', year: new Date().getFullYear() },
     });
   });
+
+  it('should send whatsapp to queue', async () => {
+    await service.sendWhatsApp('919876543210', 'Test Message');
+    expect(whatsappQueue.add).toHaveBeenCalledWith('send-whatsapp', {
+      phone: '919876543210',
+      message: 'Test Message',
+      template: undefined,
+      context: undefined,
+    });
+  });
 });

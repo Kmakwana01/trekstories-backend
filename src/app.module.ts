@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { AdminIpMiddleware } from './common/middleware/admin-ip.middleware';
@@ -132,6 +132,6 @@ import { CustomToursModule } from './modules/custom-tours/custom-tours.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-    consumer.apply(AdminIpMiddleware).forRoutes('api/admin/(.*)');
+    consumer.apply(AdminIpMiddleware).forRoutes('*');
   }
 }

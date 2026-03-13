@@ -25,13 +25,14 @@ export class CouponsService {
   constructor(
     @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
-  ) {}
+  ) { }
 
   async create(createCouponDto: CreateCouponDto): Promise<Coupon> {
     const existing = await this.couponModel
       .findOne({ code: createCouponDto.code.toUpperCase() })
       .exec();
-    if (existing) {
+    if (existing)
+    {
       throw new ConflictException('Coupon code already exists');
     }
 
@@ -52,7 +53,8 @@ export class CouponsService {
 
   async findOne(id: string): Promise<Coupon> {
     const coupon = await this.couponModel.findById(id).exec();
-    if (!coupon) {
+    if (!coupon)
+    {
       throw new NotFoundException('Coupon not found');
     }
     return coupon;
@@ -60,18 +62,21 @@ export class CouponsService {
 
   async update(id: string, updateCouponDto: UpdateCouponDto): Promise<Coupon> {
     const updateData: any = { ...updateCouponDto };
-    if (updateData.code) {
+    if (updateData.code)
+    {
       updateData.code = updateData.code.toUpperCase();
     }
 
-    if (updateData.expiryDate) {
+    if (updateData.expiryDate)
+    {
       updateData.expiryDate = DateUtil.parseISTToUTC(updateData.expiryDate);
     }
 
     const coupon = await this.couponModel
       .findByIdAndUpdate(id, updateData, { returnDocument: 'after' })
       .exec();
-    if (!coupon) {
+    if (!coupon)
+    {
       throw new NotFoundException('Coupon not found');
     }
     return coupon;
@@ -79,7 +84,8 @@ export class CouponsService {
 
   async remove(id: string): Promise<void> {
     const result = await this.couponModel.findByIdAndDelete(id).exec();
-    if (!result) {
+    if (!result)
+    {
       throw new NotFoundException('Coupon not found');
     }
   }
@@ -94,43 +100,51 @@ export class CouponsService {
       .findOne({ code: code.toUpperCase(), isActive: true })
       .exec();
 
-    if (!coupon) {
+    if (!coupon)
+    {
       throw new BadRequestException('Invalid or inactive coupon code');
     }
 
     const now = DateUtil.nowUTC();
-    if (coupon.expiryDate && coupon.expiryDate < now) {
+    if (coupon.expiryDate && coupon.expiryDate < now)
+    {
       throw new BadRequestException('Coupon has expired');
     }
 
-    if (coupon.maxUsage !== undefined && coupon.usedCount >= coupon.maxUsage) {
+    if (coupon.maxUsage !== undefined && coupon.usedCount >= coupon.maxUsage)
+    {
       throw new BadRequestException('Coupon usage limit reached');
     }
 
-    if (coupon.minOrderAmount && orderAmount < coupon.minOrderAmount) {
+    if (coupon.minOrderAmount && orderAmount < coupon.minOrderAmount)
+    {
       throw new BadRequestException(
         `Minimum order amount for this coupon is ${coupon.minOrderAmount}`,
       );
     }
 
-    if (coupon.applicableTours && coupon.applicableTours.length > 0) {
+    if (coupon.applicableTours && coupon.applicableTours.length > 0)
+    {
       const isApplicable = coupon.applicableTours.some(
         (t) => t.toString() === tourId,
       );
-      if (!isApplicable) {
+      if (!isApplicable)
+      {
         throw new BadRequestException('Coupon is not applicable for this tour');
       }
     }
 
     // Check per-user usage
-    if (coupon.maxUsagePerUser && userId) {
+    if (coupon.maxUsagePerUser && userId)
+    {
       const userUsageCount = await this.bookingModel.countDocuments({
         user: userId as any,
         couponCode: code.toUpperCase(),
         status: { $ne: BookingStatus.CANCELLED },
       });
 
-      if (userUsageCount >= coupon.maxUsagePerUser) {
+      if (userUsageCount >= coupon.maxUsagePerUser)
+      {
         throw new BadRequestException(
           'You have already reached the maximum usage limit for this coupon',
         );
@@ -139,12 +153,15 @@ export class CouponsService {
 
     // Calculate discount
     let discountAmount = 0;
-    if (coupon.discountType === CouponType.PERCENT) {
+    if (coupon.discountType === CouponType.PERCENT)
+    {
       discountAmount = (orderAmount * coupon.discountValue) / 100;
-      if (coupon.maxDiscountAmount) {
+      if (coupon.maxDiscountAmount)
+      {
         discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
       }
-    } else {
+    } else
+    {
       discountAmount = Math.min(coupon.discountValue, orderAmount);
     }
 
@@ -187,6 +204,7 @@ export class CouponsService {
       this.bookingModel,
       { couponCode: coupon.code, status: { $ne: BookingStatus.CANCELLED } },
       pagination,
+      ['user', 'tour'],
     );
   }
 }
