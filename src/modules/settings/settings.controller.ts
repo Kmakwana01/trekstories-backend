@@ -33,11 +33,35 @@ export class SettingsController {
     private readonly imageUploadService: ImageUploadService,
   ) { }
 
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get full settings data (Admin only)' })
+  async getAdminSettings() {
+    return this.settingsService.getSettings();
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get global website settings' })
   @ApiResponse({ status: 200, description: 'Return settings data' })
   async getSettings() {
-    return this.settingsService.getSettings();
+    const settings = await this.settingsService.getSettings();
+
+    // Deep clone to avoid modifying the original if it's cached or direct reference
+    // and remove sensitive credentials from public response
+    const settingsObj = (settings as any).toObject ? (settings as any).toObject() : JSON.parse(JSON.stringify(settings));
+
+    if (settingsObj.otherSettings)
+    {
+      delete settingsObj.otherSettings.whatsappAccessToken;
+      delete settingsObj.otherSettings.whatsappPhoneNumberId;
+    }
+
+    // Also remove internal admin-only fields
+    delete settingsObj.adminIpWhitelist;
+
+    return settingsObj;
   }
 
   @Get('policies')

@@ -30,8 +30,18 @@ let SettingsController = class SettingsController {
         this.settingsService = settingsService;
         this.imageUploadService = imageUploadService;
     }
-    async getSettings() {
+    async getAdminSettings() {
         return this.settingsService.getSettings();
+    }
+    async getSettings() {
+        const settings = await this.settingsService.getSettings();
+        const settingsObj = settings.toObject ? settings.toObject() : JSON.parse(JSON.stringify(settings));
+        if (settingsObj.otherSettings) {
+            delete settingsObj.otherSettings.whatsappAccessToken;
+            delete settingsObj.otherSettings.whatsappPhoneNumberId;
+        }
+        delete settingsObj.adminIpWhitelist;
+        return settingsObj;
     }
     async getPolicies() {
         const settings = await this.settingsService.getSettings();
@@ -50,6 +60,16 @@ let SettingsController = class SettingsController {
     }
 };
 exports.SettingsController = SettingsController;
+__decorate([
+    (0, common_1.Get)('admin'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.Role.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get full settings data (Admin only)' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "getAdminSettings", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get global website settings' }),
