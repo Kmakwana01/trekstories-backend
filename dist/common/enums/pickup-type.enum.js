@@ -8,5 +8,6 @@ var PickupType;
     PickupType["BOTH_SIDE_FLIGHT"] = "BOTH_SIDE_FLIGHT";
     PickupType["ONE_SIDE_FLIGHT"] = "ONE_SIDE_FLIGHT";
     PickupType["LAND_PACKAGE"] = "LAND_PACKAGE";
+    PickupType["LUXURY_BUS"] = "LUXURY_BUS";
 })(PickupType || (exports.PickupType = PickupType = {}));
 //# sourceMappingURL=pickup-type.enum.js.map
