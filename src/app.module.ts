@@ -106,7 +106,7 @@ import { CustomToursModule } from './modules/custom-tours/custom-tours.module';
           },
         },
         defaults: {
-          from: '"Travel App" <noreply@travelapp.com>',
+          from: '"TrekStories" <noreply@travelapp.com>',
         },
         template: {
           dir: join(__dirname, 'modules/notifications/templates'),

@@ -34,7 +34,7 @@ async function bootstrap() {
     });
     app.setGlobalPrefix('api');
     const config = new swagger_1.DocumentBuilder()
-        .setTitle('Travel App API')
+        .setTitle('TrekStories API')
         .setDescription('Travel Booking Platform API documentation')
         .setVersion('1.0')
         .addBearerAuth()

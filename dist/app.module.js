@@ -156,7 +156,7 @@ exports.AppModule = AppModule = __decorate([
                         },
                     },
                     defaults: {
-                        from: '"Travel App" <noreply@travelapp.com>',
+                        from: '"TrekStories" <noreply@travelapp.com>',
                     },
                     template: {
                         dir: (0, path_1.join)(__dirname, 'modules/notifications/templates'),
